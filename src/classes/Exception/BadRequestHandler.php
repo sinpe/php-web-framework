@@ -10,6 +10,8 @@
 
 namespace Sinpe\Framework\Exception;
 
+use Psr\Http\Message\ResponseInterface;
+
 /**
  * Handler for 400.
  * 

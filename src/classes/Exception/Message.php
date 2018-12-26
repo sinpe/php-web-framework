@@ -31,13 +31,13 @@ class Message extends \RuntimeException
      * @param string $message
      * @param mixed $code
      * @param mixed $previous
-     * @param array $data
+     * @param mixed $data
      */
     public function __construct(
         string $message,
         $code = null,
         $previous = null,
-        array $data = []
+        $data = []
     ) {
         $this->setRequestAndResponse(func_get_args());
 
