@@ -1,4 +1,4 @@
-# A [Slim][slim] framwork
+# A [Slim][slim] Framwork
 
 ## Installation
 

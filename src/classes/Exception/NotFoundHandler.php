@@ -39,6 +39,25 @@ class NotFoundHandler extends BadRequestHandler
     }
 
     /**
+     * Create message
+     *
+     * @return array
+     */
+    protected function getContentOfHandler()
+    {
+        $error = [
+            'code' => $this->thrown->getCode(),
+            'message' => $this->thrown->getMessage(),
+            'data' => [
+                'host' => $this->request->getUri()->getHost(),
+                'path' => $this->request->getUri()->getPath()
+            ]
+        ];
+
+        return new DataObject($error);
+    }
+
+    /**
      * Handler procedure.
      *
      * @return string

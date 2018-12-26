@@ -509,13 +509,10 @@ class Application
             $route = $router->lookupRoute($routeInfo[1]);
             return $route->run($request, $response);
         } elseif ($routeInfo[0] === Dispatcher::METHOD_NOT_ALLOWED) {
-            throw new MethodNotAllowed(
-                $routeInfo[1],
-                ['request' => $request, 'response' => $response]
-            );
+            throw new MethodNotAllowed($routeInfo[1], $request, $response);
         }
 
-        throw new NotFound(['request' => $request, 'response' => $response]);
+        throw new NotFound($request, $response);
     }
 
     /**

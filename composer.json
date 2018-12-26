@@ -1,6 +1,6 @@
 {
     "name": "long/framework",
-    "description": "A Slim framwork",
+    "description": "A Slim Framwork",
     "keywords": ["slim", "framework", "sinpe", "router", "psr", "middleware"],
     "homepage": "https://github.com/sinpe/php-web-framework",
     "type": "library",
