@@ -12,6 +12,8 @@ namespace Sinpe\Framework;
 
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\RequestHandlerInterface;
+
 use Sinpe\Framework\DataObject;
 use Sinpe\Framework\Http\Body;
 use Sinpe\Framework\Renderer\Json as JsonRenderer;
@@ -24,7 +26,7 @@ use Sinpe\Framework\Renderer\Xml as XmlRenderer;
  * @package Sinpe\Framework
  * @since   1.0.0
  */
-abstract class Handler implements HandlerInterface
+abstract class Handler implements RequestHandlerInterface
 {
     const CONTENT_TYPE_JSON = 'application/json';
     const CONTENT_TYPE_HTML = 'text/html';
@@ -102,10 +104,8 @@ abstract class Handler implements HandlerInterface
      * @return ResponseInterface
      * @throws UnexpectedValueException
      */
-    final public function handle(
-        ServerRequestInterface $request,
-        ResponseInterface $response
-    ) : ResponseInterface {
+    final public function handle(ServerRequestInterface $request) : ResponseInterface 
+    {
 
         $this->request = $request;
 

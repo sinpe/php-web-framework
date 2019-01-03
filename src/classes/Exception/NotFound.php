@@ -24,9 +24,9 @@ class NotFound extends BadRequest
     /**
      * __construct
      */
-    public function __construct(ServerRequestInterface $request, ResponseInterface $response) 
+    public function __construct(ServerRequestInterface $request) 
     {        
-        parent::__construct('Not found', -404, $request, $response);
+        parent::__construct('Not found', -404, $request);
     }
 
 }

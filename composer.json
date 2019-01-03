@@ -13,8 +13,6 @@
         "php": ">=7.1.3",
         "psr/http-message": "^1.0",
         "illuminate/support": "^5.6",
-        "long/support": "@dev",
-	    "long/middleware": "@dev",
         "long/route": "dev-master",
         "psr/log": "^1.0",
         "long/container": "dev-master"
