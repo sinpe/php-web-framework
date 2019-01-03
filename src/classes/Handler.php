@@ -12,7 +12,7 @@ namespace Sinpe\Framework;
 
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\RequestHandlerInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 
 use Sinpe\Framework\DataObject;
 use Sinpe\Framework\Http\Body;

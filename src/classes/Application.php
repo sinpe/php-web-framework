@@ -25,9 +25,8 @@ use Sinpe\Framework\Http\Request;
 use Sinpe\Framework\Http\EnvironmentInterface;
 use Sinpe\Framework\SettingInterface;
 use Sinpe\Middleware\CallableDeferred;
-use Sinpe\Route\GroupInterface;
 use Sinpe\Route\RouteInterface;
-use Sinpe\Route\RouterInterface;
+use Sinpe\Route\MiddlewareAwareTrait;
 
 /**
  * This is the primary class with which you instantiate,
@@ -292,13 +291,12 @@ class Application
      * @param string   $pattern
      * @param callable $callable
      *
-     * @return GroupInterface
+     * @return RouteGroupInterface
      */
     public function group($pattern, $callable)
     {
         $router = $this->container->get('router');
 
-        /** @var Route\Group $group */
         $group = $router->pushGroup($pattern, $callable);
 
         $group();

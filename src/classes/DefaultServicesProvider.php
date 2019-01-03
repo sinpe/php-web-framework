@@ -12,12 +12,12 @@ namespace Sinpe\Framework;
 
 use Psr\Container\ContainerInterface;
 use Sinpe\Container\ProviderInterface;
-use Sinpe\Middleware\CallableResolver;
+use Sinpe\Framework\CallableResolver;
 use Sinpe\Framework\Setting;
 use Sinpe\Framework\SettingInterface;
 use Sinpe\Route\Router;
 use Sinpe\Route\RouterInterface;
-use Sinpe\Route\Strategies\Autowiring;
+use Sinpe\Route\StrategyAutowiring;
 
 /**
  * Default Service Provider.
@@ -61,38 +61,16 @@ class DefaultServicesProvider implements ProviderInterface
                     $routerCacheFile = $setting->routerCacheFile;
                 }
 
-                $router = (new Router($container))->setCacheFile($routerCacheFile);
+                $router = (new Router())->setCacheFile($routerCacheFile);
+
+                $router->setResolver(new CallableResolver($container));
+                $router->setStrategy(new StrategyAutowiring($container));
 
                 return $router;
             };
 
             $container[Router::class] = 'router';
             $container[RouterInterface::class] = 'router';
-        }
-
-        if (!isset($container['foundHandler'])) {
-            /**
-             * This service MUST return a SHARED instance
-             * of \Sinpe\Route\InvocationInterface.
-             *
-             * @return InvocationInterface
-             */
-            $container['foundHandler'] = function ($container) {
-                return new Autowiring($container);
-            };
-        }
-
-        if (!isset($container['callableResolver'])) {
-            /**
-             * Instance of \Sinpe\Middleware\CallableResolverInterface
-             *
-             * @param Container $container
-             *
-             * @return \Sinpe\Middleware\CallableResolverInterface
-             */
-            $container['callableResolver'] = function ($container) {
-                return new CallableResolver($container);
-            };
         }
     }
 }
