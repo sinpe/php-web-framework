@@ -11,6 +11,7 @@
 namespace Sinpe\Framework\Exception;
 
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 
 /**
  * Handler for 400.
@@ -25,11 +26,14 @@ class BadRequestHandler extends MessageHandler
      *
      * @return string
      */
-    protected function process(ResponseInterface &$response)
-    {
+    protected function process(
+        ServerRequestInterface $request, 
+        ResponseInterface $response
+    ) : ResponseInterface {
+        
         $response = $response->withStatus(400);
 
-        return $this->rendererProcess($response);
+        return $this->rendererProcess($request, $response);
     }
 
 }

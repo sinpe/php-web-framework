@@ -48,7 +48,7 @@ trait AllTrait
         $code=null, 
         $previous=null
     ) {
-        $this->setRequestAndResponse(func_get_args());
+        $this->setRequest(func_get_args());
 
         if (!is_int($code)) {
             if (!$code instanceof \Throwable) {
@@ -68,22 +68,12 @@ trait AllTrait
      * @param [type] $args
      * @return void
      */
-    protected function setRequestAndResponse($args)
+    protected function setRequest($args)
     {
-        $r = array_pop($args);
-
-        if ($r instanceof ResponseInterface) {
-            $this->response = $r;
-        } elseif ($r instanceof ServerRequestInterface) {
-            $this->request = $r;
-        }
-
         $r = array_pop($args);
 
         if ($r instanceof ServerRequestInterface) {
             $this->request = $r;
-        } elseif ($r instanceof ResponseInterface) {
-            $this->response = $r;
         }
     }
 
@@ -94,7 +84,7 @@ trait AllTrait
      */
     public function __get($name)
     {
-        if (in_array($name, ['request', 'response'])) {
+        if (in_array($name, ['request'])) {
             return $this->{$name};
         }
 

@@ -11,6 +11,7 @@
 namespace Sinpe\Framework\Exception;
 
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use Sinpe\Framework\DataObject;
 
 /**
@@ -22,6 +23,11 @@ use Sinpe\Framework\DataObject;
 class NotFoundHandler extends BadRequestHandler
 {
     /**
+     * @var ServerRequestInterface
+     */
+    private $request;
+
+    /**
      * Initliazation after construction.
      *
      * @return void
@@ -29,11 +35,12 @@ class NotFoundHandler extends BadRequestHandler
     public function __init()
     {
         $this->registerRenderers([
-            static::CONTENT_TYPE_HTML => function($request, &$response) {
+            static::CONTENT_TYPE_HTML => function($request, $response) {
                 $renderer = new NotFoundHtmlRenderer();
                 $renderer->setHomeUrl((string)($request->getUri()->withPath('')->withQuery('')->withFragment('')));
-                $response = $renderer->process(new DataObject($this->getRendererContext($response)));
-                return $renderer->getOutput();
+                $response = $renderer->process(new DataObject($this->getRendererContext($request, $response)));
+                $this->content = $renderer->getOutput();
+                return $response
             }
         ]);
     }
@@ -62,19 +69,16 @@ class NotFoundHandler extends BadRequestHandler
      *
      * @return string
      */
-    protected function process(ResponseInterface &$response)
-    {
-        if ($this->request->getMethod() === 'OPTIONS') {
-            $contentType = 'text/plain';
-            $output = '';
-        } else {
-            $contentType = $this->determineContentType();
-            $output = $this->rendererProcess($response);
-        }
+    protected function process(
+        ServerRequestInterface $request, 
+        ResponseInterface $response
+    ) : ResponseInterface {
+        
+        $this->request = $request;
 
         $response = $response->withStatus(404);
 
-        return $output;
+        return $this->rendererProcess($request, $response);
     }
 
 }

@@ -11,6 +11,7 @@
 namespace Sinpe\Framework\Exception;
 
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 
 /**
  * Handler for 405.
@@ -37,20 +38,15 @@ class MethodNotAllowedHandler extends BadRequestHandler
      *
      * @return string
      */
-    protected function process(ResponseInterface &$response)
-    {
-        if ($this->request->getMethod() === 'OPTIONS') {
-            $contentType = 'text/plain';
-            $output = '';
-        } else {
-            $contentType = $this->determineContentType();
-            $output = $this->rendererProcess($response);
-        }
-
+    protected function process(
+        ServerRequestInterface $request, 
+        ResponseInterface $response
+    ) : ResponseInterface {
+        
         $response = $response->withStatus(405)
             ->withHeader('Allow', implode(', ', $this->thrown->getAllowedMethods()));
 
-        return $output;
+        return $this->rendererProcess($request, $response);
     }
 
 }

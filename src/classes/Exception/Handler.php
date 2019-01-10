@@ -12,7 +12,7 @@ namespace Sinpe\Framework\Exception;
 
 use Psr\Http\Message\ResponseInterface;
 use Sinpe\Framework\DataObject;
-use Sinpe\Framework\Handler as Base;
+use Sinpe\Framework\ContentHandler as Base;
 
 /**
  * Exception handler base class.
@@ -53,6 +53,8 @@ abstract class Handler extends Base
     /**
      * Create the renderer context.
      *
+     * @param ResponseInterface $response PSR-7 Response object
+     * 
      * @return array
      */
     protected function getRendererContext(ResponseInterface $response)

@@ -12,6 +12,7 @@ namespace Sinpe\Framework\Exception;
 
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use Sinpe\Framework\DataObject;
 use Sinpe\Framework\SettingInterface;
 
@@ -113,7 +114,7 @@ class ExceptionHandler extends Handler
      */
     private function createCdataSection($content)
     {
-        if (in_array($this->determineContentType(), [
+        if (in_array($this->getContentType(), [
             static::CONTENT_TYPE_XML1,
             static::CONTENT_TYPE_XML2
         ])) {
@@ -166,8 +167,10 @@ class ExceptionHandler extends Handler
      *
      * @return string
      */
-    protected function process(ResponseInterface &$response)
-    {
+    protected function process(
+        ServerRequestInterface $request, 
+        ResponseInterface $response
+    ) : ResponseInterface {
         // Write to the error log if displayErrorDetails is false
         if (!$this->setting->displayErrorDetails) {
             $this->writeToErrorLog();
@@ -175,12 +178,14 @@ class ExceptionHandler extends Handler
 
         $response = $response->withStatus(500);
 
-        return $this->rendererProcess($response);
+        return $this->rendererProcess($request, $response);
     }
 
     /**
      * Create the renderer context.
      *
+     * @param ResponseInterface $response PSR-7 Response object
+     * 
      * @return array
      */
     protected function getRendererContext(ResponseInterface $response)

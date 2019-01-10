@@ -39,7 +39,7 @@ class Message extends \RuntimeException
         $previous = null,
         $data = []
     ) {
-        $this->setRequestAndResponse(func_get_args());
+        $this->setRequest(func_get_args());
 
         if (!is_int($code)) {
             if (!$code instanceof \Throwable) {

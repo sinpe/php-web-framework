@@ -10,11 +10,9 @@
 
 namespace Sinpe\Framework;
 
-use FastRoute\Dispatcher;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
-use Sinpe\Container\ContainerAwareTrait;
 use Sinpe\Framework\Exception\Exception as FrameworkException;
 use Sinpe\Framework\Exception\Message as FrameworkMessage;
 use Sinpe\Framework\Http\Response;
@@ -24,9 +22,7 @@ use Sinpe\Framework\Http\Body;
 use Sinpe\Framework\Http\Request;
 use Sinpe\Framework\Http\EnvironmentInterface;
 use Sinpe\Framework\SettingInterface;
-use Sinpe\Middleware\CallableDeferred;
 use Sinpe\Route\RouteInterface;
-use Sinpe\Route\MiddlewareAwareTrait;
 
 /**
  * This is the primary class with which you instantiate,
@@ -37,7 +33,10 @@ use Sinpe\Route\MiddlewareAwareTrait;
  */
 class Application
 {
-    use MiddlewareAwareTrait;
+    /**
+     * @var array
+     */
+    protected $middlewares = [];
 
     /**
      * ContainerInterface
@@ -64,27 +63,22 @@ class Application
      * __construct
      *
      * @param EnvironmentInterface $environment
-     * @param ServerRequestInterface $request PSR-7 Request object
-     * @param ResponseInterface $response PSR-7 Response object
      * 
      * @throws \InvalidArgumentException when no container is provided that implements ContainerInterface
      */
-    final public function __construct(
-        EnvironmentInterface $environment,
-        ServerRequestInterface $request
-    ) {
+    final public function __construct(EnvironmentInterface $environment) 
+    {
 
         $container = $this->generateContainer();
 
         // set_exception_handler(
-        //     function ($e) use ($request, $response) {
-        //         $response = $this->handleThrowable($e, $request, $response);
+        //     function ($e) use ($request) {
+        //         $response = $this->handleThrowable($e, $request);
         //         $this->end($response);
         //     }
         // );
 
         $this->environment = $environment;
-        $this->request = $request;
         $this->container = $container;
 
         // 生命周期函数__init
@@ -133,18 +127,6 @@ class Application
     protected function generateContainer() : ContainerInterface
     {
         return new Container();
-    }
-
-    /**
-     * 添加中间件，调度时间点分在application的invoke之前或之后
-     *
-     * @param  callable|string    $callable The callback routine
-     *
-     * @return static
-     */
-    public function middleware($callable)
-    {
-        // TODO return $this->middleware(new CallableDeferred($callable, $this->container));
     }
 
     /**
@@ -299,7 +281,7 @@ class Application
 
         $group = $router->pushGroup($pattern, $callable);
 
-        $group();
+        $group->run();
 
         $router->popGroup();
 
@@ -307,52 +289,14 @@ class Application
     }
 
     /**
-     * {@inheritdoc}
+     * 中间件
      */
-    public function handle(ServerRequestInterface $request) : ResponseInterface
+    public function middleware($middleware)
     {
-        $middleware = $this->shiftMiddleware();
-
-        if ($middleware) {
-            if ($middleware instanceof MiddlewareInterface) {
-                return $middleware->process($request, $this);
-            } else {
-                // Clousure
-                return $middleware($request, $this);
-            }
-        } else {
-
-            // Ensure basePath is set
-            $router = $this->container->get('router');
-
-            if (is_callable([$request->getUri(), 'getBasePath']) && is_callable([$router, 'setBasePath'])) {
-                $router->setBasePath($request->getUri()->getBasePath());
-            }
-
-            $routeInfo = $router->dispatch($request);
-
-            if ($routeInfo[0] === Dispatcher::FOUND) {
-                
-                $routeArguments = [];
-
-                foreach ($routeInfo[2] as $k => $v) {
-                    $routeArguments[$k] = urldecode($v);
-                }
-
-                $route = $routeInfo[1];
-
-                $route->prepare($request, $routeArguments);
-
-                return $route->run($request);
-
-            } elseif ($routeInfo[0] === Dispatcher::METHOD_NOT_ALLOWED) {
-                throw new MethodNotAllowed($routeInfo[1], $request);
-            } 
-            
-            throw new NotFound($request);
-        }
-
+        $this->middlewares[] = $middleware;
+        return $this;
     }
+
 
     /**
      * Run application
@@ -369,15 +313,19 @@ class Application
      */
     public function run($silent = false)
     {
-        $request = $this->request;
+        $request = Request::createFromEnvironment($this->environment);
 
         try {
             ob_start();
-
             // Traverse middleware stack
             try {
-                $response = $this->handle($request);
+                $handler = new ApplicationHandler($this->container->get('router'));
+                
+                $handler->middlewares(array_reverse($this->middlewares));
+                // normal
+                $response = $handler->handle($request);
             } catch (\Throwable $e) {
+                // error
                 $response = $this->handleThrowable($e, $request);
             }
 
@@ -499,10 +447,9 @@ class Application
         $query = '',
         array $headers = [],
         array $cookies = [],
-        $bodyContent = '',
-        ResponseInterface $response = null
+        $bodyContent = ''
     ) {
-        $env = $this->container->get('environment');
+        $env = $this->environment;
         $uri = Uri::createFromEnvironment($env)->withPath($path)->withQuery($query);
         $headers = new Headers($headers);
         $serverParams = $env->all();
@@ -573,7 +520,6 @@ class Application
      *
      * @param  \Throwable $e
      * @param  ServerRequestInterface $request
-     * @param  ResponseInterface $response
      *
      * @return ResponseInterface
      * @throws Exception if a handler is needed and not found
@@ -588,7 +534,7 @@ class Application
             // 
             if ($ex instanceof $targetClass) {
 
-                $handler = $this->container->make($handlerClass);
+                $handler = $this->container->make($handlerClass); 
 
                 $handler->setThrowable($ex);
 
