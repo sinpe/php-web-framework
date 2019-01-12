@@ -19,14 +19,14 @@ use Psr\Http\Message\ResponseInterface;
  * @package Sinpe\Framework
  * @since   1.0.0
  */
-class NotFound extends BadRequest
+class PageNotFound extends BadRequest
 {
     /**
      * __construct
      */
     public function __construct(ServerRequestInterface $request) 
     {        
-        parent::__construct('Not found', -404, $request);
+        parent::__construct('Page not found', -404, $request);
     }
 
 }

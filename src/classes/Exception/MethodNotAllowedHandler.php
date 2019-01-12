@@ -49,4 +49,22 @@ class MethodNotAllowedHandler extends BadRequestHandler
         return $this->rendererProcess($request, $response);
     }
 
+    /**
+     * Create the variable will be rendered.
+     *
+     * @return []
+     */
+    protected function getRendererOutput()
+    {
+        $error = [
+            'code' => $this->thrown->getCode(),
+            'message' => $this->thrown->getMessage(),
+            'data' => [
+                'allowed' => implode(', ', $this->thrown->getAllowedMethods())
+            ]
+        ];
+
+        return $error;
+    }
+
 }

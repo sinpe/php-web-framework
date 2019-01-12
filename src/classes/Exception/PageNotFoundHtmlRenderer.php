@@ -12,7 +12,7 @@ namespace Sinpe\Framework\Exception;
 
 use Psr\Http\Message\ResponseInterface;
 use Sinpe\Framework\DataObject;
-use Sinpe\Framework\Renderer;
+use Sinpe\Framework\RendererInterface;
 
 /**
  * The HTML renderer for route not found exception.
@@ -20,35 +20,19 @@ use Sinpe\Framework\Renderer;
  * @package Sinpe\Framework
  * @since   1.0.0
  */
-class NotFoundHtmlRenderer extends Renderer
+class PageNotFoundHtmlRenderer implements RendererInterface
 {
     /**
-     * @var string
-     */
-    private $homeUrl;
-
-    /**
-     * Set home url.
+     * Process a handler output and return the result.
      *
-     * @param string $homeUrl
-     * @return void
+     * @return string
      */
-    public function setHomeUrl(string $homeUrl)
+    public function process(DataObject $output)
     {
-        $this->homeUrl = $homeUrl;
-    }
-
-    /**
-     * Process a handler context and assign result to "output" property.
-     *
-     * @return ResponseInterface
-     */
-    public function process(DataObject $context) : ResponseInterface
-    {
-        $this->output = <<<END
+        return <<<END
 <html>
     <head>
-        <title>Page Not Found</title>
+        <title>{$output->message}</title>
         <style>
             body{
                 margin:0;
@@ -68,18 +52,17 @@ class NotFoundHtmlRenderer extends Renderer
         </style>
     </head>
     <body>
-        <h1>Page Not Found</h1>
+        <h1>{$output->message}</h1>
         <p>
             The page you are looking for could not be found. Check the address bar
             to ensure your URL is spelled correctly. If all else fails, you can
             visit our home page at the link below.
         </p>
-        <a href='{$this->homeUrl}'>Visit the Home Page</a>
+        <a href='{$output->data->home}'>Visit the Home Page</a>
     </body>
 </html>
 END;
 
-        return $context->response;
     }
 
 }

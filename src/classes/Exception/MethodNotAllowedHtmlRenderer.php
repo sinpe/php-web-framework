@@ -12,7 +12,7 @@ namespace Sinpe\Framework\Exception;
 
 use Psr\Http\Message\ResponseInterface;
 use Sinpe\Framework\DataObject;
-use Sinpe\Framework\Renderer;
+use Sinpe\Framework\RendererInterface;
 
 /**
  * The HTML renderer for method not allowed exception.
@@ -20,21 +20,19 @@ use Sinpe\Framework\Renderer;
  * @package Sinpe\Framework
  * @since   1.0.0
  */
-class MethodNotAllowedHtmlRenderer extends Renderer
+class MethodNotAllowedHtmlRenderer implements RendererInterface
 {
     /**
-     * Process a handler context and assign result to "output" property.
+     * Process a handler output and return the result.
      *
-     * @return ResponseInterface
+     * @return string
      */
-    public function process(DataObject $context) : ResponseInterface
+    public function process(DataObject $output) 
     {
-        $allow = implode(', ', $context->thrown->getAllowedMethods());
-
-        $this->output = <<<END
+        return <<<END
 <html>
     <head>
-        <title>Method not allowed</title>
+        <title>{$output->message}</title>
         <style>
             body{
                 margin:0;
@@ -50,13 +48,12 @@ class MethodNotAllowedHtmlRenderer extends Renderer
         </style>
     </head>
     <body>
-        <h1>Method not allowed</h1>
-        <p>Method not allowed. Must be one of: <strong>$allow</strong></p>
+        <h1>{$output->message}</h1>
+        <p>Method not allowed. Must be one of: <strong>{$output->data->allowed}</strong></p>
     </body>
 </html>
 END;
 
-        return $context->response;
     }
 
 }

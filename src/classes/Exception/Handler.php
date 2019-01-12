@@ -11,7 +11,6 @@
 namespace Sinpe\Framework\Exception;
 
 use Psr\Http\Message\ResponseInterface;
-use Sinpe\Framework\DataObject;
 use Sinpe\Framework\ContentHandler as Base;
 
 /**
@@ -36,33 +35,30 @@ abstract class Handler extends Base
     }
 
     /**
-     * Create message
+     * Create the variable will be rendered.
      *
-     * @return array
+     * @return []
      */
-    protected function getContentOfHandler()
+    protected function getRendererOutput()
     {
         $error = [
             'code' => $this->thrown->getCode(),
             'message' => $this->thrown->getMessage()
         ];
 
-        return new DataObject($error);
+        return $error;
     }
 
     /**
-     * Create the renderer context.
+     * Create the option for the renderer.
      *
-     * @param ResponseInterface $response PSR-7 Response object
-     * 
-     * @return array
+     * @return []
      */
-    protected function getRendererContext(ResponseInterface $response)
+    protected function getRendererOption()
     {
         return [
             'thrown' => $this->thrown,
-            'response' => $response,
-            'content' => $this->getContentOfHandler()
+            'var' => $this->getVarsOfHandler()
         ];
     }
 

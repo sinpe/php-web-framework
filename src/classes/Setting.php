@@ -16,8 +16,8 @@ use Sinpe\Framework\Exception\Exception;
 use Sinpe\Framework\Exception\ExceptionHandler;
 use Sinpe\Framework\Exception\MethodNotAllowed;
 use Sinpe\Framework\Exception\MethodNotAllowedHandler;
-use Sinpe\Framework\Exception\NotFound;
-use Sinpe\Framework\Exception\NotFoundHandler;
+use Sinpe\Framework\Exception\PageNotFound;
+use Sinpe\Framework\Exception\PageNotFoundHandler;
 use Sinpe\Framework\Exception\Message;
 use Sinpe\Framework\Exception\MessageHandler;
 
@@ -43,7 +43,7 @@ class Setting extends DataObject implements SettingInterface
         'routerCacheFile' => false,
         'throwableHandlers' => [
             MethodNotAllowed::class => MethodNotAllowedHandler::class,
-            NotFound::class => NotFoundHandler::class,
+            PageNotFound::class => PageNotFoundHandler::class,
             BadRequest::class => BadRequestHandler::class,
             Message::class => MessageHandler::class,
             \Exception::class => ExceptionHandler::class,

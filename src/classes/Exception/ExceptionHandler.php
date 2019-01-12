@@ -13,7 +13,6 @@ namespace Sinpe\Framework\Exception;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Sinpe\Framework\DataObject;
 use Sinpe\Framework\SettingInterface;
 
 /**
@@ -125,11 +124,30 @@ class ExceptionHandler extends Handler
     }
 
     /**
-     * Create the content will be rendered.
+     * Handler procedure.
      *
-     * @return DataObject
+     * @return string
      */
-    protected function getContentOfHandler()
+    protected function process(
+        ServerRequestInterface $request,
+        ResponseInterface $response
+    ) : ResponseInterface {
+        // Write to the error log if displayErrorDetails is false
+        if (!$this->setting->displayErrorDetails) {
+            $this->writeToErrorLog();
+        }
+
+        $response = $response->withStatus(500);
+
+        return $this->rendererProcess($request, $response);
+    }
+
+    /**
+     * Create the variable will be rendered.
+     *
+     * @return []
+     */
+    protected function getRendererOutput()
     {
         $error = [
             'code' => $this->thrown->getCode(),
@@ -159,42 +177,18 @@ class ExceptionHandler extends Handler
             }
         }
 
-        return new DataObject($error);
+        return $error;
     }
 
     /**
-     * Handler procedure.
+     * Create the option for the renderer.
      *
-     * @return string
+     * @return []
      */
-    protected function process(
-        ServerRequestInterface $request, 
-        ResponseInterface $response
-    ) : ResponseInterface {
-        // Write to the error log if displayErrorDetails is false
-        if (!$this->setting->displayErrorDetails) {
-            $this->writeToErrorLog();
-        }
-
-        $response = $response->withStatus(500);
-
-        return $this->rendererProcess($request, $response);
-    }
-
-    /**
-     * Create the renderer context.
-     *
-     * @param ResponseInterface $response PSR-7 Response object
-     * 
-     * @return array
-     */
-    protected function getRendererContext(ResponseInterface $response)
+    protected function getRendererOption()
     {
         return [
-            'thrown' => $this->thrown,
             'displayErrorDetails' => $this->setting->displayErrorDetails,
-            'response' => $response,
-            'content' => $this->getContentOfHandler()
         ];
     }
 

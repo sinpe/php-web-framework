@@ -13,7 +13,7 @@ namespace Sinpe\Framework\Renderer;
 use Psr\Http\Message\ResponseInterface;
 use Spatie\ArrayToXml\ArrayToXml;
 use Sinpe\Framework\DataObject;
-use Sinpe\Framework\Renderer;
+use Sinpe\Framework\RendererInterface;
 
 /**
  * Xml renderer for common.
@@ -21,18 +21,16 @@ use Sinpe\Framework\Renderer;
  * @package Sinpe\Framework
  * @since   1.0.0
  */
-class Xml extends Renderer
+class Xml implements RendererInterface
 {
     /**
-     * Process a handler context and assign result to "output" property.
+     * Process a handler output and return the result.
      *
-     * @return ResponseInterface
+     * @return string
      */
-    public function process(DataObject $context) : ResponseInterface
+    public function process(DataObject $output)
     {
-        $this->output = ArrayToXml::convert($context->content->toArray());
-
-        return $context->response;
+        return ArrayToXml::convert($output->toArray());
     }
 
 }

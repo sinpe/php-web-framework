@@ -22,20 +22,6 @@ use Psr\Http\Message\ResponseInterface;
 trait AllTrait
 {
     /**
-     * A request object
-     *
-     * @var ServerRequestInterface
-     */
-    protected $request;
-
-    /**
-     * A response object to send to the HTTP client
-     *
-     * @var ResponseInterface
-     */
-    protected $response;
-
-    /**
      * __construct
      *
      * @param string $message
@@ -48,7 +34,6 @@ trait AllTrait
         $code=null, 
         $previous=null
     ) {
-        $this->setRequest(func_get_args());
 
         if (!is_int($code)) {
             if (!$code instanceof \Throwable) {
@@ -60,35 +45,6 @@ trait AllTrait
         }
 
         parent::__construct($message, $code, $previous);
-    }
-
-    /**
-     * Set request and response
-     *
-     * @param [type] $args
-     * @return void
-     */
-    protected function setRequest($args)
-    {
-        $r = array_pop($args);
-
-        if ($r instanceof ServerRequestInterface) {
-            $this->request = $r;
-        }
-    }
-
-    /**
-     * __get
-     *
-     * @return mixed
-     */
-    public function __get($name)
-    {
-        if (in_array($name, ['request'])) {
-            return $this->{$name};
-        }
-
-        throw new \RuntimeException(i18n('Property %s::%s not exist.', get_class($this), $name));
     }
 
 }

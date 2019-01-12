@@ -18,7 +18,7 @@ use Sinpe\Route\MiddlewareAwareTrait;
 use Sinpe\Route\RouterInterface;
 use Sinpe\Route\ResponseResolver;
 use Sinpe\Framework\Exception\MethodNotAllowed;
-use Sinpe\Framework\Exception\NotFound;
+use Sinpe\Framework\Exception\PageNotFound;
 use Sinpe\Framework\Http\Response;
 
 /**
@@ -101,7 +101,7 @@ class ApplicationHandler implements RequestHandlerInterface, MiddlewareAwareInte
             throw new MethodNotAllowed($routeInfo[1], $request);
         }
 
-        throw new NotFound($request);
+        throw new PageNotFound($request);
     }
 
 }

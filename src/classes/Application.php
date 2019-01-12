@@ -309,7 +309,7 @@ class Application
      *
      * @throws Exception
      * @throws MethodNotAllowed
-     * @throws NotFound
+     * @throws PageNotFound
      */
     public function run($silent = false)
     {

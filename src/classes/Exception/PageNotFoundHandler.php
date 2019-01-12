@@ -20,7 +20,7 @@ use Sinpe\Framework\DataObject;
  * @package Sinpe\Framework
  * @since   1.0.0
  */
-class NotFoundHandler extends BadRequestHandler
+class PageNotFoundHandler extends BadRequestHandler
 {
     /**
      * @var ServerRequestInterface
@@ -35,33 +35,8 @@ class NotFoundHandler extends BadRequestHandler
     public function __init()
     {
         $this->registerRenderers([
-            static::CONTENT_TYPE_HTML => function($request, $response) {
-                $renderer = new NotFoundHtmlRenderer();
-                $renderer->setHomeUrl((string)($request->getUri()->withPath('')->withQuery('')->withFragment('')));
-                $response = $renderer->process(new DataObject($this->getRendererContext($request, $response)));
-                $this->content = $renderer->getOutput();
-                return $response
-            }
+            static::CONTENT_TYPE_HTML => PageNotFoundHtmlRenderer::class
         ]);
-    }
-
-    /**
-     * Create message
-     *
-     * @return array
-     */
-    protected function getContentOfHandler()
-    {
-        $error = [
-            'code' => $this->thrown->getCode(),
-            'message' => $this->thrown->getMessage(),
-            'data' => [
-                'host' => $this->request->getUri()->getHost(),
-                'path' => $this->request->getUri()->getPath()
-            ]
-        ];
-
-        return new DataObject($error);
     }
 
     /**
@@ -70,15 +45,33 @@ class NotFoundHandler extends BadRequestHandler
      * @return string
      */
     protected function process(
-        ServerRequestInterface $request, 
+        ServerRequestInterface $request,
         ResponseInterface $response
     ) : ResponseInterface {
-        
+
         $this->request = $request;
 
         $response = $response->withStatus(404);
 
         return $this->rendererProcess($request, $response);
+    }
+
+    /**
+     * Create the variable will be rendered.
+     *
+     * @return []
+     */
+    protected function getRendererOutput()
+    {
+        $error = [
+            'code' => $this->thrown->getCode(),
+            'message' => $this->thrown->getMessage(),
+            'data' => [
+                'home' => (string) $this->request->getUri()->withPath('')->withQuery('')->withFragment('')
+            ]
+        ];
+
+        return $error;
     }
 
 }

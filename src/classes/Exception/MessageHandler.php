@@ -23,9 +23,9 @@ class MessageHandler extends Handler
     /**
      * Create the content will be rendered.
      *
-     * @return DataObject
+     * @return array
      */
-    protected function getContentOfHandler()
+    protected function getRendererOutput()
     {
         $error = [
             'code' => $this->thrown->getCode(),
@@ -38,7 +38,7 @@ class MessageHandler extends Handler
             $error['data'] = $data;
         }
 
-        return new DataObject($error);
+        return $error;
     }
 
 }

@@ -12,7 +12,7 @@ namespace Sinpe\Framework\Renderer;
 
 use Psr\Http\Message\ResponseInterface;
 use Sinpe\Framework\DataObject;
-use Sinpe\Framework\Renderer;
+use Sinpe\Framework\RendererInterface;
 
 /**
  * JSON renderer for common.
@@ -20,7 +20,7 @@ use Sinpe\Framework\Renderer;
  * @package Sinpe\Framework
  * @since   1.0.0
  */
-class Json extends Renderer
+class Json implements RendererInterface
 {
     /**
      * Unicode convertors
@@ -89,22 +89,20 @@ class Json extends Renderer
     }
 
     /**
-     * Process a handler context and assign result to "output" property.
+     * Process a handler output and return the result.
      *
-     * @return ResponseInterface
+     * @return string
      */
-    public function process(DataObject $context) : ResponseInterface
+    public function process(DataObject $output)
     {
-        $content = json_encode($this->convert($context->content->all()), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+        $content = json_encode($this->convert($output->all()), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
 
         // Ensure that the json encoding passed successfully
         if ($content === false) {
             throw new \RuntimeException(json_last_error_msg(), json_last_error());
         }
 
-        $this->output = $content;
-
-        return $context->response;
+        return $content;
     }
 
 }

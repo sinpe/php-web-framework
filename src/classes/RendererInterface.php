@@ -24,15 +24,8 @@ interface RendererInterface
     /**
      * Process a handler context and assign result to "output" property.
      *
-     * @return ResponseInterface
-     */
-    public function process(DataObject $context) : ResponseInterface;
-
-    /**
-     * Return the renderer processed result.
-     *
      * @return string
      */
-    public function getOutput();
+    public function process(DataObject $data);
 
 }

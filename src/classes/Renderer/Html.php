@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of the long/framework package.
  *
@@ -10,28 +11,48 @@
 
 namespace Sinpe\Framework\Renderer;
 
-use Psr\Http\Message\ResponseInterface;
 use Sinpe\Framework\DataObject;
-use Sinpe\Framework\Renderer;
+use Sinpe\Framework\RendererInterface;
 
 /**
- * Html renderer for common.
- * 
- * @package Sinpe\Framework
- * @since   1.0.0
+ * Html
  */
-class Html extends Renderer
+class Html implements RendererInterface
 {
     /**
-     * Process a handler context and assign result to "output" property.
+     * Render HTML not allowed message
      *
-     * @return ResponseInterface
+     * @return string
      */
-    public function process(DataObject $context) : ResponseInterface
+    public function process(DataObject $output)
     {
-        $this->output = $context->content;
+        $html = '';
 
-        return $context->response;
+        if ($output->has('message')) {
+
+            $html .= '<h1>'.$output->message."({$output->code})</h1>";
+
+            if ($output->has('data')) {
+                $html .= '<p>'.is_string($output->data) ? $output->data : $this->serialize($output->data).'</p>';
+            }
+        } else {
+            if ($output->has('data')) {
+                $html .= is_string($output->data) ? $output->data : $this->serialize($output->data);
+            }
+        }
+
+        return $html;
+    }
+
+    /**
+     * 序列化
+     *
+     * @param [type] $data
+     * @return void
+     */
+    protected function serialize($data)
+    {
+        return json_encode($data);
     }
 
 }

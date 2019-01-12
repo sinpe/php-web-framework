@@ -112,13 +112,11 @@ abstract class ContentHandler implements RequestHandlerInterface
      * @return ResponseInterface
      * @throws UnexpectedValueException
      */
-    final public function handle(ServerRequestInterface $request) : ResponseInterface 
+    final public function handle(ServerRequestInterface $request) : ResponseInterface
     {
         $this->determineContentType($request);
 
-        $response = new Response();
-
-        $response = $this->process($request, $response);
+        $response = $this->process($request, new Response());
 
         $body = new Body(fopen('php://temp', 'r+'));
 
@@ -144,7 +142,7 @@ abstract class ContentHandler implements RequestHandlerInterface
      * @throws UnexpectedValueException
      */
     final protected function rendererProcess(
-        ServerRequestInterface $request, 
+        ServerRequestInterface $request,
         ResponseInterface $response
     ) : ResponseInterface {
 
@@ -159,19 +157,17 @@ abstract class ContentHandler implements RequestHandlerInterface
                     /*
                     renderer需要依赖时，注入通过handler引入，再用此方式调用renderer
                     比如：依赖Setting
-                    function ($response, $content) use($setting) {
+                    function ($request) use($setting) {
                         $renderer = new $renderer($setting);
                         $response = $renderer->process(new DataObject($content));
                         $this->content = $renderer->getOutput();
                         return $response;
                     }
-                    */
-                    $this->content = $renderer($request, $response, $this->getContentOfHandler());
+                     */
+                    $this->content = $renderer($request);
                 } else {
-                    $renderer = new $renderer;
-                    $response = $renderer->process(new DataObject($this->getRendererContext($response)));
-
-                    $this->content = $renderer->getOutput();
+                    $this->content = (new $renderer(new DataObject($this->getRendererOption())))
+                        ->process(new DataObject($this->getRendererOutput()));
                 }
 
                 $response = $response->withHeader('Content-type', $this->contentType);
@@ -196,25 +192,20 @@ abstract class ContentHandler implements RequestHandlerInterface
     }
 
     /**
-     * Create the renderer context.
+     * Create the variable will be rendered.
      *
-     * @param ResponseInterface $response PSR-7 Response object
-     * 
-     * @return array
+     * @return []
      */
-    protected function getRendererContext(ResponseInterface $response)
-    {
-        return [
-            'response' => $response,
-            'content' => $this->getContentOfHandler()
-        ];
-    }
+    abstract protected function getOutput();
 
     /**
-     * Create the content will be rendered.
+     * Create the option for the renderer.
      *
-     * @return DataObject
+     * @return []
      */
-    abstract protected function getContentOfHandler();
+    protected function getRendererOption()
+    {
+        return [];
+    }
 
 }
