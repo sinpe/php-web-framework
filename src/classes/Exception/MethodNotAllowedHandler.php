@@ -60,7 +60,7 @@ class MethodNotAllowedHandler extends BadRequestHandler
             'code' => $this->thrown->getCode(),
             'message' => $this->thrown->getMessage(),
             'data' => [
-                'allowed' => implode(', ', $this->thrown->getAllowedMethods())
+                'allowed' => $this->thrown->getAllowedMethods()
             ]
         ];
 

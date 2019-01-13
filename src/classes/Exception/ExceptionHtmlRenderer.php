@@ -22,20 +22,6 @@ use Sinpe\Framework\RendererInterface;
  */
 class ExceptionHtmlRenderer implements RendererInterface
 {
-    /**
-     * @var DataObject
-     */
-    private $option;
-
-    /**
-     * __construct
-     *
-     * @param DataObject $option
-     */
-    public function __construct(DataObject $option)
-    {
-        $this->option = $option;
-    }
 
     /**
      * Process a handler output and return the result.
@@ -46,17 +32,15 @@ class ExceptionHtmlRenderer implements RendererInterface
     {
         $title = 'Fault';
 
-        if ($this->option->displayErrorDetails) {
-
-            $thrown = $output->thrown;
+        if ($output->has('type')) {
 
             $html = '<p>The application could not run because of the following error:</p>';
             $html .= '<h2>Details</h2>';
-            $html .= $this->renderHtmlError($thrown);
+            $html .= $this->renderHtmlError($output);
 
-            while ($thrown = $thrown->getPrevious()) {
+            while ($output = $output->previous) {
                 $html .= '<h2>Previous error</h2>';
-                $html .= $this->renderHtmlError($thrown);
+                $html .= $this->renderHtmlError($output);
             }
         } else {
             $html = '<p>A website error has occurred. Sorry for the temporary inconvenience.</p>';
@@ -79,27 +63,27 @@ class ExceptionHtmlRenderer implements RendererInterface
      *
      * @return string
      */
-    protected function renderHtmlError($thrown)
+    protected function renderHtmlError($output)
     {
-        $html = sprintf('<div><strong>Type:</strong> %s</div>', get_class($thrown));
+        $html = sprintf('<div><strong>Type:</strong> %s</div>', $output->type);
 
-        if (($code = $thrown->getCode())) {
+        if ($code = $output->code) {
             $html .= sprintf('<div><strong>Code:</strong> %s</div>', $code);
         }
 
-        if (($message = $thrown->getMessage())) {
+        if ($message = $output->message) {
             $html .= sprintf('<div><strong>Message:</strong> %s</div>', htmlentities($message));
         }
 
-        if (($file = $thrown->getFile())) {
+        if ($file = $output->file) {
             $html .= sprintf('<div><strong>File:</strong> %s</div>', $file);
         }
 
-        if (($line = $thrown->getLine())) {
+        if ($line = $output->line) {
             $html .= sprintf('<div><strong>Line:</strong> %s</div>', $line);
         }
 
-        if (($trace = $thrown->getTraceAsString())) {
+        if ($trace = $output->trace) {
             $html .= '<h2>Trace</h2>';
             $html .= sprintf('<pre>%s</pre>', htmlentities($trace));
         }

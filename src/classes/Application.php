@@ -469,6 +469,14 @@ class Application
      */
     protected function finalize(ResponseInterface $response)
     {
+        $headers = Headers::createFromEnvironment($this->environment);
+
+        foreach($headers->all() as $key => $value) {
+            if (!$response->hasHeader($key)) {
+                $response = $response->withHeader($key, $value);
+            }
+        }
+        
         // stop PHP sending a Content-Type automatically
         ini_set('default_mimetype', '');
 
@@ -530,25 +538,32 @@ class Application
     ) {
         $setting = $this->container->get(SettingInterface::class);
 
-        foreach ($setting->throwableHandlers as $targetClass => $handlerClass) {
-            // 
-            if ($ex instanceof $targetClass) {
+        $handler = null;
 
-                $handler = $this->container->make($handlerClass); 
-
-                $handler->setThrowable($ex);
-
-                if ($ex instanceof FrameworkException || $ex instanceof FrameworkMessage) {
-                    if ($e->request) {
-                        $request = $e->request;
-                    }
-                } 
-
-                try {
-                    return $handler->handle($request);
-                } catch (\Exception $ex) {
-                    $this->handleThrowable($ex, $request);
+        if ($ex instanceof FrameworkException || $ex instanceof FrameworkMessage) {
+            if (!array_key_exists(get_class($ex), $setting->throwableHandlers)) {
+                $handlerClass = $ex->getHandler();
+                if (class_exists($handlerClass)) {
+                    $handler = $this->container->make($handlerClass); 
                 }
+            }
+        } 
+
+        if (!$handler) {
+            foreach ($setting->throwableHandlers as $targetClass => $handlerClass) {
+                // 
+                if ($ex instanceof $targetClass) {
+                    $handler = $this->container->make($handlerClass); 
+                    $handler->setThrowable($ex);
+                }
+            }
+        }
+        
+        if ($handler) {
+            try {
+                return $handler->handle($request);
+            } catch (\Exception $ex) {
+                $this->handleThrowable($ex, $request);
             }
         }
 

@@ -47,4 +47,12 @@ trait AllTrait
         parent::__construct($message, $code, $previous);
     }
 
+    /**
+     * @return Handler
+     */
+    public function getHandler()
+    {
+        return get_class($this).'Handler';
+    }
+
 }

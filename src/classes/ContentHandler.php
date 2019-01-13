@@ -159,15 +159,12 @@ abstract class ContentHandler implements RequestHandlerInterface
                     比如：依赖Setting
                     function ($request) use($setting) {
                         $renderer = new $renderer($setting);
-                        $response = $renderer->process(new DataObject($content));
-                        $this->content = $renderer->getOutput();
-                        return $response;
+                        return $renderer->process(new DataObject($content));
                     }
                      */
                     $this->content = $renderer($request);
                 } else {
-                    $this->content = (new $renderer(new DataObject($this->getRendererOption())))
-                        ->process(new DataObject($this->getRendererOutput()));
+                    $this->content = (new $renderer)->process(new DataObject($this->getRendererOutput()));
                 }
 
                 $response = $response->withHeader('Content-type', $this->contentType);
@@ -196,16 +193,6 @@ abstract class ContentHandler implements RequestHandlerInterface
      *
      * @return []
      */
-    abstract protected function getOutput();
-
-    /**
-     * Create the option for the renderer.
-     *
-     * @return []
-     */
-    protected function getRendererOption()
-    {
-        return [];
-    }
+    abstract protected function getRendererOutput();
 
 }

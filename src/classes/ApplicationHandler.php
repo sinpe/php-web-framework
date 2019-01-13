@@ -15,6 +15,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Sinpe\Route\MiddlewareAwareTrait;
+use Sinpe\Route\MiddlewareAwareInterface;
 use Sinpe\Route\RouterInterface;
 use Sinpe\Route\ResponseResolver;
 use Sinpe\Framework\Exception\MethodNotAllowed;
@@ -88,13 +89,14 @@ class ApplicationHandler implements RequestHandlerInterface, MiddlewareAwareInte
 
             $route = $routeInfo[1];
 
-            $route->prepare($request, $routeArguments);
+            // $route->prepare($request, $routeArguments);
 
             return $route->run(
                 $request,
                 new ResponseResolver(function () {
                     return new Response();
-                })
+                }),
+                $routeArguments
             );
 
         } elseif ($routeInfo[0] === Dispatcher::METHOD_NOT_ALLOWED) {

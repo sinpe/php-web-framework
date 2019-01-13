@@ -29,6 +29,8 @@ class MethodNotAllowedHtmlRenderer implements RendererInterface
      */
     public function process(DataObject $output) 
     {
+        $allowed = implode(', ', $output->data->allowed);
+
         return <<<END
 <html>
     <head>
@@ -49,7 +51,7 @@ class MethodNotAllowedHtmlRenderer implements RendererInterface
     </head>
     <body>
         <h1>{$output->message}</h1>
-        <p>Method not allowed. Must be one of: <strong>{$output->data->allowed}</strong></p>
+        <p>Method not allowed. Must be one of: <strong>{$allowed}</strong></p>
     </body>
 </html>
 END;

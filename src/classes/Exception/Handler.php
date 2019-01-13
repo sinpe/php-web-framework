@@ -49,17 +49,4 @@ abstract class Handler extends Base
         return $error;
     }
 
-    /**
-     * Create the option for the renderer.
-     *
-     * @return []
-     */
-    protected function getRendererOption()
-    {
-        return [
-            'thrown' => $this->thrown,
-            'var' => $this->getVarsOfHandler()
-        ];
-    }
-
 }

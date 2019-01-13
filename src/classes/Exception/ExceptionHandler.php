@@ -180,16 +180,4 @@ class ExceptionHandler extends Handler
         return $error;
     }
 
-    /**
-     * Create the option for the renderer.
-     *
-     * @return []
-     */
-    protected function getRendererOption()
-    {
-        return [
-            'displayErrorDetails' => $this->setting->displayErrorDetails,
-        ];
-    }
-
 }
