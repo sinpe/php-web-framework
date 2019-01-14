@@ -43,19 +43,6 @@ class ApplicationHandler implements RequestHandlerInterface, MiddlewareAwareInte
     {
         $this->router = $router;
     }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function handle(ServerRequestInterface $request) : ResponseInterface
-    {
-        if ($this->hasMiddleware()) {
-            $middleware = $this->shiftMiddleware();
-            return $middleware->process($request, $this);
-        } else {
-            return $this->process($request);
-        }
-    }
     
     /**
      * Dispatch route callable against current Request and Response objects
