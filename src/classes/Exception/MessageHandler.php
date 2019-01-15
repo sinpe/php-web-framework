@@ -18,7 +18,7 @@ use Sinpe\Framework\DataObject;
  * @package Sinpe\Framework
  * @since   1.0.0
  */
-class MessageHandler extends Handler
+class MessageHandler extends ExceptionHandler
 {
     /**
      * Create the content will be rendered.

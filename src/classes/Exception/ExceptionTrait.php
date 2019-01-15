@@ -19,7 +19,7 @@ use Psr\Http\Message\ResponseInterface;
  * @package Sinpe\Framework
  * @since   1.0.0
  */
-trait AllTrait
+trait ExceptionTrait
 {
     /**
      * __construct
@@ -48,7 +48,7 @@ trait AllTrait
     }
 
     /**
-     * @return Handler
+     * @return ExceptionHandler
      */
     public function getHandler()
     {

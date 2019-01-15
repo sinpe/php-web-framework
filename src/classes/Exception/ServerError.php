@@ -11,14 +11,14 @@
 namespace Sinpe\Framework\Exception;
 
 /**
- * 500.
+ * Server error 500.
  * 
  * @package Sinpe\Framework
  * @since   1.0.0
  */
-class Exception extends \Exception
+class ServerError extends \RuntimeException
 {
-    use AllTrait;
+    use ExceptionTrait;
 
     /**
      * Return default code.

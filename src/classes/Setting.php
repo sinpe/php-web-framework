@@ -12,8 +12,8 @@ namespace Sinpe\Framework;
 
 use Sinpe\Framework\Exception\BadRequest;
 use Sinpe\Framework\Exception\BadRequestHandler;
-use Sinpe\Framework\Exception\Exception;
-use Sinpe\Framework\Exception\ExceptionHandler;
+use Sinpe\Framework\Exception\ServerError;
+use Sinpe\Framework\Exception\ServerErrorHandler;
 use Sinpe\Framework\Exception\Message;
 use Sinpe\Framework\Exception\MessageHandler;
 
@@ -40,8 +40,8 @@ class Setting extends DataObject implements SettingInterface
         'throwableHandlers' => [
             BadRequest::class => BadRequestHandler::class,
             Message::class => MessageHandler::class,
-            \Exception::class => ExceptionHandler::class,
-            \Error::class => ExceptionHandler::class
+            \Exception::class => ServerErrorHandler::class,
+            \Error::class => ServerErrorHandler::class
         ]
     ];
     

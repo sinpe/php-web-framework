@@ -11,14 +11,14 @@
 namespace Sinpe\Framework\Exception;
 
 /**
- * runtime error.
+ * Client error.
  * 
  * @package Sinpe\Framework
  * @since   1.0.0
  */
 class Message extends \RuntimeException
 {
-    use AllTrait;
+    use ExceptionTrait;
 
     /**
      * @var array

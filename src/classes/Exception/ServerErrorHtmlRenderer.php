@@ -20,9 +20,8 @@ use Sinpe\Framework\RendererInterface;
  * @package Sinpe\Framework
  * @since   1.0.0
  */
-class ExceptionHtmlRenderer implements RendererInterface
+class ServerErrorHtmlRenderer implements RendererInterface
 {
-
     /**
      * Process a handler output and return the result.
      *
