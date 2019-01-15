@@ -32,10 +32,10 @@ abstract class UnauthorizedHandler extends BadRequestHandler
     ) : ResponseInterface {
         
         if ($this->getContentType() == static::CONTENT_TYPE_HTML) {
-            $response = $response->withRedirect($this->getRedirectUrl());
+            $response = $response->withRedirect($this->getRedirectUrl())->withStatus(302);
+        } else {
+            $response = $response->withStatus(401);
         }
-
-        $response = $response->withStatus(401);
 
         return $this->rendererProcess($request, $response);
     }
