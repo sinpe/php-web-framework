@@ -57,7 +57,7 @@ class ServerErrorHandler extends ExceptionHandler
     {
         $thrown = $this->thrown;
 
-        $message = 'Fault:' . PHP_EOL;
+        $message = 'Error:' . PHP_EOL;
 
         $message .= $this->renderThrowable($thrown);
 
@@ -151,7 +151,7 @@ class ServerErrorHandler extends ExceptionHandler
     {
         $error = [
             'code' => $this->thrown->getCode(),
-            'message' => 'Fault'
+            'message' => 'Error'
         ];
 
         // 

@@ -60,18 +60,6 @@ class DataObject implements DataObjectInterface
         return $this->has($key) ? $this->data[$key] : $default;
     }
 
-    // /**
-    //  * Add item to object, replacing existing items with the same data key
-    //  *
-    //  * @param array $items Key-value array of data to append to this object
-    //  */
-    // public function replace(array $items)
-    // {
-    //     foreach ($items as $key => $value) {
-    //         $this->set($key, $value);
-    //     }
-    // }
-
     /**
      * Get all items in object
      *

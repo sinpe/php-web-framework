@@ -37,14 +37,12 @@ interface DataObjectInterface extends \ArrayAccess, \Countable, \IteratorAggrega
      */
     public function get($key, $default = null);
 
-    // public function replace(array $items);
-
-    // /**
-    //  * Undocumented function
-    //  *
-    //  * @return void
-    //  */
-    // public function all();
+    /**
+     * Get all items in object
+     *
+     * @return array The object's source data
+     */
+    public function all();
 
     /**
      * Determine if an item exists in the object by key.

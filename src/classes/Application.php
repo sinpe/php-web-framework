@@ -297,7 +297,6 @@ class Application
         return $this;
     }
 
-
     /**
      * Run application
      *

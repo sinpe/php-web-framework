@@ -29,7 +29,7 @@ class ServerErrorHtmlRenderer implements RendererInterface
      */
     public function process(DataObject $output)
     {
-        $title = 'Fault';
+        $title = 'Error';
 
         if ($output->has('type')) {
 
