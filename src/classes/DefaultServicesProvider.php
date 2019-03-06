@@ -13,7 +13,6 @@ namespace Sinpe\Framework;
 use Psr\Container\ContainerInterface;
 use Sinpe\Container\ProviderInterface;
 use Sinpe\Framework\CallableResolver;
-use Sinpe\Framework\Setting;
 use Sinpe\Framework\SettingInterface;
 use Sinpe\Route\Router;
 use Sinpe\Route\RouterInterface;
@@ -34,12 +33,6 @@ class DefaultServicesProvider implements ProviderInterface
      */
     public function register(ContainerInterface $container)
     {
-        if (!isset($container[SettingInterface::class])) {
-            /**
-             * Setting
-             */
-            $container[SettingInterface::class] = Setting::class;
-        }
 
         if (!isset($container['router'])) {
 

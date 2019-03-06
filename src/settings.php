@@ -8,8 +8,6 @@
  * file that was distributed with this source code.
  */
 
-namespace Sinpe\Framework;
-
 use Sinpe\Framework\Exception\BadRequest;
 use Sinpe\Framework\Exception\BadRequestHandler;
 use Sinpe\Framework\Exception\ServerError;
@@ -17,13 +15,17 @@ use Sinpe\Framework\Exception\ServerErrorHandler;
 use Sinpe\Framework\Exception\Message;
 use Sinpe\Framework\Exception\MessageHandler;
 
-/**
- * Framework settings.
- * 
- * @package Sinpe\Framework
- * @since   1.0.0
- */
-class Setting extends DataObject implements SettingInterface
-{
-    
-}
+return [
+    // 'httpVersion' => '1.1',
+    'responseChunkSize' => 4096,
+    'outputBuffering' => 'append',
+    'displayErrorDetails' => false,
+    'addContentLengthHeader' => true,
+    'routerCacheFile' => false,
+    'throwableHandlers' => [
+        BadRequest::class => BadRequestHandler::class,
+        Message::class => MessageHandler::class,
+        \Exception::class => ServerErrorHandler::class,
+        \Error::class => ServerErrorHandler::class
+    ]
+];

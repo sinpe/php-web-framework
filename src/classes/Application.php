@@ -21,6 +21,7 @@ use Sinpe\Framework\Http\Headers;
 use Sinpe\Framework\Http\Body;
 use Sinpe\Framework\Http\Request;
 use Sinpe\Framework\Http\EnvironmentInterface;
+use Sinpe\Framework\Setting;
 use Sinpe\Framework\SettingInterface;
 use Sinpe\Route\RouteInterface;
 
@@ -70,6 +71,8 @@ class Application
     {
         $container = $this->generateContainer();
 
+        $container[SettingInterface::class] = $this->generateSetting();
+
         // set_exception_handler(
         //     function ($e) use ($request) {
         //         $response = $this->handleThrowable($e, $request);
@@ -116,12 +119,18 @@ class Application
     { }
 
     /**
-     * 注册路由
+     * create setting
+     * 
+     * 需要替换默认的setting，覆盖此方法
      *
-     * @return void
+     * @return SettingInterface
      */
-    protected function registerRoutes()
-    { }
+    protected function generateSetting(): SettingInterface
+    {
+        $settings = require_once __DIR__  . '/../settings.php';
+
+        return new Setting($settings);
+    }
 
     /**
      * create container
