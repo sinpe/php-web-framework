@@ -1,5 +1,5 @@
 <?php
-/*
+ /*
  * This file is part of the long/framework package.
  *
  * (c) Sinpe <support@sinpe.com>
@@ -66,9 +66,8 @@ class Application
      * 
      * @throws \InvalidArgumentException when no container is provided that implements ContainerInterface
      */
-    final public function __construct(EnvironmentInterface $environment) 
+    final public function __construct(EnvironmentInterface $environment)
     {
-
         $container = $this->generateContainer();
 
         // set_exception_handler(
@@ -83,8 +82,17 @@ class Application
 
         // 生命周期函数__init
         $this->__init();
+    }
 
-        $this->registerRoutes();
+    /**
+     * 启动
+     *
+     * @return void
+     */
+    final public function bootstrap()
+    {
+        // 生命周期函数__bootstrap
+        $this->__bootstrap();
     }
 
     /**
@@ -105,8 +113,7 @@ class Application
      * @return void
      */
     protected function __init()
-    {
-    }
+    { }
 
     /**
      * 注册路由
@@ -114,8 +121,7 @@ class Application
      * @return void
      */
     protected function registerRoutes()
-    {
-    }
+    { }
 
     /**
      * create container
@@ -124,8 +130,10 @@ class Application
      *
      * @return ContainerInterface
      */
-    protected function generateContainer() : ContainerInterface
+    protected function generateContainer(): ContainerInterface
     {
+        class_alias(Container::class, 'C');
+
         return new Container();
     }
 
@@ -319,7 +327,7 @@ class Application
             // Traverse middleware stack
             try {
                 $handler = new ApplicationHandler($this->container->get('router'));
-                
+
                 $handler->middlewares(array_reverse($this->middlewares));
                 // normal
                 $response = $handler->handle($request);
@@ -327,9 +335,7 @@ class Application
                 // error
                 $response = $this->handleThrowable($e, $request);
             }
-
-        }
-        finally {
+        } finally {
             $output = ob_get_clean();
         }
 
@@ -375,9 +381,9 @@ class Application
             // Status
             header(
                 sprintf(
-                    'HTTP/%s %s %s', 
-                    $response->getProtocolVersion(), 
-                    $response->getStatusCode(), 
+                    'HTTP/%s %s %s',
+                    $response->getProtocolVersion(),
+                    $response->getStatusCode(),
                     $response->getReasonPhrase()
                 )
             );
@@ -470,12 +476,12 @@ class Application
     {
         $headers = Headers::createFromEnvironment($this->environment);
 
-        foreach($headers->all() as $key => $value) {
+        foreach ($headers->all() as $key => $value) {
             if (!$response->hasHeader($key)) {
                 $response = $response->withHeader($key, $value);
             }
         }
-        
+
         // stop PHP sending a Content-Type automatically
         ini_set('default_mimetype', '');
 
@@ -543,21 +549,21 @@ class Application
             if (!array_key_exists(get_class($ex), $setting->throwableHandlers)) {
                 $handlerClass = $ex->getHandler();
                 if (class_exists($handlerClass)) {
-                    $handler = $this->container->make($handlerClass); 
+                    $handler = $this->container->make($handlerClass);
                 }
             }
-        } 
+        }
 
         if (!$handler) {
             foreach ($setting->throwableHandlers as $targetClass => $handlerClass) {
                 // 
                 if ($ex instanceof $targetClass) {
-                    $handler = $this->container->make($handlerClass); 
+                    $handler = $this->container->make($handlerClass);
                     $handler->setThrowable($ex);
                 }
             }
         }
-        
+
         if ($handler) {
             try {
                 return $handler->handle($request);
@@ -569,5 +575,4 @@ class Application
         // No handlers found, so just throw the exception
         throw $ex;
     }
-
 }
