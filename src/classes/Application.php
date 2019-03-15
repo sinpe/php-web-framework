@@ -417,6 +417,15 @@ class Application
                 $contentLength = $body->getSize();
             }
 
+            $offset = 0;
+            $contentRange = $response->getHeaderLine('Content-Range');
+            if ($contentRange) {
+                if (preg_match('#(\\d+)-(\\d+)/(\\d+)#', $contentRange, $matches)) {
+                    $offset = (int)$matches[1];
+                }
+            }
+            $body->seek($offset);
+            
             if (isset($contentLength)) {
                 $amountToRead = $contentLength;
                 while ($amountToRead > 0 && !$body->eof()) {
