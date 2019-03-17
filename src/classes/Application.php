@@ -13,13 +13,9 @@ namespace Sinpe\Framework;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\StreamInterface;
 use Sinpe\Framework\Exception\Exception as FrameworkException;
 use Sinpe\Framework\Exception\Message as FrameworkMessage;
-use Sinpe\Framework\Http\Response;
-use Sinpe\Framework\Http\Uri;
-use Sinpe\Framework\Http\Headers;
-use Sinpe\Framework\Http\Body;
-use Sinpe\Framework\Http\Request;
 use Sinpe\Framework\Http\EnvironmentInterface;
 use Sinpe\Framework\Setting;
 use Sinpe\Framework\SettingInterface;
@@ -54,8 +50,6 @@ class Application
     private $environment;
 
     /**
-     * Request
-     *
      * @var ServerRequestInterface
      */
     private $request;
@@ -329,7 +323,7 @@ class Application
      */
     public function run($silent = false)
     {
-        $request = Request::createFromEnvironment($this->environment);
+        $request = Http\Request::createFromEnvironment($this->environment);
 
         try {
             ob_start();
@@ -417,6 +411,8 @@ class Application
                 $contentLength = $body->getSize();
             }
 
+            $body = $this->__beforeEcho($body);
+            
             $offset = 0;
             $contentRange = $response->getHeaderLine('Content-Range');
             if ($contentRange) {
@@ -448,6 +444,17 @@ class Application
     }
 
     /**
+     * before echo
+     *
+     * @param StreamInterface $body
+     * @return StreamInterface
+     */
+    protected function __beforeEcho(StreamInterface $body) : StreamInterface
+    {
+        return $body;
+    }
+
+    /**
      * Perform a sub-request from within an application route
      *
      * This method allows you to prepare and initiate a sub-request, run within
@@ -473,13 +480,13 @@ class Application
         $bodyContent = ''
     ) {
         $env = $this->environment;
-        $uri = Uri::createFromEnvironment($env)->withPath($path)->withQuery($query);
-        $headers = new Headers($headers);
+        $uri = Http\Uri::createFromEnvironment($env)->withPath($path)->withQuery($query);
+        $headers = new Http\Headers($headers);
         $serverParams = $env->all();
-        $body = new Body(fopen('php://temp', 'r+'));
+        $body = new Http\Body(fopen('php://temp', 'r+'));
         $body->write($bodyContent);
         $body->rewind();
-        $request = new Request($method, $uri, $headers, $cookies, $serverParams, $body);
+        $request = new Http\Request($method, $uri, $headers, $cookies, $serverParams, $body);
 
         return $this->handle($request);
     }
@@ -492,7 +499,7 @@ class Application
      */
     protected function finalize(ResponseInterface $response)
     {
-        $headers = Headers::createFromEnvironment($this->environment);
+        $headers = Http\Headers::createFromEnvironment($this->environment);
 
         foreach ($headers->all() as $key => $value) {
             if (!$response->hasHeader($key)) {
