@@ -14,7 +14,6 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 
-use Sinpe\Framework\DataObject;
 use Sinpe\Framework\Http\Body;
 use Sinpe\Framework\Http\Response;
 use Sinpe\Framework\Renderer\Json as JsonRenderer;
@@ -162,12 +161,12 @@ abstract class ContentHandler implements RequestHandlerInterface
                     比如：依赖Setting
                     function ($request) use($setting) {
                         $renderer = new $renderer($setting);
-                        return $renderer->process(new DataObject($content));
+                        return $renderer->process(new \ArrayObject($content));
                     }
                      */
                     $this->content = $renderer($request);
                 } else {
-                    $this->content = (new $renderer)->process(new DataObject($this->getRendererOutput()));
+                    $this->content = (new $renderer)->process(new \ArrayObject($this->getRendererOutput()));
                 }
 
                 $response = $response->withHeader('Content-type', $this->contentType);

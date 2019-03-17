@@ -12,7 +12,6 @@ namespace Sinpe\Framework\Exception;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Sinpe\Framework\DataObject;
 
 /**
  * Handler for 404.

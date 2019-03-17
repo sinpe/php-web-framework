@@ -11,7 +11,6 @@
 namespace Sinpe\Framework\Exception;
 
 use Psr\Http\Message\ResponseInterface;
-use Sinpe\Framework\DataObject;
 use Sinpe\Framework\RendererInterface;
 
 /**
@@ -27,7 +26,7 @@ class ServerErrorHtmlRenderer implements RendererInterface
      *
      * @return string
      */
-    public function process(DataObject $output)
+    public function process(\ArrayObject $output)
     {
         $title = 'Error';
 

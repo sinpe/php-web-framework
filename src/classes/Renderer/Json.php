@@ -11,7 +11,6 @@
 namespace Sinpe\Framework\Renderer;
 
 use Psr\Http\Message\ResponseInterface;
-use Sinpe\Framework\DataObject;
 use Sinpe\Framework\RendererInterface;
 
 /**
@@ -93,7 +92,7 @@ class Json implements RendererInterface
      *
      * @return string
      */
-    public function process(DataObject $output)
+    public function process(\ArrayObject $output)
     {
         $content = json_encode($this->convert($output->all()), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
 

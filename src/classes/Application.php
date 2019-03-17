@@ -14,11 +14,9 @@ use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
-use Sinpe\Framework\Exception\Exception as FrameworkException;
+use Sinpe\Framework\Exception\ServerError;
 use Sinpe\Framework\Exception\Message as FrameworkMessage;
 use Sinpe\Framework\Http\EnvironmentInterface;
-use Sinpe\Framework\Setting;
-use Sinpe\Framework\SettingInterface;
 use Sinpe\Route\RouteInterface;
 
 /**
@@ -121,7 +119,7 @@ class Application
      */
     protected function generateSetting(): SettingInterface
     {
-        $settings = require_once __DIR__  . '/../settings.php';
+        $settings = require_once __DIR__  . '/../settings_web.php';
 
         return new Setting($settings);
     }
@@ -135,8 +133,6 @@ class Application
      */
     protected function generateContainer(): ContainerInterface
     {
-        class_alias(Container::class, 'C');
-
         return new Container();
     }
 
@@ -309,6 +305,16 @@ class Application
     }
 
     /**
+     * __runBefore
+     *
+     * @return ServerRequestInterface
+     */
+    protected function __runBefore(ServerRequestInterface $request): ServerRequestInterface
+    {
+        return $request;
+    }
+
+    /**
      * Run application
      *
      * This method traverses the application middleware stack and then sends the
@@ -324,6 +330,9 @@ class Application
     public function run($silent = false)
     {
         $request = Http\Request::createFromEnvironment($this->environment);
+
+        // 生命周期函数__runBefore
+        $request = $this->__runBefore($request);
 
         try {
             ob_start();
@@ -411,7 +420,7 @@ class Application
                 $contentLength = $body->getSize();
             }
 
-            $body = $this->__beforeEcho($body);
+            $body = $this->__echoBefore($body);
             
             $offset = 0;
             $contentRange = $response->getHeaderLine('Content-Range');
@@ -449,7 +458,7 @@ class Application
      * @param StreamInterface $body
      * @return StreamInterface
      */
-    protected function __beforeEcho(StreamInterface $body) : StreamInterface
+    protected function __echoBefore(StreamInterface $body) : StreamInterface
     {
         return $body;
     }
@@ -571,7 +580,7 @@ class Application
 
         $handler = null;
 
-        if ($ex instanceof FrameworkException || $ex instanceof FrameworkMessage) {
+        if ($ex instanceof ServerError || $ex instanceof FrameworkMessage) {
 
             if ($ex->hasRequest()) {
                 $request = $ex->getRequest();

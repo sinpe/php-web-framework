@@ -11,7 +11,6 @@
 namespace Sinpe\Framework;
 
 use Psr\Http\Message\ResponseInterface;
-use Sinpe\Framework\DataObject;
 
 /**
  * The renderer interface.
@@ -26,6 +25,6 @@ interface RendererInterface
      *
      * @return string
      */
-    public function process(DataObject $data);
+    public function process(\ArrayObject $data);
 
 }

@@ -14,7 +14,6 @@ use Psr\Http\Message\UploadedFileInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UriInterface;
 use Psr\Http\Message\StreamInterface;
-use Sinpe\Framework\DataObject;
 use Sinpe\Framework\Http\HeadersInterface;
 
 /**
@@ -85,7 +84,7 @@ class Request extends Message implements ServerRequestInterface
     /**
      * The request attributes (route segment names and values)
      *
-     * @var \Sinpe\Framework\DataObject
+     * @var \ArrayObject
      */
     protected $attributes;
 
@@ -183,7 +182,7 @@ class Request extends Message implements ServerRequestInterface
         $this->headers = $headers;
         $this->cookies = $cookies;
         $this->serverParams = $serverParams;
-        $this->attributes = new DataObject();
+        $this->attributes = new \ArrayObject;
         $this->body = $body;
         $this->uploadedFiles = $uploadedFiles;
 
@@ -960,7 +959,7 @@ class Request extends Message implements ServerRequestInterface
     public function withAttributes(array $attributes)
     {
         $clone = clone $this;
-        $clone->attributes = new DataObject($attributes);
+        $clone->attributes = new \ArrayObject($attributes);
 
         return $clone;
     }

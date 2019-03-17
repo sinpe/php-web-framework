@@ -10,8 +10,6 @@
 
 namespace Sinpe\Framework\Exception;
 
-use Sinpe\Framework\DataObject;
-
 /**
  * Handler for runtime error.
  * 

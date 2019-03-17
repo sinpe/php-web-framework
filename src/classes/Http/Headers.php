@@ -10,8 +10,6 @@
 
 namespace Sinpe\Framework\Http;
 
-use Sinpe\Framework\DataObject;
-
 /**
  * Headers
  *
@@ -28,7 +26,7 @@ use Sinpe\Framework\DataObject;
  * @package Sinpe\Framework
  * @since   1.0.0
  */
-class Headers extends DataObject implements HeadersInterface
+class Headers extends \ArrayObject implements HeadersInterface
 {
     /**
      * Special HTTP headers that do not have the "HTTP_" prefix

@@ -10,8 +10,6 @@
 
 namespace Sinpe\Framework\Http;
 
-use Sinpe\Framework\DataObject;
-
 /**
  * Environment
  *
@@ -22,7 +20,7 @@ use Sinpe\Framework\DataObject;
  * @package Sinpe\Framework
  * @since   1.0.0
  */
-class Environment extends DataObject implements EnvironmentInterface
+class Environment extends \ArrayObject implements EnvironmentInterface
 {
     /**
      * Create mock environment

@@ -11,7 +11,6 @@
 
 namespace Sinpe\Framework\Renderer;
 
-use Sinpe\Framework\DataObject;
 use Sinpe\Framework\RendererInterface;
 
 /**
@@ -24,7 +23,7 @@ class Html implements RendererInterface
      *
      * @return string
      */
-    public function process(DataObject $output)
+    public function process(\ArrayObject $output)
     {
         $html = '';
 
