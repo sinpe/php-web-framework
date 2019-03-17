@@ -87,7 +87,7 @@ class ApplicationHandler implements RequestHandlerInterface, MiddlewareAwareInte
             );
 
         } elseif ($routeInfo[0] === Dispatcher::METHOD_NOT_ALLOWED) {
-            throw new MethodNotAllowed($routeInfo[1], $request);
+            throw (new MethodNotAllowed($routeInfo[1]))->setRequest($request);
         }
 
         throw (new PageNotFound())->setRequest($request);
