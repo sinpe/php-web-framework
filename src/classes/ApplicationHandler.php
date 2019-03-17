@@ -90,7 +90,7 @@ class ApplicationHandler implements RequestHandlerInterface, MiddlewareAwareInte
             throw new MethodNotAllowed($routeInfo[1], $request);
         }
 
-        throw new PageNotFound($request);
+        throw (new PageNotFound())->setRequest($request);
     }
 
 }

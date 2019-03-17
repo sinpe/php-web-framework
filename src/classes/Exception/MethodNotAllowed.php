@@ -34,17 +34,11 @@ class MethodNotAllowed extends BadRequest
      * @param string[] $allowedMethods
      * @param mixed $previous
      */
-    public function __construct(
-        array $allowedMethods, 
-        ServerRequestInterface $request
-    ) {
+    public function __construct(array $allowedMethods) 
+    {
         $this->allowedMethods = $allowedMethods;
 
-        parent::__construct(
-            'Method not allowed', 
-            -405, 
-            $request
-        );
+        parent::__construct('Method not allowed', -405);
     }
 
     /**

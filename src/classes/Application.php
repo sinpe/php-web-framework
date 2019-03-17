@@ -557,13 +557,23 @@ class Application
      */
     protected function handleThrowable(
         \Throwable $ex,
-        ServerRequestInterface $request
+        ServerRequestInterface $request,
+        ResponseInterface $response = null
     ) {
         $setting = $this->container->get(SettingInterface::class);
 
         $handler = null;
 
         if ($ex instanceof FrameworkException || $ex instanceof FrameworkMessage) {
+
+            if ($ex->hasRequest()) {
+                $request = $ex->getRequest();
+            }
+
+            if ($ex->hasResponse()) {
+                $response = $ex->getResponse();
+            }
+
             if (!array_key_exists(get_class($ex), $setting->throwableHandlers)) {
                 $handlerClass = $ex->getHandler();
                 if (class_exists($handlerClass)) {
@@ -584,9 +594,9 @@ class Application
 
         if ($handler) {
             try {
-                return $handler->handle($request);
+                return $handler->handle($request, $response);
             } catch (\Exception $ex) {
-                $this->handleThrowable($ex, $request);
+                $this->handleThrowable($ex, $request, $response);
             }
         }
 

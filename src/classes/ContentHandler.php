@@ -112,11 +112,14 @@ abstract class ContentHandler implements RequestHandlerInterface
      * @return ResponseInterface
      * @throws UnexpectedValueException
      */
-    final public function handle(ServerRequestInterface $request) : ResponseInterface
-    {
+    final public function handle(
+        ServerRequestInterface $request,
+        ResponseInterface $response = null
+    ) : ResponseInterface {
+
         $this->determineContentType($request);
 
-        $response = $this->process($request, new Response());
+        $response = $this->process($request, $response ?? new Response());
 
         $body = new Body(fopen('php://temp', 'r+'));
 

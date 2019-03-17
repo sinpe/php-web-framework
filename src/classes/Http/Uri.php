@@ -162,11 +162,11 @@ class Uri implements UriInterface
     /**
      * Create new Uri from environment.
      *
-     * @param Environment $env
+     * @param EnvironmentInterface $env
      *
      * @return self
      */
-    public static function createFromEnvironment(Environment $env)
+    public static function createFromEnvironment(EnvironmentInterface $env)
     {
         // Scheme
         $isSecure = $env->get('HTTPS');

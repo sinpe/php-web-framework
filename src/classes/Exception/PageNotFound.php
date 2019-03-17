@@ -24,9 +24,9 @@ class PageNotFound extends BadRequest
     /**
      * __construct
      */
-    public function __construct(ServerRequestInterface $request) 
+    public function __construct() 
     {        
-        parent::__construct('Page not found', -404, $request);
+        parent::__construct('Page not found', -404);
     }
 
 }

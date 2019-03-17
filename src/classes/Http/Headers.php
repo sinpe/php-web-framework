@@ -48,11 +48,11 @@ class Headers extends DataObject implements HeadersInterface
      * Create new headers collection with data extracted from
      * the application Environment object
      *
-     * @param Environment $environment The application Environment
+     * @param EnvironmentInterface $environment The application Environment
      *
      * @return self
      */
-    public static function createFromEnvironment(Environment $environment)
+    public static function createFromEnvironment(EnvironmentInterface $environment)
     {
         $data = [];
         $environment = self::determineAuthorization($environment);
@@ -85,12 +85,12 @@ class Headers extends DataObject implements HeadersInterface
      * If HTTP_AUTHORIZATION does not exist tries to get it from
      * getallheaders() when available.
      *
-     * @param Environment $environment The application Environment
+     * @param EnvironmentInterface $environment The application Environment
      *
-     * @return Environment
+     * @return EnvironmentInterface
      */
 
-    public static function determineAuthorization(Environment $environment)
+    public static function determineAuthorization(EnvironmentInterface $environment)
     {
         $authorization = $environment->get('HTTP_AUTHORIZATION');
 

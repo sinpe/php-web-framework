@@ -26,14 +26,14 @@ trait ExceptionTrait
      *
      * @var ServerRequestInterface
      */
-    protected $request;
+    private $request;
 
     /**
      * A response object to send to the HTTP client
      *
      * @var ResponseInterface
      */
-    protected $response;
+    private $response;
 
     /**
      * __construct
@@ -46,21 +46,12 @@ trait ExceptionTrait
     public function __construct(
         string $message,
         $code = null,
-        \Throwable $previous = null,
-        // array $data = null,
-        ServerRequestInterface $request = null,
-        ResponseInterface $response = null
+        \Throwable $previous = null
     ) {
 
-        list($this->request, $this->response) = $this->extractRR(func_get_args());
-
         if (!is_int($code)) {
-
-            if (!$code instanceof \Throwable) { // [message, data]
-                // $data = $code;
-            } else { // [message, previous]
-                $previous = $code;
-            }
+            // [message, previous]
+            $previous = $code;
             $code = $this->getDefaultCode();
         }
 
@@ -75,64 +66,68 @@ trait ExceptionTrait
         return get_class($this) . 'Handler';
     }
 
-    
     /**
-     * Set request and response
+     * Set request
      *
-     * @param array $args
-     * @return array
+     * @param ServerRequestInterface $request
+     * @return $this
      */
-    protected function getArgs($args): array
+    public function setRequest(ServerRequestInterface $request)
     {
-        $request = null;
-        $response = null;
-
-        $r = array_pop($args);
-
-        if ($r instanceof ResponseInterface) {
-            $response = $r;
-        } elseif ($r instanceof ServerRequestInterface) {
-            $request = $r;
-        }
-
-        $r = array_pop($args);
-
-        if ($r instanceof ServerRequestInterface) {
-            $request = $r;
-        } elseif ($r instanceof ResponseInterface) {
-            $response = $r;
-        }
-
-        return [$request, $response];
+        $this->request = $request;
+        return $this;
     }
-    
+
     /**
-     * Set request and response
+     * Set response
      *
-     * @param array $args
-     * @return array
+     * @param ResponseInterface $response
+     * @return $this
      */
-    protected function extractRR($args): array
+    public function setResponse(ResponseInterface $response)
     {
-        $request = null;
-        $response = null;
-
-        $r = array_pop($args);
-
-        if ($r instanceof ResponseInterface) {
-            $response = $r;
-        } elseif ($r instanceof ServerRequestInterface) {
-            $request = $r;
-        }
-
-        $r = array_pop($args);
-
-        if ($r instanceof ServerRequestInterface) {
-            $request = $r;
-        } elseif ($r instanceof ResponseInterface) {
-            $response = $r;
-        }
-
-        return [$request, $response];
+        $this->response = $response;
+        return $this;
     }
+
+    /**
+     * Set request
+     *
+     * @return ServerRequestInterface
+     */
+    public function getRequest() : ServerRequestInterface
+    {
+        return $this->request;
+    }
+
+    /**
+     * Set response
+     * 
+     * @return ResponseInterface
+     */
+    public function getResponse() : ResponseInterface
+    {
+        return $this->response;
+    }
+
+    /**
+     * Has request
+     *
+     * @return bool
+     */
+    public function hasRequest() : bool
+    {
+        return isset($this->request);
+    }
+
+    /**
+     * Has response
+     * 
+     * @return bool
+     */
+    public function hasResponse() : bool
+    {
+        return isset($this->response);
+    }
+
 }

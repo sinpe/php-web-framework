@@ -80,11 +80,11 @@ class UploadedFile implements UploadedFileInterface
     /**
      * Create a normalized tree of UploadedFile instances from the Environment.
      *
-     * @param Environment $env The environment
+     * @param EnvironmentInterface $env The environment
      *
      * @return array|null A normalized tree of UploadedFile instances or null if none are provided.
      */
-    public static function createFromEnvironment(Environment $env)
+    public static function createFromEnvironment(EnvironmentInterface $env)
     {
         if (is_array($env['_FILES']) && $env->has('_FILES')) {
             return $env['_FILES'];

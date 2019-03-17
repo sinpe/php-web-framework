@@ -132,11 +132,11 @@ class Request extends Message implements ServerRequestInterface
      * Create new HTTP request with data extracted from the application
      * Environment object
      *
-     * @param  Environment $environment The application Environment
+     * @param  EnvironmentInterface $environment The application Environment
      *
      * @return static
      */
-    public static function createFromEnvironment(Environment $environment)
+    public static function createFromEnvironment(EnvironmentInterface $environment)
     {
         $method = $environment['REQUEST_METHOD'];
         $uri = Uri::createFromEnvironment($environment);
