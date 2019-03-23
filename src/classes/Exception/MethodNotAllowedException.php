@@ -19,7 +19,7 @@ use Psr\Http\Message\ResponseInterface;
  * @package Sinpe\Framework
  * @since   1.0.0
  */
-class MethodNotAllowed extends BadRequest
+class MethodNotAllowedException extends BadRequest
 {
     /**
      * HTTP methods allowed

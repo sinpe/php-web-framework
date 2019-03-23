@@ -19,7 +19,7 @@ use Psr\Http\Message\ServerRequestInterface;
  * @package Sinpe\Framework
  * @since   1.0.0
  */
-abstract class UnauthorizedHandler extends BadRequestHandler
+abstract class UnauthorizedExceptionHandler extends BadRequestHandler
 {
     /**
      * Handler procedure.

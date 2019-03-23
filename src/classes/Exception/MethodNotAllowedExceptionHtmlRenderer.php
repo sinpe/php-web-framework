@@ -19,7 +19,7 @@ use Sinpe\Framework\RendererInterface;
  * @package Sinpe\Framework
  * @since   1.0.0
  */
-class MethodNotAllowedHtmlRenderer implements RendererInterface
+class MethodNotAllowedExceptionHtmlRenderer implements RendererInterface
 {
     /**
      * Process a handler output and return the result.

@@ -324,8 +324,8 @@ class Application
      * @return ResponseInterface
      *
      * @throws Exception
-     * @throws MethodNotAllowed
-     * @throws PageNotFound
+     * @throws MethodNotAllowedException
+     * @throws PageNotFoundException
      */
     public function run($silent = false)
     {

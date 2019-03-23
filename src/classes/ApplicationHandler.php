@@ -18,8 +18,8 @@ use Sinpe\Route\MiddlewareAwareTrait;
 use Sinpe\Route\MiddlewareAwareInterface;
 use Sinpe\Route\RouterInterface;
 use Sinpe\Route\ResponseResolver;
-use Sinpe\Framework\Exception\MethodNotAllowed;
-use Sinpe\Framework\Exception\PageNotFound;
+use Sinpe\Framework\Exception\MethodNotAllowedException;
+use Sinpe\Framework\Exception\PageNotFoundException;
 use Sinpe\Framework\Http\Response;
 
 /**
@@ -87,10 +87,10 @@ class ApplicationHandler implements RequestHandlerInterface, MiddlewareAwareInte
             );
 
         } elseif ($routeInfo[0] === Dispatcher::METHOD_NOT_ALLOWED) {
-            throw (new MethodNotAllowed($routeInfo[1]))->setRequest($request);
+            throw (new MethodNotAllowedException($routeInfo[1]))->setRequest($request);
         }
 
-        throw (new PageNotFound())->setRequest($request);
+        throw (new PageNotFoundException())->setRequest($request);
     }
 
 }

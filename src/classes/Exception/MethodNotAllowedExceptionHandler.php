@@ -19,7 +19,7 @@ use Psr\Http\Message\ServerRequestInterface;
  * @package Sinpe\Framework
  * @since   1.0.0
  */
-class MethodNotAllowedHandler extends BadRequestHandler
+class MethodNotAllowedExceptionHandler extends BadRequestHandler
 {
     /**
      * Initliazation after construction.
@@ -29,7 +29,7 @@ class MethodNotAllowedHandler extends BadRequestHandler
     public function __init()
     {
         $this->registerRenderers([
-            static::CONTENT_TYPE_HTML => MethodNotAllowedHtmlRenderer::class
+            static::CONTENT_TYPE_HTML => MethodNotAllowedExceptionHtmlRenderer::class
         ]);
     }
 

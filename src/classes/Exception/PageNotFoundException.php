@@ -19,7 +19,7 @@ use Psr\Http\Message\ResponseInterface;
  * @package Sinpe\Framework
  * @since   1.0.0
  */
-class PageNotFound extends BadRequest
+class PageNotFoundException extends BadRequest
 {
     /**
      * __construct

@@ -19,7 +19,7 @@ use Psr\Http\Message\ServerRequestInterface;
  * @package Sinpe\Framework
  * @since   1.0.0
  */
-class PageNotFoundHandler extends BadRequestHandler
+class PageNotFoundExceptionHandler extends BadRequestHandler
 {
     /**
      * @var ServerRequestInterface
@@ -34,7 +34,7 @@ class PageNotFoundHandler extends BadRequestHandler
     public function __init()
     {
         $this->registerRenderers([
-            static::CONTENT_TYPE_HTML => PageNotFoundHtmlRenderer::class
+            static::CONTENT_TYPE_HTML => PageNotFoundExceptionHtmlRenderer::class
         ]);
     }
 
