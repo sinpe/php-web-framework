@@ -8,8 +8,8 @@
  * file that was distributed with this source code.
  */
 
-use Sinpe\Framework\Exception\BadRequest;
-use Sinpe\Framework\Exception\BadRequestHandler;
+use Sinpe\Framework\Exception\BadRequestException;
+use Sinpe\Framework\Exception\BadRequestExceptionHandler;
 use Sinpe\Framework\Exception\ServerException;
 use Sinpe\Framework\Exception\ServerExceptionHandler;
 use Sinpe\Framework\Exception\Message;
@@ -27,7 +27,7 @@ if (php_sapi_name() == 'cli') {
         'addContentLengthHeader' => true,
         'routerCacheFile' => false,
         'throwableHandlers' => [
-            BadRequest::class => BadRequestHandler::class,
+            BadRequestException::class => BadRequestExceptionHandler::class,
             Message::class => MessageHandler::class,
             \Exception::class => ServerExceptionHandler::class,
             \Error::class => ServerExceptionHandler::class

@@ -16,7 +16,7 @@ namespace Sinpe\Framework\Exception;
  * @package Sinpe\Framework
  * @since   1.0.0
  */
-class UnauthorizedException extends BadRequest
+class UnauthorizedException extends BadRequestException
 {
     /**
      * __construct

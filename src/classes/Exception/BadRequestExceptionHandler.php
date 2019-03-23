@@ -19,7 +19,7 @@ use Psr\Http\Message\ServerRequestInterface;
  * @package Sinpe\Framework
  * @since   1.0.0
  */
-class BadRequestHandler extends MessageHandler
+class BadRequestExceptionHandler extends MessageHandler
 {
     /**
      * Handler procedure.
