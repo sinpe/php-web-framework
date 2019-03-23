@@ -19,7 +19,7 @@ use Psr\Http\Message\ResponseInterface;
  * @package Sinpe\Framework
  * @since   1.0.0
  */
-trait ExceptionTrait
+class RuntimeException extends \RuntimeException
 {
     /**
      * A request object
@@ -128,6 +128,16 @@ trait ExceptionTrait
     public function hasResponse() : bool
     {
         return isset($this->response);
+    }
+
+    /**
+     * Return default code.
+     *
+     * @return integer
+     */
+    protected function getDefaultCode()
+    {
+        return -1;
     }
 
 }

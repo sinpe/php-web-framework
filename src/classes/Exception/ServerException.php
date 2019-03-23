@@ -16,10 +16,8 @@ namespace Sinpe\Framework\Exception;
  * @package Sinpe\Framework
  * @since   1.0.0
  */
-class ServerError extends \RuntimeException
+class ServerException extends RuntimeException
 {
-    use ExceptionTrait;
-
     /**
      * Return default code.
      *

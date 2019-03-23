@@ -21,7 +21,7 @@ use Sinpe\Framework\SettingInterface;
  * @package Sinpe\Framework
  * @since   1.0.0
  */
-class ServerErrorHandler extends ExceptionHandler
+class ServerExceptionHandler extends ExceptionHandler
 {
     /**
      * @var Setting
@@ -44,7 +44,7 @@ class ServerErrorHandler extends ExceptionHandler
     public function __init()
     {
         $this->registerRenderers([
-            static::CONTENT_TYPE_HTML => ServerErrorHtmlRenderer::class
+            static::CONTENT_TYPE_HTML => ServerExceptionHtmlRenderer::class
         ]);
     }
 

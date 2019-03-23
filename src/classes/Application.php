@@ -14,7 +14,7 @@ use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
-use Sinpe\Framework\Exception\ServerError;
+use Sinpe\Framework\Exception\ServerException;
 use Sinpe\Framework\Exception\Message as FrameworkMessage;
 use Sinpe\Framework\Http\EnvironmentInterface;
 use Sinpe\Route\RouteInterface;
@@ -119,7 +119,7 @@ class Application
      */
     protected function generateSetting(): SettingInterface
     {
-        $settings = require_once __DIR__  . '/../settings_web.php';
+        $settings = require_once __DIR__  . '/../settings.php';
 
         return new Setting($settings);
     }
@@ -580,7 +580,7 @@ class Application
 
         $handler = null;
 
-        if ($ex instanceof ServerError || $ex instanceof FrameworkMessage) {
+        if ($ex instanceof ServerException || $ex instanceof FrameworkMessage) {
 
             if ($ex->hasRequest()) {
                 $request = $ex->getRequest();

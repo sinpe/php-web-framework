@@ -16,10 +16,8 @@ namespace Sinpe\Framework\Exception;
  * @package Sinpe\Framework
  * @since   1.0.0
  */
-class Message extends \RuntimeException
+class Message extends RuntimeException
 {
-    use ExceptionTrait;
-
     /**
      * @var array
      */
@@ -71,15 +69,5 @@ class Message extends \RuntimeException
     public function getData()
     {
         return $this->data;
-    }
-
-    /**
-     * Return default code.
-     *
-     * @return integer
-     */
-    protected function getDefaultCode()
-    {
-        return -1;
     }
 }

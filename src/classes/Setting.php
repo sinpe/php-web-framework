@@ -12,8 +12,8 @@ namespace Sinpe\Framework;
 
 use Sinpe\Framework\Exception\BadRequest;
 use Sinpe\Framework\Exception\BadRequestHandler;
-use Sinpe\Framework\Exception\ServerError;
-use Sinpe\Framework\Exception\ServerErrorHandler;
+use Sinpe\Framework\Exception\ServerException;
+use Sinpe\Framework\Exception\ServerExceptionHandler;
 use Sinpe\Framework\Exception\Message;
 use Sinpe\Framework\Exception\MessageHandler;
 
