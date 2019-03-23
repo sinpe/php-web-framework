@@ -10,7 +10,6 @@
 
 namespace Sinpe\Framework\Renderer;
 
-use Psr\Http\Message\ResponseInterface;
 use Spatie\ArrayToXml\ArrayToXml;
 use Sinpe\Framework\RendererInterface;
 
@@ -20,7 +19,7 @@ use Sinpe\Framework\RendererInterface;
  * @package Sinpe\Framework
  * @since   1.0.0
  */
-class Xml implements RendererInterface
+class XmlRenderer implements RendererInterface
 {
     /**
      * Process a handler output and return the result.

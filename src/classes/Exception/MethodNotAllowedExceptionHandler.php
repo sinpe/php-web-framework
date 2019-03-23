@@ -44,7 +44,7 @@ class MethodNotAllowedExceptionHandler extends BadRequestExceptionHandler
     ) : ResponseInterface {
         
         $response = $response->withStatus(405)
-            ->withHeader('Allow', implode(', ', $this->thrown->getAllowedMethods()));
+            ->withHeader('Allow', implode(', ', $this->getException()->getAllowedMethods()));
 
         return $this->rendererProcess($request, $response);
     }
@@ -56,11 +56,13 @@ class MethodNotAllowedExceptionHandler extends BadRequestExceptionHandler
      */
     protected function getRendererOutput()
     {
+        $ex = $this->getException();
+
         $error = [
-            'code' => $this->thrown->getCode(),
-            'message' => $this->thrown->getMessage(),
+            'code' => $ex->getCode(),
+            'message' => $ex->getMessage(),
             'data' => [
-                'allowed' => $this->thrown->getAllowedMethods()
+                'allowed' => $ex->getAllowedMethods()
             ]
         ];
 

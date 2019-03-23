@@ -10,7 +10,6 @@
 
 namespace Sinpe\Framework\Renderer;
 
-use Psr\Http\Message\ResponseInterface;
 use Sinpe\Framework\RendererInterface;
 
 /**
@@ -19,7 +18,7 @@ use Sinpe\Framework\RendererInterface;
  * @package Sinpe\Framework
  * @since   1.0.0
  */
-class Json implements RendererInterface
+class JsonRenderer implements RendererInterface
 {
     /**
      * Unicode convertors

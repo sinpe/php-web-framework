@@ -1,5 +1,5 @@
 <?php
-/*
+ /*
  * This file is part of the long/framework package.
  *
  * (c) Sinpe <support@sinpe.com>
@@ -10,14 +10,18 @@
 
 namespace Sinpe\Framework\Exception;
 
+use Sinpe\Framework\ExceptionTrait;
+
 /**
  * Client error.
  * 
  * @package Sinpe\Framework
  * @since   1.0.0
  */
-class Message extends RuntimeException
+class RequestException extends RuntimeException
 {
+    use ExceptionTrait;
+
     /**
      * @var array
      */

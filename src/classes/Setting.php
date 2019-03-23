@@ -10,13 +10,6 @@
 
 namespace Sinpe\Framework;
 
-use Sinpe\Framework\Exception\BadRequestException;
-use Sinpe\Framework\Exception\BadRequestExceptionHandler;
-use Sinpe\Framework\Exception\ServerException;
-use Sinpe\Framework\Exception\ServerExceptionHandler;
-use Sinpe\Framework\Exception\Message;
-use Sinpe\Framework\Exception\MessageHandler;
-
 /**
  * Framework settings.
  * 

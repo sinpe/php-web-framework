@@ -14,7 +14,7 @@ namespace Sinpe\Framework\Exception;
  * @package Sinpe\Framework
  * @since   1.0.0
  */
-class InputInvalid extends Message
+class RequestInvalidItemValueException extends RequestException
 {
     /**
      * __construct
@@ -26,15 +26,10 @@ class InputInvalid extends Message
     public function __construct(
         string $field,
         string $message,
-        int $code = -1,
-        $tips = null
+        int $code = -1
     ) {
 
         $data['field'] = $field;
-
-        if (!empty($tips)) {
-            $data['tips'] = $tips;
-        }
 
         parent::__construct(
             $message,

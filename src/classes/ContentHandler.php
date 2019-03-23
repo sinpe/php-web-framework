@@ -111,7 +111,7 @@ abstract class ContentHandler implements RequestHandlerInterface
      * @return ResponseInterface
      * @throws UnexpectedValueException
      */
-    final public function handle(
+    public function handle(
         ServerRequestInterface $request,
         ResponseInterface $response = null
     ) : ResponseInterface {

@@ -10,8 +10,6 @@
 
 namespace Sinpe\Framework;
 
-use Psr\Http\Message\ResponseInterface;
-
 /**
  * The renderer interface.
  * 

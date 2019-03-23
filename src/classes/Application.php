@@ -14,8 +14,8 @@ use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
-use Sinpe\Framework\Exception\ServerException;
-use Sinpe\Framework\Exception\Message as FrameworkMessage;
+use Sinpe\Framework\Exception\RuntimeException;
+use Sinpe\Framework\Exception\RequestException;
 use Sinpe\Framework\Http\EnvironmentInterface;
 use Sinpe\Route\RouteInterface;
 
@@ -72,6 +72,11 @@ class Application
         //     }
         // );
 
+        // function exception_error_handler($errno, $errstr, $errfile, $errline ) {
+        //     throw new \ErrorException($errstr, 0, $errno, $errfile, $errline);
+        // }
+        // set_error_handler("exception_error_handler");
+
         $this->environment = $environment;
         $this->container = $container;
 
@@ -121,7 +126,7 @@ class Application
     {
         $settings = require_once __DIR__  . '/../settings.php';
 
-        return new Setting($settings);
+        return new Setting($settings, \ArrayObject::ARRAY_AS_PROPS);
     }
 
     /**
@@ -580,7 +585,7 @@ class Application
 
         $handler = null;
 
-        if ($ex instanceof ServerException || $ex instanceof FrameworkMessage) {
+        if ($ex instanceof RuntimeException || $ex instanceof RequestException) {
 
             if ($ex->hasRequest()) {
                 $request = $ex->getRequest();
@@ -603,14 +608,13 @@ class Application
                 // 
                 if ($ex instanceof $targetClass) {
                     $handler = $this->container->make($handlerClass);
-                    $handler->setThrowable($ex);
                 }
             }
         }
 
         if ($handler) {
             try {
-                return $handler->handle($request, $response);
+                return $handler->handle($ex, $request, $response);
             } catch (\Exception $ex) {
                 $this->handleThrowable($ex, $request, $response);
             }

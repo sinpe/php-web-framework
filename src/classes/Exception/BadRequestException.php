@@ -16,7 +16,7 @@ namespace Sinpe\Framework\Exception;
  * @package Sinpe\Framework
  * @since   1.0.0
  */
-class BadRequestException extends Message
+class BadRequestException extends RequestException
 {
     /**
      * Return default code.

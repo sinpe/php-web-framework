@@ -10,7 +10,6 @@
 
 namespace Sinpe\Framework\Exception;
 
-use Psr\Http\Message\ResponseInterface;
 use Sinpe\Framework\RendererInterface;
 
 /**
@@ -19,7 +18,7 @@ use Sinpe\Framework\RendererInterface;
  * @package Sinpe\Framework
  * @since   1.0.0
  */
-class ServerExceptionHtmlRenderer implements RendererInterface
+class RuntimeExceptionHtmlRenderer implements RendererInterface
 {
     /**
      * Process a handler output and return the result.
@@ -30,7 +29,7 @@ class ServerExceptionHtmlRenderer implements RendererInterface
     {
         $title = 'Error';
 
-        if ($output->has('type')) {
+        if (isset($output->type)) {
 
             $html = '<p>The application could not run because of the following error:</p>';
             $html .= '<h2>Details</h2>';

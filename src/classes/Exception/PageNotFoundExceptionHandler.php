@@ -62,9 +62,11 @@ class PageNotFoundExceptionHandler extends BadRequestExceptionHandler
      */
     protected function getRendererOutput()
     {
+        $ex = $this->getException();
+
         $error = [
-            'code' => $this->thrown->getCode(),
-            'message' => $this->thrown->getMessage(),
+            'code' => $ex->getCode(),
+            'message' => $ex->getMessage(),
             'data' => [
                 'home' => (string) $this->request->getUri()->withPath('')->withQuery('')->withFragment('')
             ]

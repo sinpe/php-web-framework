@@ -16,7 +16,7 @@ use Sinpe\Framework\RendererInterface;
 /**
  * Html
  */
-class Html implements RendererInterface
+class HtmlRenderer implements RendererInterface
 {
     /**
      * Render HTML not allowed message

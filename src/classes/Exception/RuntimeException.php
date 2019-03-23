@@ -10,8 +10,7 @@
 
 namespace Sinpe\Framework\Exception;
 
-use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Message\ResponseInterface;
+use Sinpe\Framework\ExceptionTrait;
 
 /**
  * Exception with request response.
@@ -21,114 +20,7 @@ use Psr\Http\Message\ResponseInterface;
  */
 class RuntimeException extends \RuntimeException
 {
-    /**
-     * A request object
-     *
-     * @var ServerRequestInterface
-     */
-    private $request;
-
-    /**
-     * A response object to send to the HTTP client
-     *
-     * @var ResponseInterface
-     */
-    private $response;
-
-    /**
-     * __construct
-     *
-     * @param string $message
-     * @param mixed $code
-     * @param mixed $previous
-     * @param array $data
-     */
-    public function __construct(
-        string $message,
-        $code = null,
-        \Throwable $previous = null
-    ) {
-
-        if (!is_int($code)) {
-            // [message, previous]
-            $previous = $code;
-            $code = $this->getDefaultCode();
-        }
-
-        parent::__construct($message, $code, $previous);
-    }
-
-    /**
-     * @return ExceptionHandler
-     */
-    public function getHandler()
-    {
-        return get_class($this) . 'Handler';
-    }
-
-    /**
-     * Set request
-     *
-     * @param ServerRequestInterface $request
-     * @return $this
-     */
-    public function setRequest(ServerRequestInterface $request)
-    {
-        $this->request = $request;
-        return $this;
-    }
-
-    /**
-     * Set response
-     *
-     * @param ResponseInterface $response
-     * @return $this
-     */
-    public function setResponse(ResponseInterface $response)
-    {
-        $this->response = $response;
-        return $this;
-    }
-
-    /**
-     * Set request
-     *
-     * @return ServerRequestInterface
-     */
-    public function getRequest() : ServerRequestInterface
-    {
-        return $this->request;
-    }
-
-    /**
-     * Set response
-     * 
-     * @return ResponseInterface
-     */
-    public function getResponse() : ResponseInterface
-    {
-        return $this->response;
-    }
-
-    /**
-     * Has request
-     *
-     * @return bool
-     */
-    public function hasRequest() : bool
-    {
-        return isset($this->request);
-    }
-
-    /**
-     * Has response
-     * 
-     * @return bool
-     */
-    public function hasResponse() : bool
-    {
-        return isset($this->response);
-    }
+    use ExceptionTrait;
 
     /**
      * Return default code.
@@ -137,7 +29,6 @@ class RuntimeException extends \RuntimeException
      */
     protected function getDefaultCode()
     {
-        return -1;
+        return -500;
     }
-
 }

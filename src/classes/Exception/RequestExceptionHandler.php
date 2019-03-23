@@ -16,7 +16,7 @@ namespace Sinpe\Framework\Exception;
  * @package Sinpe\Framework
  * @since   1.0.0
  */
-class MessageHandler extends ExceptionHandler
+class RequestExceptionHandler extends RuntimeExceptionHandler
 {
     /**
      * Create the content will be rendered.
@@ -25,12 +25,14 @@ class MessageHandler extends ExceptionHandler
      */
     protected function getRendererOutput()
     {
+        $ex = $this->getException();
+
         $error = [
-            'code' => $this->thrown->getCode(),
-            'message' => $this->thrown->getMessage()
+            'code' => $ex->getCode(),
+            'message' => $ex->getMessage()
         ];
 
-        $data = $this->thrown->getData();
+        $data = $ex->getData();
 
         if (!empty($data)) {
             $error['data'] = $data;

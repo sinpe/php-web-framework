@@ -59,6 +59,6 @@ class Environment extends \ArrayObject implements EnvironmentInterface
             'REQUEST_TIME_FLOAT' => microtime(true),
         ], $userData);
 
-        return new static($data);
+        return new static($data, \ArrayObject::ARRAY_AS_PROPS);
     }
 }

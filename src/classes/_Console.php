@@ -25,7 +25,6 @@ class Console extends Application
         $container = $this->generateContainer();
         $container[SettingInterface::class] = $this->generateSetting();
         $this->container = $container;
-
         parent::__construct($name, $version);
         // 生命周期函数__init
         $this->__init();
@@ -60,7 +59,7 @@ class Console extends Application
      */
     protected function generateSetting(): SettingInterface
     {
-        $settings = require_once __DIR__  . '/../settings_console.php';
+        $settings = require_once __DIR__  . '/../settings.php';
 
         return new Setting($settings);
     }

@@ -19,7 +19,7 @@ use Psr\Http\Message\ServerRequestInterface;
  * @package Sinpe\Framework
  * @since   1.0.0
  */
-class BadRequestExceptionHandler extends MessageHandler
+class BadRequestExceptionHandler extends RequestExceptionHandler
 {
     /**
      * Handler procedure.
@@ -34,6 +34,23 @@ class BadRequestExceptionHandler extends MessageHandler
         $response = $response->withStatus(400);
 
         return $this->rendererProcess($request, $response);
+    }
+
+    /**
+     * Create the variable will be rendered.
+     *
+     * @return []
+     */
+    protected function getRendererOutput()
+    {
+        $ex = $this->getException();
+        
+        $error = [
+            'code' => $ex->getCode(),
+            'message' => $ex->getMessage()
+        ];
+
+        return $error;
     }
 
 }
