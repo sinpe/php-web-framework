@@ -1,5 +1,5 @@
 <?php
-/*
+ /*
  * This file is part of the long/route package.
  *
  * (c) Sinpe <support@sinpe.com>
@@ -8,7 +8,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Sinpe\Framework;
+namespace Sinpe\Framework\Http;
 
 use FastRoute\Dispatcher;
 use Psr\Http\Message\ResponseInterface;
@@ -17,7 +17,6 @@ use Psr\Http\Server\RequestHandlerInterface;
 use Sinpe\Route\MiddlewareAwareTrait;
 use Sinpe\Route\MiddlewareAwareInterface;
 use Sinpe\Route\RouterInterface;
-use Sinpe\Route\ResponseResolver;
 use Sinpe\Framework\Exception\MethodNotAllowedException;
 use Sinpe\Framework\Exception\PageNotFoundException;
 use Sinpe\Framework\Http\Response;
@@ -25,7 +24,7 @@ use Sinpe\Framework\Http\Response;
 /**
  * 
  */
-class ApplicationHandler implements RequestHandlerInterface, MiddlewareAwareInterface
+class RequestHandler implements RequestHandlerInterface, MiddlewareAwareInterface
 {
     use MiddlewareAwareTrait;
 
@@ -43,7 +42,7 @@ class ApplicationHandler implements RequestHandlerInterface, MiddlewareAwareInte
     {
         $this->router = $router;
     }
-    
+
     /**
      * Dispatch route callable against current Request and Response objects
      *
@@ -55,7 +54,7 @@ class ApplicationHandler implements RequestHandlerInterface, MiddlewareAwareInte
      * @return \Psr\Http\Message\ResponseInterface
      * @throws \Exception  if the route callable throws an exception
      */
-    protected function process(ServerRequestInterface $request) : ResponseInterface
+    protected function process(ServerRequestInterface $request): ResponseInterface
     {
         // Ensure basePath is set
         $router = $this->router;
@@ -78,19 +77,12 @@ class ApplicationHandler implements RequestHandlerInterface, MiddlewareAwareInte
 
             // $route->prepare($request, $routeArguments);
 
-            return $route->run(
-                $request,
-                new ResponseResolver(function () {
-                    return new Response();
-                }),
-                $routeArguments
-            );
-
+            return $route->run($request, new Response(), $routeArguments);
+            
         } elseif ($routeInfo[0] === Dispatcher::METHOD_NOT_ALLOWED) {
             throw (new MethodNotAllowedException($routeInfo[1]))->setRequest($request);
         }
 
         throw (new PageNotFoundException())->setRequest($request);
     }
-
 }

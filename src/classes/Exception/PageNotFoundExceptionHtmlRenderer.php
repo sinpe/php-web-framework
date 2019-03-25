@@ -10,7 +10,7 @@
 
 namespace Sinpe\Framework\Exception;
 
-use Psr\Http\Message\ResponseInterface;
+use Sinpe\Framework\ArrayObject;
 use Sinpe\Framework\RendererInterface;
 
 /**
@@ -26,7 +26,7 @@ class PageNotFoundExceptionHtmlRenderer implements RendererInterface
      *
      * @return string
      */
-    public function process(\ArrayObject $output)
+    public function process(ArrayObject $output)
     {
         return <<<END
 <html>

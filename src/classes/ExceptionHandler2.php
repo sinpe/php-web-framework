@@ -1,5 +1,5 @@
 <?php
-/*
+ /*
  * This file is part of the long/framework package.
  *
  * (c) Sinpe <support@sinpe.com>
@@ -8,7 +8,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Sinpe\Framework;
+namespace Sinpe\Framework\Http;
 
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -26,7 +26,7 @@ use Sinpe\Framework\Renderer\Xml as XmlRenderer;
  * @package Sinpe\Framework
  * @since   1.0.0
  */
-abstract class ContentHandler implements RequestHandlerInterface
+abstract class ResponseHandler implements RequestHandlerInterface
 {
     const CONTENT_TYPE_JSON = 'application/json';
     const CONTENT_TYPE_HTML = 'text/html';
@@ -114,7 +114,7 @@ abstract class ContentHandler implements RequestHandlerInterface
     public function handle(
         ServerRequestInterface $request,
         ResponseInterface $response = null
-    ) : ResponseInterface {
+    ): ResponseInterface {
 
         $this->determineContentType($request);
 
@@ -132,7 +132,7 @@ abstract class ContentHandler implements RequestHandlerInterface
      *
      * @return ResponseInterface
      */
-    protected function process(ServerRequestInterface $request, ResponseInterface $response) : ResponseInterface
+    protected function process(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
     {
         return $this->rendererProcess($request, $response);
     }
@@ -146,7 +146,7 @@ abstract class ContentHandler implements RequestHandlerInterface
     final protected function rendererProcess(
         ServerRequestInterface $request,
         ResponseInterface $response
-    ) : ResponseInterface {
+    ): ResponseInterface {
 
         if ($request->getMethod() === 'OPTIONS') {
             $response = $response->withHeader('Content-type', 'text/plain');
@@ -161,16 +161,15 @@ abstract class ContentHandler implements RequestHandlerInterface
                     比如：依赖Setting
                     function ($request) use($setting) {
                         $renderer = new $renderer($setting);
-                        return $renderer->process(new \ArrayObject($content));
+                        return $renderer->process(new ArrayObject($content));
                     }
                      */
                     $this->content = $renderer($request);
                 } else {
-                    $this->content = (new $renderer)->process(new \ArrayObject($this->getRendererOutput()));
+                    $this->content = (new $renderer)->process(new ArrayObject($this->getRendererOutput()));
                 }
 
                 $response = $response->withHeader('Content-type', $this->contentType);
-
             } else {
                 throw new \UnexpectedValueException('Cannot render unknown content type ' . $this->contentType);
             }
@@ -196,5 +195,4 @@ abstract class ContentHandler implements RequestHandlerInterface
      * @return []
      */
     abstract protected function getRendererOutput();
-
 }

@@ -12,8 +12,7 @@ namespace Sinpe\Framework\Exception;
 
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
-
-use Sinpe\Framework\ContentHandler as Base;
+use Sinpe\Framework\Http\ResponseHandler;
 
 /**
  * Exception handler base class.
@@ -21,7 +20,7 @@ use Sinpe\Framework\ContentHandler as Base;
  * @package Sinpe\Framework
  * @since   1.0.0
  */
-abstract class RuntimeExceptionHandler extends Base
+abstract class RuntimeExceptionHandler extends ResponseHandler
 {
     /**
      * @var Setting

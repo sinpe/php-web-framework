@@ -14,6 +14,8 @@ use Psr\Http\Message\UploadedFileInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UriInterface;
 use Psr\Http\Message\StreamInterface;
+
+use Sinpe\Framework\ArrayObject;
 use Sinpe\Framework\Http\HeadersInterface;
 
 /**
@@ -84,7 +86,7 @@ class Request extends Message implements ServerRequestInterface
     /**
      * The request attributes (route segment names and values)
      *
-     * @var \ArrayObject
+     * @var ArrayObject
      */
     protected $attributes;
 
@@ -141,17 +143,17 @@ class Request extends Message implements ServerRequestInterface
         $uri = Uri::createFromEnvironment($environment);
         $headers = Headers::createFromEnvironment($environment);
         $cookies = Cookies::parseHeader($headers->get('Cookie', []));
-        $serverParams = $environment->all();
         $body = new RequestBody();
         $uploadedFiles = UploadedFile::createFromEnvironment($environment);
 
-        $request = new static($method, $uri, $headers, $cookies, $serverParams, $body, $uploadedFiles);
+        $request = new static($method, $uri, $headers, $cookies, (array)$environment, $body, $uploadedFiles);
 
         if ($method === 'POST' &&
             in_array($request->getMediaType(), ['application/x-www-form-urlencoded', 'multipart/form-data'])) {
             // parsed body must be $_POST
             $request = $request->withParsedBody($_POST);
         }
+        
         return $request;
     }
 
@@ -182,7 +184,7 @@ class Request extends Message implements ServerRequestInterface
         $this->headers = $headers;
         $this->cookies = $cookies;
         $this->serverParams = $serverParams;
-        $this->attributes = new \ArrayObject;
+        $this->attributes = new ArrayObject;
         $this->body = $body;
         $this->uploadedFiles = $uploadedFiles;
 
@@ -959,7 +961,7 @@ class Request extends Message implements ServerRequestInterface
     public function withAttributes(array $attributes)
     {
         $clone = clone $this;
-        $clone->attributes = new \ArrayObject($attributes);
+        $clone->attributes = new ArrayObject($attributes);
 
         return $clone;
     }

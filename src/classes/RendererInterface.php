@@ -10,6 +10,8 @@
 
 namespace Sinpe\Framework;
 
+use Sinpe\Framework\ArrayObject;
+
 /**
  * The renderer interface.
  * 
@@ -23,6 +25,6 @@ interface RendererInterface
      *
      * @return string
      */
-    public function process(\ArrayObject $data);
+    public function process(ArrayObject $data);
 
 }

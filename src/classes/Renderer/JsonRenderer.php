@@ -10,6 +10,7 @@
 
 namespace Sinpe\Framework\Renderer;
 
+use Sinpe\Framework\ArrayObject;
 use Sinpe\Framework\RendererInterface;
 
 /**
@@ -91,7 +92,7 @@ class JsonRenderer implements RendererInterface
      *
      * @return string
      */
-    public function process(\ArrayObject $output)
+    public function process(ArrayObject $output)
     {
         $content = json_encode($this->convert($output->all()), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
 

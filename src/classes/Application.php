@@ -17,6 +17,7 @@ use Psr\Http\Message\StreamInterface;
 use Sinpe\Framework\Exception\RuntimeException;
 use Sinpe\Framework\Exception\RequestException;
 use Sinpe\Framework\Http\EnvironmentInterface;
+use Sinpe\Framework\Http\RequestHandler;
 use Sinpe\Route\RouteInterface;
 
 /**
@@ -66,8 +67,8 @@ class Application
         $container[SettingInterface::class] = $this->generateSetting();
 
         // set_exception_handler(
-        //     function ($e) use ($request) {
-        //         $response = $this->handleThrowable($e, $request);
+        //     function ($ex) use ($request) {
+        //         $response = $this->($ex, $request);
         //         $this->end($response);
         //     }
         // );
@@ -82,17 +83,6 @@ class Application
 
         // 生命周期函数__init
         $this->__init();
-    }
-
-    /**
-     * 启动
-     *
-     * @return void
-     */
-    final public function bootstrap()
-    {
-        // 生命周期函数__bootstrap
-        $this->__bootstrap();
     }
 
     /**
@@ -126,7 +116,7 @@ class Application
     {
         $settings = require_once __DIR__  . '/../settings.php';
 
-        return new Setting($settings, \ArrayObject::ARRAY_AS_PROPS);
+        return new Setting($settings);
     }
 
     /**
@@ -343,14 +333,12 @@ class Application
             ob_start();
             // Traverse middleware stack
             try {
-                $handler = new ApplicationHandler($this->container->get('router'));
-
+                $handler = new RequestHandler($this->container->get('router'));
                 $handler->middlewares(array_reverse($this->middlewares));
-                // normal
                 $response = $handler->handle($request);
-            } catch (\Throwable $e) {
-                // error
-                $response = $this->handleThrowable($e, $request);
+            } catch (\Throwable $ex) {
+                $handler = new ExceptionHandler($ex);
+                $response = $handler->handle($request);
             }
         } finally {
             $output = ob_get_clean();
@@ -502,7 +490,7 @@ class Application
         $body->rewind();
         $request = new Http\Request($method, $uri, $headers, $cookies, $serverParams, $body);
 
-        return $this->handle($request);
+        // return $this->handle($request); TODO
     }
 
     /**
@@ -565,62 +553,5 @@ class Application
 
         return in_array($response->getStatusCode(), [204, 205, 304]);
     }
-
-    /**
-     * Call relevant handler from the Container if needed. If it doesn't exist,
-     * then just re-throw.
-     *
-     * @param  \Throwable $e
-     * @param  ServerRequestInterface $request
-     *
-     * @return ResponseInterface
-     * @throws Exception if a handler is needed and not found
-     */
-    protected function handleThrowable(
-        \Throwable $ex,
-        ServerRequestInterface $request,
-        ResponseInterface $response = null
-    ) {
-        $setting = $this->container->get(SettingInterface::class);
-
-        $handler = null;
-
-        if ($ex instanceof RuntimeException || $ex instanceof RequestException) {
-
-            if ($ex->hasRequest()) {
-                $request = $ex->getRequest();
-            }
-
-            if ($ex->hasResponse()) {
-                $response = $ex->getResponse();
-            }
-
-            if (!array_key_exists(get_class($ex), $setting->throwableHandlers)) {
-                $handlerClass = $ex->getHandler();
-                if (class_exists($handlerClass)) {
-                    $handler = $this->container->make($handlerClass);
-                }
-            }
-        }
-
-        if (!$handler) {
-            foreach ($setting->throwableHandlers as $targetClass => $handlerClass) {
-                // 
-                if ($ex instanceof $targetClass) {
-                    $handler = $this->container->make($handlerClass);
-                }
-            }
-        }
-
-        if ($handler) {
-            try {
-                return $handler->handle($ex, $request, $response);
-            } catch (\Exception $ex) {
-                $this->handleThrowable($ex, $request, $response);
-            }
-        }
-
-        // No handlers found, so just throw the exception
-        throw $ex;
-    }
+ 
 }

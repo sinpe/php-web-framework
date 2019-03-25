@@ -10,6 +10,8 @@
 
 namespace Sinpe\Framework\Http;
 
+use Sinpe\Framework\ArrayObject;
+
 /**
  * Environment
  *
@@ -20,7 +22,7 @@ namespace Sinpe\Framework\Http;
  * @package Sinpe\Framework
  * @since   1.0.0
  */
-class Environment extends \ArrayObject implements EnvironmentInterface
+class Environment extends ArrayObject implements EnvironmentInterface
 {
     /**
      * Create mock environment
@@ -59,6 +61,6 @@ class Environment extends \ArrayObject implements EnvironmentInterface
             'REQUEST_TIME_FLOAT' => microtime(true),
         ], $userData);
 
-        return new static($data, \ArrayObject::ARRAY_AS_PROPS);
+        return new static($data);
     }
 }

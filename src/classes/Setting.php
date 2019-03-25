@@ -16,7 +16,7 @@ namespace Sinpe\Framework;
  * @package Sinpe\Framework
  * @since   1.0.0
  */
-class Setting extends \ArrayObject implements SettingInterface
+class Setting extends ArrayObject implements SettingInterface
 {
     
 }

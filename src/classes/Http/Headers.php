@@ -10,6 +10,8 @@
 
 namespace Sinpe\Framework\Http;
 
+use Sinpe\Framework\ArrayObject;
+
 /**
  * Headers
  *
@@ -26,7 +28,7 @@ namespace Sinpe\Framework\Http;
  * @package Sinpe\Framework
  * @since   1.0.0
  */
-class Headers extends \ArrayObject implements HeadersInterface
+class Headers extends ArrayObject implements HeadersInterface
 {
     /**
      * Special HTTP headers that do not have the "HTTP_" prefix
@@ -112,9 +114,9 @@ class Headers extends \ArrayObject implements HeadersInterface
      */
     public function all()
     {
-        $all = parent::all();
         $out = [];
-        foreach ($all as $key => $props) {
+
+        foreach ($this as $key => $props) {
             $out[$props['originalKey']] = $props['value'];
         }
 

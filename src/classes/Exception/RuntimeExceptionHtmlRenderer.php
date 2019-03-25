@@ -10,6 +10,7 @@
 
 namespace Sinpe\Framework\Exception;
 
+use Sinpe\Framework\ArrayObject;
 use Sinpe\Framework\RendererInterface;
 
 /**
@@ -25,7 +26,7 @@ class RuntimeExceptionHtmlRenderer implements RendererInterface
      *
      * @return string
      */
-    public function process(\ArrayObject $output)
+    public function process(ArrayObject $output)
     {
         $title = 'Error';
 
