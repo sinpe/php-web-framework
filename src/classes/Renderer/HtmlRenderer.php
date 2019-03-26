@@ -30,10 +30,10 @@ class HtmlRenderer implements RendererInterface
 
         if ($output->has('message')) {
 
-            $html .= '<h1>'.$output->message."({$output->code})</h1>";
+            $html .= '<h1>' . $output->message . "({$output->code})</h1>";
 
             if ($output->has('data')) {
-                $html .= '<p>'.is_string($output->data) ? $output->data : $this->serialize($output->data).'</p>';
+                $html .= '<p>' . (is_string($output->data) ? $output->data : $this->serialize($output->data)) . '</p>';
             }
         } else {
             if ($output->has('data')) {
@@ -54,5 +54,4 @@ class HtmlRenderer implements RendererInterface
     {
         return json_encode($data);
     }
-
 }
