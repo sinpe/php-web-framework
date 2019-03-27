@@ -133,15 +133,6 @@ abstract class ExceptionHandler implements RequestHandlerInterface
         $ex = $this->exception;
 
         if ($ex instanceof RuntimeException || $ex instanceof RequestException) {
-
-            if ($ex->hasRequest()) {
-                $request = $ex->getRequest();
-            }
-
-            if ($ex->hasResponse()) {
-                $response = $ex->getResponse();
-            }
-
             // if (!array_key_exists(get_class($ex), $setting->throwableHandlers)) {
             //     $handlerClass = $ex->getHandler();
             //     if (class_exists($handlerClass)) {
@@ -170,9 +161,11 @@ abstract class ExceptionHandler implements RequestHandlerInterface
         // // No handlers found, so just throw the exception
         // throw $ex;
 
+        // 事件
+
         $this->determineContentType($request);
 
-        $response = $this->process($request, $response ?? new Response());
+        $response = $this->process($request, new Response());
 
         $body = new Body(fopen('php://temp', 'r+'));
 

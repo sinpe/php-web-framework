@@ -17,8 +17,6 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
 
 use Sinpe\Event\EventDispatcher;
-use Sinpe\Framework\Exception\RuntimeException;
-use Sinpe\Framework\Exception\RequestException;
 use Sinpe\Framework\Http\EnvironmentInterface;
 use Sinpe\Framework\Http\RequestHandler;
 use Sinpe\Route\RouteInterface;
