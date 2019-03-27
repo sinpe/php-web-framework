@@ -22,20 +22,6 @@ use Psr\Http\Message\ResponseInterface;
 trait ExceptionTrait
 {
     /**
-     * A request object
-     *
-     * @var ServerRequestInterface
-     */
-    private $request;
-
-    /**
-     * A response object to send to the HTTP client
-     *
-     * @var ResponseInterface
-     */
-    private $response;
-
-    /**
      * __construct
      *
      * @param string $message
@@ -64,70 +50,6 @@ trait ExceptionTrait
     public function getHandler()
     {
         return get_class($this) . 'Handler';
-    }
-
-    /**
-     * Set request
-     *
-     * @param ServerRequestInterface $request
-     * @return $this
-     */
-    public function setRequest(ServerRequestInterface $request)
-    {
-        $this->request = $request;
-        return $this;
-    }
-
-    /**
-     * Set response
-     *
-     * @param ResponseInterface $response
-     * @return $this
-     */
-    public function setResponse(ResponseInterface $response)
-    {
-        $this->response = $response;
-        return $this;
-    }
-
-    /**
-     * Set request
-     *
-     * @return ServerRequestInterface
-     */
-    public function getRequest(): ServerRequestInterface
-    {
-        return $this->request;
-    }
-
-    /**
-     * Set response
-     * 
-     * @return ResponseInterface
-     */
-    public function getResponse(): ResponseInterface
-    {
-        return $this->response;
-    }
-
-    /**
-     * Has request
-     *
-     * @return bool
-     */
-    public function hasRequest(): bool
-    {
-        return isset($this->request);
-    }
-
-    /**
-     * Has response
-     * 
-     * @return bool
-     */
-    public function hasResponse(): bool
-    {
-        return isset($this->response);
     }
     
 }

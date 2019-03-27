@@ -80,9 +80,9 @@ class RequestHandler implements RequestHandlerInterface, MiddlewareAwareInterfac
             return $route->run($request, new Response(), $routeArguments);
             
         } elseif ($routeInfo[0] === Dispatcher::METHOD_NOT_ALLOWED) {
-            throw (new MethodNotAllowedException($routeInfo[1]))->setRequest($request);
+            throw new MethodNotAllowedException($routeInfo[1]);
         }
 
-        throw (new PageNotFoundException())->setRequest($request);
+        throw new PageNotFoundException();
     }
 }

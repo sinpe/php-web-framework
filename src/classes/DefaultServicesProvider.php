@@ -11,7 +11,6 @@
 namespace Sinpe\Framework;
 
 use Psr\Container\ContainerInterface;
-use Sinpe\Container\ProviderInterface;
 use Sinpe\Framework\CallableResolver;
 use Sinpe\Framework\SettingInterface;
 use Sinpe\Route\Router;
@@ -24,7 +23,7 @@ use Sinpe\Route\StrategyAutowiring;
  * @package Sinpe\Framework
  * @since   1.0.0
  */
-class DefaultServicesProvider implements ProviderInterface
+class DefaultServicesProvider
 {
     /**
      * Register default services.

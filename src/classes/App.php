@@ -11,9 +11,12 @@
 namespace Sinpe\Framework;
 
 use Psr\Container\ContainerInterface;
+use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
+
+use Sinpe\Event\EventDispatcher;
 use Sinpe\Framework\Exception\RuntimeException;
 use Sinpe\Framework\Exception\RequestException;
 use Sinpe\Framework\Http\EnvironmentInterface;
@@ -27,19 +30,26 @@ use Sinpe\Route\RouteInterface;
  * @package Sinpe\Framework
  * @since   1.0.0
  */
-class Application
+class App
 {
-    /**
-     * @var array
-     */
-    protected $middlewares = [];
-
     /**
      * ContainerInterface
      *
      * @var ContainerInterface
      */
     private $container;
+
+    /**
+     * EventDispatcherInterface
+     *
+     * @var EventDispatcherInterface
+     */
+    private $eventDispatcher;
+
+    /**
+     * @var array
+     */
+    protected $middlewares = [];
 
     /**
      * Environment
@@ -62,7 +72,10 @@ class Application
      */
     final public function __construct(EnvironmentInterface $environment)
     {
-        $container = $this->generateContainer();
+        $this->container = $container = $this->generateContainer();
+        $this->eventDispatcher = $this->generateEventDispatcher();
+
+        $container->setEventDispatcher($this->eventDispatcher);
 
         $container[SettingInterface::class] = $this->generateSetting();
 
@@ -79,7 +92,6 @@ class Application
         // set_error_handler("exception_error_handler");
 
         $this->environment = $environment;
-        $this->container = $container;
 
         // 生命周期函数__init
         $this->__init();
@@ -129,6 +141,18 @@ class Application
     protected function generateContainer(): ContainerInterface
     {
         return new Container();
+    }
+
+    /**
+     * Create event dispatcher
+     * 
+     * 需要替换默认的EventDispatcher，覆盖此方法
+     *
+     * @return EventDispatcherInterface
+     */
+    protected function generateEventDispatcher(): EventDispatcherInterface
+    {
+        return new EventDispatcher();
     }
 
     /**
@@ -326,8 +350,7 @@ class Application
     {
         $request = Http\Request::createFromEnvironment($this->environment);
 
-        // 生命周期函数__runBefore
-        $request = $this->__runBefore($request);
+        $request = $this->eventDispatcher->dispatch(new Event\AppRunBefore($request))->getRequest();
 
         try {
             ob_start();
@@ -335,6 +358,7 @@ class Application
             try {
                 $handler = new RequestHandler($this->container->get('router'));
                 $handler->middlewares(array_reverse($this->middlewares));
+                // if exception thrown, response should be loss.
                 $response = $handler->handle($request);
             } catch (\Throwable $ex) {
                 $handler = new ExceptionHandler($ex);
@@ -343,6 +367,8 @@ class Application
         } finally {
             $output = ob_get_clean();
         }
+
+        $response = $this->eventDispatcher->dispatch(new Event\AppRunAfter($response))->getResponse();
 
         if (!empty($output) && $response->getBody()->isWritable()) {
             $setting = $this->container->get(SettingInterface::class);
@@ -414,7 +440,7 @@ class Application
             }
 
             $body = $this->__echoBefore($body);
-            
+
             $offset = 0;
             $contentRange = $response->getHeaderLine('Content-Range');
             if ($contentRange) {
@@ -423,7 +449,7 @@ class Application
                 }
             }
             $body->seek($offset);
-            
+
             if (isset($contentLength)) {
                 $amountToRead = $contentLength;
                 while ($amountToRead > 0 && !$body->eof()) {
@@ -451,7 +477,7 @@ class Application
      * @param StreamInterface $body
      * @return StreamInterface
      */
-    protected function __echoBefore(StreamInterface $body) : StreamInterface
+    protected function __echoBefore(StreamInterface $body): StreamInterface
     {
         return $body;
     }
@@ -553,5 +579,4 @@ class Application
 
         return in_array($response->getStatusCode(), [204, 205, 304]);
     }
- 
 }
