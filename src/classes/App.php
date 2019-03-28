@@ -359,7 +359,8 @@ class App
                 // if exception thrown, response should be loss.
                 $response = $handler->handle($request);
             } catch (\Throwable $ex) {
-                $handler = new ExceptionHandler($ex);
+                $handler = new ExceptionHandler($ex, $this->eventDispatcher);
+                // $handler->setContainer($this->getContainer());
                 $response = $handler->handle($request);
             }
         } finally {

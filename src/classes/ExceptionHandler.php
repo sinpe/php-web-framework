@@ -14,6 +14,9 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 
+use Sinpe\Container\ContainerAwareInterface;
+use Sinpe\Container\ContainerAwareTrait;
+
 use Sinpe\Framework\Exception\RuntimeException;
 use Sinpe\Framework\Exception\RequestException;
 use Sinpe\Framework\Http\Body;
@@ -28,8 +31,10 @@ use Sinpe\Framework\Renderer\Xml as XmlRenderer;
  * @package Sinpe\Framework
  * @since   1.0.0
  */
-abstract class ExceptionHandler implements RequestHandlerInterface
+abstract class ExceptionHandler implements RequestHandlerInterface, ContainerAwareInterface
 {
+    use ContainerAwareTrait;
+
     const CONTENT_TYPE_JSON = 'application/json';
     const CONTENT_TYPE_HTML = 'text/html';
     const CONTENT_TYPE_XML1 = 'text/xml';
@@ -67,7 +72,7 @@ abstract class ExceptionHandler implements RequestHandlerInterface
      * 
      * @param \Exception $ex
      */
-    public function __construct(\Exception $ex)
+    public function __construct(\Exception $ex) 
     {
         $this->exception = $ex;
     }
@@ -161,7 +166,6 @@ abstract class ExceptionHandler implements RequestHandlerInterface
         // // No handlers found, so just throw the exception
         // throw $ex;
 
-        // 事件
 
         $this->determineContentType($request);
 
