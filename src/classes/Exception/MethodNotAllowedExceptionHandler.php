@@ -22,12 +22,14 @@ use Psr\Http\Message\ServerRequestInterface;
 class MethodNotAllowedExceptionHandler extends BadRequestExceptionHandler
 {
     /**
-     * Initliazation after construction.
-     *
-     * @return void
+     * __construct
+     * 
+     * @param \Exception $ex
      */
-    public function __init()
+    public function __construct(\Exception $ex)
     {
+        parent::__construct($ex);
+
         $this->registerRenderers([
             static::CONTENT_TYPE_HTML => MethodNotAllowedExceptionHtmlRenderer::class
         ]);
@@ -46,7 +48,7 @@ class MethodNotAllowedExceptionHandler extends BadRequestExceptionHandler
         $response = $response->withStatus(405)
             ->withHeader('Allow', implode(', ', $this->getException()->getAllowedMethods()));
 
-        return $this->rendererProcess($request, $response);
+        return $this->doProcess($request, $response);
     }
 
     /**

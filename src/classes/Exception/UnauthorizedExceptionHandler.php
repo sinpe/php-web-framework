@@ -37,7 +37,7 @@ abstract class UnauthorizedExceptionHandler extends BadRequestExceptionHandler
             $response = $response->withStatus(401);
         }
 
-        return $this->rendererProcess($request, $response);
+        return $this->doProcess($request, $response);
     }
 
     /**

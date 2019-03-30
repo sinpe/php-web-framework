@@ -12,7 +12,7 @@ namespace Sinpe\Framework\Exception;
 
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
-use Sinpe\Framework\Http\ResponseHandler;
+use Sinpe\Framework\ExceptionHandler;
 
 /**
  * Exception handler base class.
@@ -20,63 +20,20 @@ use Sinpe\Framework\Http\ResponseHandler;
  * @package Sinpe\Framework
  * @since   1.0.0
  */
-abstract class RuntimeExceptionHandler extends ResponseHandler
+class RuntimeExceptionHandler extends ExceptionHandler
 {
     /**
-     * @var Setting
-     */
-    private $setting;
-
-    /**
-     * @var \Exception
-     */
-    private $exception;
-
-    /**
      * __construct
+     * 
+     * @param \Exception $ex
      */
-    public function __construct(SettingInterface $setting)
+    public function __construct(\Exception $ex)
     {
-        $this->setting = $setting;
-    }
+        parent::__construct($ex);
 
-    /**
-     * Initliazation after construction.
-     *
-     * @return void
-     */
-    public function __init()
-    {
         $this->registerRenderers([
             static::CONTENT_TYPE_HTML => RuntimeExceptionHtmlRenderer::class
         ]);
-    }
-
-    /**
-     * Invoke the handler
-     *
-     * @param  ServerRequestInterface $request
-     * 
-     * @return ResponseInterface
-     * @throws UnexpectedValueException
-     */
-    public function handle(
-        \Exception $ex = null,
-        ServerRequestInterface $request,
-        ResponseInterface $response = null
-    ): ResponseInterface {
-
-        $this->exception = $ex;
-
-        return parent::handle($request, $response);
-    }
-
-    /**
-     * @return \Exception
-     */
-    protected function getException()
-    {
-        return $this->exception;
     }
 
     /**
@@ -88,14 +45,17 @@ abstract class RuntimeExceptionHandler extends ResponseHandler
         ServerRequestInterface $request,
         ResponseInterface $response
     ): ResponseInterface {
+
+        $setting = container(SettingInterface::class);
+
         // Write to the error log if debug is false
-        if (!$this->setting->debug) {
+        if (!$setting->debug) {
             self::errorLog($this->getException());
         }
 
         $response = $response->withStatus(500);
 
-        return $this->rendererProcess($request, $response);
+        return $this->doProcess($request, $response);
     }
 
     /**
@@ -110,8 +70,9 @@ abstract class RuntimeExceptionHandler extends ResponseHandler
             'message' => 'Error'
         ];
 
+        $setting = container(SettingInterface::class);
         // 
-        if ($this->setting->debug) {
+        if ($setting->debug) {
 
             $ex = $this->getException();
 

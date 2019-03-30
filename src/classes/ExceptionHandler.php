@@ -14,11 +14,6 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 
-use Sinpe\Container\ContainerAwareInterface;
-use Sinpe\Container\ContainerAwareTrait;
-
-use Sinpe\Framework\Exception\RuntimeException;
-use Sinpe\Framework\Exception\RequestException;
 use Sinpe\Framework\Http\Body;
 use Sinpe\Framework\Http\Response;
 use Sinpe\Framework\Renderer\Json as JsonRenderer;
@@ -31,10 +26,8 @@ use Sinpe\Framework\Renderer\Xml as XmlRenderer;
  * @package Sinpe\Framework
  * @since   1.0.0
  */
-class ExceptionHandler implements RequestHandlerInterface, ContainerAwareInterface
+class ExceptionHandler implements RequestHandlerInterface
 {
-    use ContainerAwareTrait;
-
     const CONTENT_TYPE_JSON = 'application/json';
     const CONTENT_TYPE_HTML = 'text/html';
     const CONTENT_TYPE_XML1 = 'text/xml';
@@ -72,9 +65,19 @@ class ExceptionHandler implements RequestHandlerInterface, ContainerAwareInterfa
      * 
      * @param \Exception $ex
      */
-    public function __construct(\Exception $ex) 
+    public function __construct(\Exception $ex)
     {
         $this->exception = $ex;
+    }
+
+    /**
+     * Get exception
+     *
+     * @return \Throwable
+     */
+    protected function getException(): \Throwable
+    {
+        return $this->exception;
     }
 
     /**
@@ -135,38 +138,6 @@ class ExceptionHandler implements RequestHandlerInterface, ContainerAwareInterfa
      */
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
-        $ex = $this->exception;
-
-        if ($ex instanceof RuntimeException || $ex instanceof RequestException) {
-            // if (!array_key_exists(get_class($ex), $setting->throwableHandlers)) {
-            //     $handlerClass = $ex->getHandler();
-            //     if (class_exists($handlerClass)) {
-            //         $handler = $this->container->make($handlerClass);
-            //     }
-            // }
-        }
-
-        // $setting = $this->container->get(SettingInterface::class);
-        // $handler = null;
-        // if (!$handler) {
-        //     foreach ($setting->throwableHandlers as $targetClass => $handlerClass) {
-        //         // 
-        //         if ($ex instanceof $targetClass) {
-        //             $handler = $this->container->make($handlerClass);
-        //         }
-        //     }
-        // }
-        // if ($handler) {
-        //     try {
-        //         return $handler->handle($ex, $request, $response);
-        //     } catch (\Exception $ex) {
-        //         $this->handleThrowable($ex, $request, $response);
-        //     }
-        // }
-        // // No handlers found, so just throw the exception
-        // throw $ex;
-
-
         $this->determineContentType($request);
 
         $response = $this->process($request, new Response());
@@ -183,9 +154,11 @@ class ExceptionHandler implements RequestHandlerInterface, ContainerAwareInterfa
      *
      * @return ResponseInterface
      */
-    protected function process(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
-    {
-        return $this->rendererProcess($request, $response);
+    protected function process(
+        ServerRequestInterface $request,
+        ResponseInterface $response
+    ): ResponseInterface {
+        return $this->doProcess($request, $response);
     }
 
     /**
@@ -194,36 +167,32 @@ class ExceptionHandler implements RequestHandlerInterface, ContainerAwareInterfa
      * @return string
      * @throws UnexpectedValueException
      */
-    final protected function rendererProcess(
+    final protected function doProcess(
         ServerRequestInterface $request,
         ResponseInterface $response
     ): ResponseInterface {
 
-        if ($request->getMethod() === 'OPTIONS') {
-            $response = $response->withHeader('Content-type', 'text/plain');
-        } else {
-            if (array_key_exists($this->getContentType(), $this->renderers)) {
+        if (array_key_exists($this->getContentType(), $this->renderers)) {
 
-                $renderer = $this->renderers[$this->getContentType()];
+            $renderer = $this->renderers[$this->getContentType()];
 
-                if ($renderer instanceof \Closure) {
-                    /*
-                    renderer需要依赖时，注入通过handler引入，再用此方式调用renderer
-                    比如：依赖Setting
-                    function ($request) use($setting) {
-                        $renderer = new $renderer($setting);
-                        return $renderer->process(new ArrayObject($content));
-                    }
-                     */
-                    $this->content = $renderer($request);
-                } else {
-                    $this->content = (new $renderer)->process(new ArrayObject($this->getRendererOutput()));
+            if ($renderer instanceof \Closure) {
+                /*
+                renderer需要依赖时，注入通过handler引入，再用此方式调用renderer
+                比如：依赖Setting
+                function ($request) use($setting) {
+                    $renderer = new $renderer($setting);
+                    return $renderer->process(new ArrayObject($content));
                 }
-
-                $response = $response->withHeader('Content-Type', $this->contentType);
+                    */
+                $this->content = $renderer($request);
             } else {
-                throw new \UnexpectedValueException('Cannot render unknown content type ' . $this->contentType);
+                $this->content = (new $renderer)->process(new ArrayObject($this->getRendererOutput()));
             }
+
+            $response = $response->withHeader('Content-Type', $this->contentType);
+        } else {
+            throw new \UnexpectedValueException('Cannot render unknown content type ' . $this->contentType);
         }
 
         return $response;

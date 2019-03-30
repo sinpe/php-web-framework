@@ -27,12 +27,14 @@ class PageNotFoundExceptionHandler extends BadRequestExceptionHandler
     private $request;
 
     /**
-     * Initliazation after construction.
-     *
-     * @return void
+     * __construct
+     * 
+     * @param \Exception $ex
      */
-    public function __init()
+    public function __construct(\Exception $ex)
     {
+        parent::__construct($ex);
+
         $this->registerRenderers([
             static::CONTENT_TYPE_HTML => PageNotFoundExceptionHtmlRenderer::class
         ]);
@@ -52,7 +54,7 @@ class PageNotFoundExceptionHandler extends BadRequestExceptionHandler
 
         $response = $response->withStatus(404);
 
-        return $this->rendererProcess($request, $response);
+        return $this->doProcess($request, $response);
     }
 
     /**

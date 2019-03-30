@@ -293,9 +293,37 @@ class App
                 // if exception thrown, response should be loss.
                 $response = $handler->handle($request);
             } catch (\Throwable $ex) {
-                $handler = new ExceptionHandler($ex);
-                // $handler->setContainer($this->getContainer());
-                $response = $handler->handle($request);
+
+                $setting = container(SettingInterface::class);
+
+                if ($ex instanceof RuntimeException || $ex instanceof RequestException) {
+                    if (!array_key_exists(get_class($ex), $setting->throwableHandlers)) {
+                        $handlerClass = $ex->getHandler();
+                        if (class_exists($handlerClass)) {
+                            $handler = new $handlerClass($ex);
+                        }
+                    }
+                }
+
+                if (!isset($handler)) {
+                    foreach ($setting->throwableHandlers as $targetClass => $handlerClass) {
+                        if ($ex instanceof $targetClass) {
+                            $handler = new $handlerClass($ex);
+                        }
+                    }
+                }
+
+                if (isset($handler)) {
+                    try {
+                        $response = $handler->handle($request);
+                    } catch (\Throwable $exAgain) {
+                        $handler = new Exception\HandlingExceptionHandler($exAgain, $ex);
+                        $response = $handler->handle($request);
+                    }
+                } else {
+                    $response = container(EventDispatcherInterface::class)
+                        ->dispatch(new Event\UnHandledException($ex))->getResponse();
+                }
             }
         } finally {
             $output = ob_get_clean();
@@ -319,6 +347,11 @@ class App
         }
 
         $response = $this->finalize($response);
+
+        if ($request->getMethod() === 'OPTIONS') {
+            $response = $response->withStatus(200)
+                ->withHeader('Content-type', 'text/plain');
+        }
 
         if (!$silent) {
             $this->end($response);

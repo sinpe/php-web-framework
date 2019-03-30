@@ -33,7 +33,7 @@ class BadRequestExceptionHandler extends RequestExceptionHandler
         
         $response = $response->withStatus(400);
 
-        return $this->rendererProcess($request, $response);
+        return $this->doProcess($request, $response);
     }
 
     /**
