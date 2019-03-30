@@ -10,11 +10,8 @@
 
 namespace Sinpe\Framework;
 
-use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Message\ResponseInterface;
-
 /**
- * Exception with request response.
+ * Framework exception.
  * 
  * @package Sinpe\Framework
  * @since   1.0.0
@@ -27,7 +24,6 @@ trait ExceptionTrait
      * @param string $message
      * @param mixed $code
      * @param mixed $previous
-     * @param array $data
      */
     public function __construct(
         string $message,
@@ -45,7 +41,7 @@ trait ExceptionTrait
     }
 
     /**
-     * @return RuntimeExceptionHandler
+     * @return string
      */
     public function getHandler()
     {
