@@ -1,4 +1,37 @@
 <?php
+/*
+ * This file is part of the long/framework package.
+ *
+ * (c) Sinpe <support@sinpe.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ * 
+ * Note: Other Loaded before me can override all.
+ */
+
+if (!function_exists('container')) {
+    /**
+     * Dependency injection container.
+     *
+     * @param  string  $value
+     * @return string
+     */
+    function container(string $name = null)
+    {
+        static $container;
+
+        if (!$container) {
+            $container = new \Sinpe\Framework\Container;
+        }
+        
+        if (is_null($name)) {
+            return $container;
+        }
+
+        return $container->get($name);
+    }
+}
 
 if (!function_exists('snake')) {
     /**
@@ -43,16 +76,10 @@ if (!function_exists('studly')) {
      * @param  string  $value
      * @return string
      */
-    function studly(string $value, string $delimiter = null)
+    function studly(string $value)
     {
-        if ($delimiter) {
-            $values = explode($delimiter, $value);
-            $values = array_map(function($value){
-                return studly($value);
-            }, $values);
-            return implode($delimiter, $values);
-        }
         $value = ucwords(str_replace(['-', '_'], ' ', $value));
+
         return str_replace(' ', '', $value);
     }
 }

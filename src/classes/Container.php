@@ -10,15 +10,13 @@
 
 namespace Sinpe\Framework;
 
-use Sinpe\Container\Container as Base;
-
 /**
- * DI container.
+ * Dependency injection container.
  *
  * @package Sinpe\Framework
  * @since   1.0.0
  */
-class Container extends Base
+class Container extends \Sinpe\Container\Container
 {
     /**
      * Register the default items.

@@ -8,7 +8,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Sinpe\Framework\Http;
+namespace Sinpe\Framework;
 
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -31,7 +31,7 @@ use Sinpe\Framework\Renderer\Xml as XmlRenderer;
  * @package Sinpe\Framework
  * @since   1.0.0
  */
-abstract class ExceptionHandler implements RequestHandlerInterface, ContainerAwareInterface
+class ExceptionHandler implements RequestHandlerInterface, ContainerAwareInterface
 {
     use ContainerAwareTrait;
 
@@ -220,7 +220,7 @@ abstract class ExceptionHandler implements RequestHandlerInterface, ContainerAwa
                     $this->content = (new $renderer)->process(new ArrayObject($this->getRendererOutput()));
                 }
 
-                $response = $response->withHeader('Content-type', $this->contentType);
+                $response = $response->withHeader('Content-Type', $this->contentType);
             } else {
                 throw new \UnexpectedValueException('Cannot render unknown content type ' . $this->contentType);
             }

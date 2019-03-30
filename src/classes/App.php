@@ -10,7 +10,6 @@
 
 namespace Sinpe\Framework;
 
-use Psr\Container\ContainerInterface;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -31,20 +30,6 @@ use Sinpe\Route\RouteInterface;
 class App
 {
     /**
-     * ContainerInterface
-     *
-     * @var ContainerInterface
-     */
-    private $container;
-
-    /**
-     * EventDispatcherInterface
-     *
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
-
-    /**
      * @var array
      */
     protected $middlewares = [];
@@ -57,23 +42,15 @@ class App
     private $environment;
 
     /**
-     * @var ServerRequestInterface
-     */
-    private $request;
-
-    /**
      * __construct
      *
      * @param EnvironmentInterface $environment
-     * 
-     * @throws \InvalidArgumentException when no container is provided that implements ContainerInterface
      */
     final public function __construct(EnvironmentInterface $environment)
     {
-        $this->container = $container = $this->generateContainer();
-        $this->eventDispatcher = $this->generateEventDispatcher();
+        $container = container();
 
-        $container->setEventDispatcher($this->eventDispatcher);
+        $container->setEventDispatcher(container(EventDispatcherInterface::class));
 
         $container[SettingInterface::class] = $this->generateSetting();
 
@@ -93,16 +70,6 @@ class App
 
         // 生命周期函数__init
         $this->__init();
-    }
-
-    /**
-     * Get container
-     *
-     * @return ContainerInterface
-     */
-    protected function getContainer()
-    {
-        return $this->container;
     }
 
     /**
@@ -127,30 +94,6 @@ class App
         $settings = require_once __DIR__  . '/../settings.php';
 
         return new Setting($settings);
-    }
-
-    /**
-     * create container
-     * 
-     * 需要替换默认的container，覆盖此方法
-     *
-     * @return ContainerInterface
-     */
-    protected function generateContainer(): ContainerInterface
-    {
-        return new Container();
-    }
-
-    /**
-     * Create event dispatcher
-     * 
-     * 需要替换默认的EventDispatcher，覆盖此方法
-     *
-     * @return EventDispatcherInterface
-     */
-    protected function generateEventDispatcher(): EventDispatcherInterface
-    {
-        return new EventDispatcher();
     }
 
     /**
@@ -256,13 +199,13 @@ class App
     public function map(array $methods, $pattern, $callable)
     {
         if ($callable instanceof \Closure) {
-            $callable = $callable->bindTo($this->container);
+            $callable = $callable->bindTo(container());
         }
 
-        $route = $this->container->get('router')->map($methods, $pattern, $callable);
+        $route = container('router')->map($methods, $pattern, $callable);
 
         if (is_callable([$route, 'setOutputBuffering'])) {
-            $setting = $this->container->get(SettingInterface::class);
+            $setting = container(SettingInterface::class);
             $route->setOutputBuffering($setting->outputBuffering);
         }
 
@@ -301,7 +244,7 @@ class App
      */
     public function group($pattern, $callable)
     {
-        $router = $this->container->get('router');
+        $router = container('router');
 
         $group = $router->pushGroup($pattern, $callable);
 
@@ -322,16 +265,6 @@ class App
     }
 
     /**
-     * __runBefore
-     *
-     * @return ServerRequestInterface
-     */
-    protected function __runBefore(ServerRequestInterface $request): ServerRequestInterface
-    {
-        return $request;
-    }
-
-    /**
      * Run application
      *
      * This method traverses the application middleware stack and then sends the
@@ -348,18 +281,19 @@ class App
     {
         $request = Http\Request::createFromEnvironment($this->environment);
 
-        $request = $this->eventDispatcher->dispatch(new Event\AppRunBefore($request))->getRequest();
+        $request = container(EventDispatcherInterface::class)
+            ->dispatch(new Event\AppRunBefore($request))->getRequest();
 
         try {
             ob_start();
             // Traverse middleware stack
             try {
-                $handler = new RequestHandler($this->container->get('router'));
+                $handler = new RequestHandler(container('router'));
                 $handler->middlewares(array_reverse($this->middlewares));
                 // if exception thrown, response should be loss.
                 $response = $handler->handle($request);
             } catch (\Throwable $ex) {
-                $handler = new ExceptionHandler($ex, $this->eventDispatcher);
+                $handler = new ExceptionHandler($ex);
                 // $handler->setContainer($this->getContainer());
                 $response = $handler->handle($request);
             }
@@ -367,10 +301,11 @@ class App
             $output = ob_get_clean();
         }
 
-        $response = $this->eventDispatcher->dispatch(new Event\AppRunAfter($response))->getResponse();
+        $response = container(EventDispatcherInterface::class)
+            ->dispatch(new Event\AppRunAfter($response))->getResponse();
 
         if (!empty($output) && $response->getBody()->isWritable()) {
-            $setting = $this->container->get(SettingInterface::class);
+            $setting = container(SettingInterface::class);
             $outputBuffering = $setting->outputBuffering;
             if ($outputBuffering === 'prepend') {
                 // prepend output buffer content
@@ -428,7 +363,7 @@ class App
                 $body->rewind();
             }
 
-            $setting = $this->container->get(SettingInterface::class);
+            $setting = container(SettingInterface::class);
 
             $chunkSize = $setting->responseChunkSize;
 
@@ -438,7 +373,8 @@ class App
                 $contentLength = $body->getSize();
             }
 
-            $body = $this->__echoBefore($body);
+            $body = container(EventDispatcherInterface::class)
+                ->dispatch(new Event\AppEchoBefore($body))->getBody();
 
             $offset = 0;
             $contentRange = $response->getHeaderLine('Content-Range');
@@ -468,17 +404,6 @@ class App
                 }
             }
         }
-    }
-
-    /**
-     * before echo
-     *
-     * @param StreamInterface $body
-     * @return StreamInterface
-     */
-    protected function __echoBefore(StreamInterface $body): StreamInterface
-    {
-        return $body;
     }
 
     /**
@@ -541,7 +466,7 @@ class App
             return $response->withoutHeader('Content-Type')->withoutHeader('Content-Length');
         }
 
-        $setting = $this->container->get(SettingInterface::class);
+        $setting = container(SettingInterface::class);
 
         // Add Content-Length header if `addContentLengthHeader` setting is set
         if ($setting->addContentLengthHeader == true) {

@@ -10,37 +10,37 @@
 
 namespace Sinpe\Framework\Event;
 
-use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\StreamInterface;
 
 /**
  * @package Sinpe\Framework
  * @since   1.0.0
  */
-class AppRunAfter extends \Sinpe\Event\Event
+class AppEchoBefore extends \Sinpe\Event\Event
 {
     /**
-     * @var ResponseInterface
+     * @var StreamInterface
      */
-    private $response;
+    private $body;
 
     /**
      * __construct
      *
-     * @param ResponseInterface $response
+     * @param StreamInterface $body
      */
-    public function __construct(ResponseInterface $response)
+    public function __construct(StreamInterface $body)
     {
-        $this->response = $response;
+        $this->body = $body;
     }
 
     /**
      * Get
      *
-     * @return ResponseInterface
+     * @return StreamInterface
      */
-    public function getResponse(): ResponseInterface
+    public function getBody(): StreamInterface
     {
-        return $this->response;
+        return $this->body;
     }
 
     /**
@@ -48,8 +48,8 @@ class AppRunAfter extends \Sinpe\Event\Event
      * 
      * @return void
      */
-    public function setResponse(ResponseInterface $response)
+    public function setBody(StreamInterface $body)
     {
-        $this->response = $response;
+        $this->body = $body;
     }
 }

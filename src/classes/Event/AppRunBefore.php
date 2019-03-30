@@ -8,7 +8,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Sinpe\Framework;
+namespace Sinpe\Framework\Event;
 
 use Psr\Http\Message\ServerRequestInterface;
 use Sinpe\Event\Event;
@@ -39,7 +39,7 @@ class AppRunBefore extends Event
      *
      * @return ServerRequestInterface
      */
-    public function getRequest():ServerRequestInterface
+    public function getRequest(): ServerRequestInterface
     {
         return $this->request;
     }
@@ -51,5 +51,4 @@ class AppRunBefore extends Event
     {
         $this->request = $request;
     }
-
 }
