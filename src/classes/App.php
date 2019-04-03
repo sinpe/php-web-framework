@@ -13,9 +13,7 @@ namespace Sinpe\Framework;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\StreamInterface;
 
-use Sinpe\Event\EventDispatcher;
 use Sinpe\Framework\Http\EnvironmentInterface;
 use Sinpe\Framework\Http\RequestHandler;
 use Sinpe\Route\RouteInterface;
@@ -48,12 +46,6 @@ class App
      */
     final public function __construct(EnvironmentInterface $environment)
     {
-        $container = container();
-
-        $container->setEventDispatcher(container(EventDispatcherInterface::class));
-
-        $container[SettingInterface::class] = $this->generateSetting();
-
         // set_exception_handler(
         //     function ($ex) use ($request) {
         //         $response = $this->($ex, $request);
@@ -65,6 +57,12 @@ class App
         //     throw new \ErrorException($errstr, 0, $errno, $errfile, $errline);
         // }
         // set_error_handler("exception_error_handler");
+
+        $container = container();
+
+        $container->setEventDispatcher($this->createEventDispatcher());
+
+        $container[SettingInterface::class] = $this->createSetting();
 
         $this->environment = $environment;
 
@@ -89,11 +87,26 @@ class App
      *
      * @return SettingInterface
      */
-    protected function generateSetting(): SettingInterface
+    protected function createSetting(): SettingInterface
     {
         $settings = require_once __DIR__  . '/../settings.php';
 
         return new Setting($settings);
+    }
+
+    /**
+     * create event dispatcher
+     * 
+     * 覆盖此方法
+     *
+     * @return EventDispatcherInterface
+     */
+    protected function createEventDispatcher(): EventDispatcherInterface
+    {
+        throw new \Exception(sprintf(
+            'Please override %s',
+            __METHOD__
+        ));
     }
 
     /**
@@ -223,7 +236,7 @@ class App
      */
     public function redirect($from, $to, $status = 302)
     {
-        $handler = function ($request, ResponseInterface $response) use ($to, $status) {
+        $handler = function (ServerRequestInterface $request, ResponseInterface $response) use ($to, $status) {
             return $response->withHeader('Location', (string)$to)->withStatus($status);
         };
 

@@ -34,7 +34,8 @@ class Environment extends ArrayObject implements EnvironmentInterface
     public static function mock(array $userData = [])
     {
         //Validates if default protocol is HTTPS to set default port 443
-        if ((isset($userData['HTTPS']) && $userData['HTTPS'] !== 'off') || ((isset($userData['REQUEST_SCHEME']) && $userData['REQUEST_SCHEME'] === 'https'))) {
+        if ((isset($userData['HTTPS']) && $userData['HTTPS'] !== 'off') || 
+            ((isset($userData['REQUEST_SCHEME']) && $userData['REQUEST_SCHEME'] === 'https'))) {
             $defscheme = 'https';
             $defport = 443;
         } else {
