@@ -27,7 +27,7 @@ class JsonRenderer implements RendererInterface
      * @var array
      */
     private static $convertors = [
-        [self::class, 'gb2312']
+        // [self::class, 'gb2312']
     ];
 
     /**

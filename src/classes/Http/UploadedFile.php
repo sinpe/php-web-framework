@@ -70,6 +70,14 @@ class UploadedFile implements UploadedFileInterface
      * @var StreamInterface
      */
     protected $stream;
+
+    /**
+     * The file resource.
+     *
+     * @var 
+     */
+    protected $resource;
+
     /**
      * Indicates if the uploaded file has already been moved.
      *
@@ -105,7 +113,7 @@ class UploadedFile implements UploadedFileInterface
     private static function parseUploadedFiles(array $uploadedFiles)
     {
         $parsed = [];
-        
+
         foreach ($uploadedFiles as $field => $uploadedFile) {
             if (!isset($uploadedFile['error'])) {
                 if (is_array($uploadedFile)) {
@@ -184,10 +192,28 @@ class UploadedFile implements UploadedFileInterface
             throw new \RuntimeException(i18n('Uploaded file %1s has already been moved', $this->name));
         }
         if ($this->stream === null) {
-            $this->stream = new Stream(fopen($this->file, 'r'));
+            $this->stream = new Stream($this->getResource());
         }
 
         return $this->stream;
+    }
+
+    /**
+     * Get file resource
+     *
+     * @return void
+     */
+    public function getResource()
+    {
+        if ($this->moved) {
+            throw new \RuntimeException(sprintf('Uploaded file %s has already been moved', $this->name));
+        }
+
+        if ($this->resource === null) {
+            $this->resource = fopen($this->file, 'r');
+        }
+
+        return $this->resource;
     }
 
     /**
