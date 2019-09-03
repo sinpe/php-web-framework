@@ -1,5 +1,5 @@
 <?php
- /*
+/*
  * This file is part of the long/framework package.
  *
  * (c) Sinpe <support@sinpe.com>
@@ -219,7 +219,7 @@ class App
 
         if (is_callable([$route, 'setOutputBuffering'])) {
             $setting = container(SettingInterface::class);
-            $route->setOutputBuffering($setting->outputBuffering);
+            $route->setOutputBuffering($setting->output_buffering);
         }
 
         return $route;
@@ -237,7 +237,7 @@ class App
     public function redirect($from, $to, $status = 302)
     {
         $handler = function (ServerRequestInterface $request, ResponseInterface $response) use ($to, $status) {
-            return $response->withHeader('Location', (string)$to)->withStatus($status);
+            return $response->withHeader('Location', (string) $to)->withStatus($status);
         };
 
         return $this->get($from, $handler);
@@ -310,7 +310,7 @@ class App
                 $setting = container(SettingInterface::class);
 
                 if ($ex instanceof RuntimeException || $ex instanceof RequestException) {
-                    if (!array_key_exists(get_class($ex), $setting->throwableHandlers)) {
+                    if (!array_key_exists(get_class($ex), $setting->throwable_handlers)) {
                         $handlerClass = $ex->getHandler();
                         if (class_exists($handlerClass)) {
                             $handler = new $handlerClass($ex);
@@ -319,7 +319,7 @@ class App
                 }
 
                 if (!isset($handler)) {
-                    foreach ($setting->throwableHandlers as $targetClass => $handlerClass) {
+                    foreach ($setting->throwable_handlers as $targetClass => $handlerClass) {
                         if ($ex instanceof $targetClass) {
                             $handler = new $handlerClass($ex);
                         }
@@ -347,7 +347,7 @@ class App
 
         if (!empty($output) && $response->getBody()->isWritable()) {
             $setting = container(SettingInterface::class);
-            $outputBuffering = $setting->outputBuffering;
+            $outputBuffering = $setting->output_buffering;
             if ($outputBuffering === 'prepend') {
                 // prepend output buffer content
                 $body = new Http\Body(fopen('php://temp', 'r+'));
@@ -411,7 +411,7 @@ class App
 
             $setting = container(SettingInterface::class);
 
-            $chunkSize = $setting->responseChunkSize;
+            $chunkSize = $setting->response_chunk_size;
 
             $contentLength = $response->getHeaderLine('Content-Length');
 
@@ -426,7 +426,7 @@ class App
             $contentRange = $response->getHeaderLine('Content-Range');
             if ($contentRange) {
                 if (preg_match('#(\\d+)-(\\d+)/(\\d+)#', $contentRange, $matches)) {
-                    $offset = (int)$matches[1];
+                    $offset = (int) $matches[1];
                 }
             }
             $body->seek($offset);
@@ -514,19 +514,15 @@ class App
 
         $setting = container(SettingInterface::class);
 
-        // Add Content-Length header if `addContentLengthHeader` setting is set
-        if ($setting->addContentLengthHeader == true) {
+        if (ob_get_length() > 0) {
+            throw new \RuntimeException("Unexpected data in output buffer. " .
+                "Maybe you have characters before an opening <?php tag?");
+        }
 
-            if (ob_get_length() > 0) {
-                throw new \RuntimeException("Unexpected data in output buffer. " .
-                    "Maybe you have characters before an opening <?php tag?");
-            }
+        $size = $response->getBody()->getSize();
 
-            $size = $response->getBody()->getSize();
-
-            if ($size !== null && !$response->hasHeader('Content-Length')) {
-                $response = $response->withHeader('Content-Length', (string)$size);
-            }
+        if ($size !== null && !$response->hasHeader('Content-Length')) {
+            $response = $response->withHeader('Content-Length', (string) $size);
         }
 
         return $response;

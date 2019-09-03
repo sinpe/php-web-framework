@@ -16,12 +16,11 @@ use Sinpe\Framework\Exception\RequestExceptionHandler;
 
 return [
     // 'httpVersion' => '1.1',
-    'responseChunkSize' => 4096,
-    'outputBuffering' => 'append',
+    'response_chunk_size' => 4096,
+    'output_buffering' => 'append',
     'debug' => false,
-    'addContentLengthHeader' => true,
-    'routerCacheFile' => false,
-    'throwableHandlers' => [
+    'router_cache_file' => false,
+    'throwable_handlers' => [
         BadRequestException::class => BadRequestExceptionHandler::class,
         RequestException::class => RequestExceptionHandler::class,
         \Exception::class => RuntimeExceptionHandler::class,

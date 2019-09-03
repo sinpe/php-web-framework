@@ -10,6 +10,12 @@
 
 namespace Sinpe\Framework;
 
+use Sinpe\Framework\CallableResolver;
+use Sinpe\Framework\SettingInterface;
+use Sinpe\Route\Router;
+use Sinpe\Route\RouterInterface;
+use Sinpe\Route\StrategyAutowiring;
+
 /**
  * Dependency injection container.
  *
@@ -23,7 +29,39 @@ class Container extends \Sinpe\Container\Container
      */
     protected function registerDefaults()
     {
-        $this->register(new DefaultServicesProvider());
+        $container = $this;
+
+        if (!isset($container['router'])) {
+
+            /**
+             * This service MUST return a SHARED instance
+             * of \Sinpe\Route\RouterInterface.
+             *
+             * @param Container $container
+             *
+             * @return RouterInterface
+             */
+            $container['router'] = function ($container) {
+
+                $routerCacheFile = false;
+
+                $setting = $container->get(SettingInterface::class);
+
+                if (isset($setting->router_cache_file)) {
+                    $routerCacheFile = $setting->router_cache_file;
+                }
+
+                $router = (new Router())->setCacheFile($routerCacheFile);
+
+                $router->setResolver(new CallableResolver($container));
+                $router->setStrategy(new StrategyAutowiring($container));
+
+                return $router;
+            };
+
+            $container[Router::class] = 'router';
+            $container[RouterInterface::class] = 'router';
+        }
     }
 
 }
