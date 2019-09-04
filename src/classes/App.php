@@ -103,10 +103,7 @@ class App
      */
     protected function createEventDispatcher(): EventDispatcherInterface
     {
-        throw new \Exception(sprintf(
-            'Please override %s',
-            __METHOD__
-        ));
+        throw new \Exception(sprintf('%s needs to be overrided', __METHOD__));
     }
 
     /**
