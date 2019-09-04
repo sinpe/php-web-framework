@@ -13,6 +13,8 @@
 if (!function_exists('container')) {
     /**
      * Dependency injection container.
+     * 
+     * You can override me directly.
      *
      * @param  string  $value
      * @return string
@@ -24,12 +26,28 @@ if (!function_exists('container')) {
         if (!$container) {
             $container = new \Sinpe\Framework\Container;
         }
-        
+
         if (is_null($name)) {
             return $container;
         }
 
         return $container->get($name);
+    }
+}
+
+if (!function_exists('config')) {
+    /**
+     * 配置
+     */
+    function config(string $key = null)
+    {
+        $config = container('config');
+
+        if (is_null($key)) {
+            return $config;
+        }
+
+        return $config->get($key);
     }
 }
 
@@ -53,7 +71,6 @@ if (!function_exists('snake')) {
 
         return $value;
     }
-
 }
 
 if (!function_exists('camel')) {

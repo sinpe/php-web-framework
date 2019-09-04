@@ -1,5 +1,5 @@
 <?php
- /*
+/*
  * This file is part of the long/framework package.
  *
  * (c) Sinpe <support@sinpe.com>
@@ -19,7 +19,9 @@ return [
     'response_chunk_size' => 4096,
     'output_buffering' => 'append',
     'debug' => false,
-    'router_cache_file' => false,
+    'route_cache' => function () {
+        return false;
+    },
     'throwable_handlers' => [
         BadRequestException::class => BadRequestExceptionHandler::class,
         RequestException::class => RequestExceptionHandler::class,
@@ -27,4 +29,3 @@ return [
         \Error::class => RuntimeExceptionHandler::class
     ]
 ];
-

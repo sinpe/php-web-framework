@@ -10,13 +10,13 @@
 
 namespace Sinpe\Framework;
 
+use Psr\Container\ContainerInterface;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
 use Sinpe\Framework\Http\EnvironmentInterface;
 use Sinpe\Framework\Http\RequestHandler;
-use Sinpe\Route\RouteInterface;
 
 /**
  * This is the primary class with which you instantiate,
@@ -53,18 +53,39 @@ class App
         //     }
         // );
 
-        // function exception_error_handler($errno, $errstr, $errfile, $errline ) {
-        //     throw new \ErrorException($errstr, 0, $errno, $errfile, $errline);
-        // }
-        // set_error_handler("exception_error_handler");
-
-        $container = container();
-
-        $container->setEventDispatcher($this->createEventDispatcher());
-
-        $container[SettingInterface::class] = $this->createSetting();
-
         $this->environment = $environment;
+
+        // container instance
+        $container = container();
+        // 
+        if ($container instanceof ContainerInterface) {
+            throw new \Exception(sprintf('container() return Must be %s', ContainerInterface::class));
+        }
+
+        // event instance (optional)
+        $event = $this->eventFactory();
+        // 
+        if ($event) {
+            if ($event instanceof EventDispatcherInterface) {
+                throw new \Exception(sprintf(
+                    '%s::eventFactory return Must be %s',
+                    static::class,
+                    EventDispatcherInterface::class
+                ));
+            }
+            $container->set(EventDispatcherInterface::class, $event);
+        }
+
+        // config instance
+        $config = $this->configFactory();
+        if (!$config || !method_exists($config, 'get')) {
+            throw new \Exception(sprintf(
+                '%s::configFactory return Must has "get" method',
+                static::class
+            ));
+        }
+        $container->set('config', $config);
+        $container->set(get_class($config), $config);
 
         // 生命周期函数__init
         $this->__init();
@@ -81,27 +102,25 @@ class App
     { }
 
     /**
-     * create setting
-     * 
-     * 需要替换默认的setting，覆盖此方法
-     *
-     * @return SettingInterface
-     */
-    protected function createSetting(): SettingInterface
-    {
-        $settings = require_once __DIR__  . '/../settings.php';
-
-        return new Setting($settings);
-    }
-
-    /**
      * create event dispatcher
      * 
      * 覆盖此方法
      *
      * @return EventDispatcherInterface
      */
-    protected function createEventDispatcher(): EventDispatcherInterface
+    protected function eventFactory()
+    {
+        throw new \Exception(sprintf('%s needs to be overrided', __METHOD__));
+    }
+
+    /**
+     * Create config
+     * 
+     * 覆盖此方法
+     *
+     * @return Object
+     */
+    protected function configFactory()
     {
         throw new \Exception(sprintf('%s needs to be overrided', __METHOD__));
     }
@@ -111,8 +130,6 @@ class App
      *
      * @param  string $pattern  The route URI pattern
      * @param  callable|string  $callable The route callback routine
-     *
-     * @return \Sinpe\Route\RouteInterface
      */
     public function get($pattern, $callable)
     {
@@ -124,8 +141,6 @@ class App
      *
      * @param  string $pattern  The route URI pattern
      * @param  callable|string  $callable The route callback routine
-     *
-     * @return \Sinpe\Route\RouteInterface
      */
     public function post($pattern, $callable)
     {
@@ -137,8 +152,6 @@ class App
      *
      * @param  string $pattern  The route URI pattern
      * @param  callable|string  $callable The route callback routine
-     *
-     * @return \Sinpe\Route\RouteInterface
      */
     public function put($pattern, $callable)
     {
@@ -150,8 +163,6 @@ class App
      *
      * @param  string $pattern  The route URI pattern
      * @param  callable|string  $callable The route callback routine
-     *
-     * @return \Sinpe\Route\RouteInterface
      */
     public function patch($pattern, $callable)
     {
@@ -163,8 +174,6 @@ class App
      *
      * @param  string $pattern  The route URI pattern
      * @param  callable|string  $callable The route callback routine
-     *
-     * @return \Sinpe\Route\RouteInterface
      */
     public function delete($pattern, $callable)
     {
@@ -176,8 +185,6 @@ class App
      *
      * @param  string $pattern  The route URI pattern
      * @param  callable|string  $callable The route callback routine
-     *
-     * @return \Sinpe\Route\RouteInterface
      */
     public function options($pattern, $callable)
     {
@@ -189,8 +196,6 @@ class App
      *
      * @param  string $pattern  The route URI pattern
      * @param  callable|string  $callable The route callback routine
-     *
-     * @return \Sinpe\Route\RouteInterface
      */
     public function any($pattern, $callable)
     {
@@ -203,8 +208,6 @@ class App
      * @param  string[] $methods  Numeric array of HTTP method names
      * @param  string   $pattern  The route URI pattern
      * @param  callable|string    $callable The route callback routine
-     *
-     * @return RouteInterface
      */
     public function map(array $methods, $pattern, $callable)
     {
@@ -215,8 +218,7 @@ class App
         $route = container('router')->map($methods, $pattern, $callable);
 
         if (is_callable([$route, 'setOutputBuffering'])) {
-            $setting = container(SettingInterface::class);
-            $route->setOutputBuffering($setting->output_buffering);
+            $route->setOutputBuffering(config('runtime.output_buffering'));
         }
 
         return $route;
@@ -228,8 +230,6 @@ class App
      * @param string              $from
      * @param string|UriInterface $to
      * @param int                 $status
-     *
-     * @return RouteInterface
      */
     public function redirect($from, $to, $status = 302)
     {
@@ -304,10 +304,10 @@ class App
                 $response = $handler->handle($request);
             } catch (\Throwable $ex) {
 
-                $setting = container(SettingInterface::class);
+                $handlers = config('runtime.throwable_handlers');
 
                 if ($ex instanceof RuntimeException || $ex instanceof RequestException) {
-                    if (!array_key_exists(get_class($ex), $setting->throwable_handlers)) {
+                    if (!array_key_exists(get_class($ex), $handlers)) {
                         $handlerClass = $ex->getHandler();
                         if (class_exists($handlerClass)) {
                             $handler = new $handlerClass($ex);
@@ -316,7 +316,7 @@ class App
                 }
 
                 if (!isset($handler)) {
-                    foreach ($setting->throwable_handlers as $targetClass => $handlerClass) {
+                    foreach ($handlers as $targetClass => $handlerClass) {
                         if ($ex instanceof $targetClass) {
                             $handler = new $handlerClass($ex);
                         }
@@ -343,8 +343,7 @@ class App
             ->dispatch(new Event\AppRunAfter($response))->getResponse();
 
         if (!empty($output) && $response->getBody()->isWritable()) {
-            $setting = container(SettingInterface::class);
-            $outputBuffering = $setting->output_buffering;
+            $outputBuffering = config('runtime.output_buffering');
             if ($outputBuffering === 'prepend') {
                 // prepend output buffer content
                 $body = new Http\Body(fopen('php://temp', 'r+'));
@@ -406,9 +405,7 @@ class App
                 $body->rewind();
             }
 
-            $setting = container(SettingInterface::class);
-
-            $chunkSize = $setting->response_chunk_size;
+            $chunkSize = config('runtime.response_chunk_size');
 
             $contentLength = $response->getHeaderLine('Content-Length');
 
@@ -508,8 +505,6 @@ class App
         if ($this->isEmptyResponse($response)) {
             return $response->withoutHeader('Content-Type')->withoutHeader('Content-Length');
         }
-
-        $setting = container(SettingInterface::class);
 
         if (ob_get_length() > 0) {
             throw new \RuntimeException("Unexpected data in output buffer. " .

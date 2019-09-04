@@ -11,7 +11,6 @@
 namespace Sinpe\Framework;
 
 use Sinpe\Framework\CallableResolver;
-use Sinpe\Framework\SettingInterface;
 use Sinpe\Route\Router;
 use Sinpe\Route\RouterInterface;
 use Sinpe\Route\StrategyAutowiring;
@@ -45,10 +44,8 @@ class Container extends \Sinpe\Container\Container
 
                 $routerCacheFile = false;
 
-                $setting = $container->get(SettingInterface::class);
-
-                if (isset($setting->router_cache_file)) {
-                    $routerCacheFile = $setting->router_cache_file;
+                if (config()->has('runtime.route_cache')) {
+                    $routerCacheFile = config('runtime.route_cache')(); // function
                 }
 
                 $router = (new Router())->setCacheFile($routerCacheFile);
@@ -63,5 +60,4 @@ class Container extends \Sinpe\Container\Container
             $container[RouterInterface::class] = 'router';
         }
     }
-
 }
