@@ -21,12 +21,12 @@ use Sinpe\Framework\Renderer\Html as HtmlRenderer;
 use Sinpe\Framework\Renderer\Xml as XmlRenderer;
 
 /**
- * The response handler base class.
+ * The exception handler base class.
  * 
  * @package Sinpe\Framework
  * @since   1.0.0
  */
-abstract class ResponseHandler implements RequestHandlerInterface
+abstract class ExceptionHandler implements RequestHandlerInterface
 {
     const CONTENT_TYPE_JSON = 'application/json';
     const CONTENT_TYPE_HTML = 'text/html';
@@ -54,6 +54,31 @@ abstract class ResponseHandler implements RequestHandlerInterface
         self::CONTENT_TYPE_XML2 => XmlRenderer::class,
         self::CONTENT_TYPE_HTML => HtmlRenderer::class
     ];
+
+    /**
+     * @var \Exception
+     */
+    private $exception;
+
+    /**
+     * __construct
+     * 
+     * @param \Exception $ex
+     */
+    public function __construct(\Exception $ex)
+    {
+        $this->exception = $ex;
+    }
+
+    /**
+     * Get exception
+     *
+     * @return \Exception
+     */
+    protected function getException(): \Exception
+    {
+        return $this->exception;
+    }
 
     /**
      * Content type

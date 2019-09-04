@@ -8,7 +8,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Sinpe\Framework;
+namespace Sinpe\Framework\Exception;
 
 /**
  * Framework exception.
@@ -47,5 +47,4 @@ trait ExceptionTrait
     {
         return get_class($this) . 'Handler';
     }
-    
 }

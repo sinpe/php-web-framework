@@ -169,25 +169,19 @@ class Uri implements UriInterface
     public static function createFromEnvironment(EnvironmentInterface $env)
     {
         // Scheme
-        $isSecure = $env->get('HTTPS');
-        $scheme = (empty($isSecure) || $isSecure === 'off') ? 'http' : 'https';
+        $scheme = $env->getScheme();
 
         // Authority: Username and password
         $username = $env->get('PHP_AUTH_USER', '');
         $password = $env->get('PHP_AUTH_PW', '');
 
         // Authority: Host
-        if ($env->has('HTTP_HOST')) {
-            $host = $env->get('HTTP_HOST');
-        } else {
-            $host = $env->get('SERVER_NAME');
-        }
-
+        $host = $env->getHost();
         // Authority: Port
         $port = (int)$env->get('SERVER_PORT', 80);
+        // 
         if (preg_match('/^(\[[a-fA-F0-9:.]+\])(:\d+)?\z/', $host, $matches)) {
             $host = $matches[1];
-
             if (isset($matches[2])) {
                 $port = (int)substr($matches[2], 1);
             }

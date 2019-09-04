@@ -22,9 +22,9 @@ use Sinpe\Framework\Exception\PageNotFoundException;
 use Sinpe\Framework\Http\Response;
 
 /**
- * 
+ * Normal handler
  */
-class RequestHandler implements RequestHandlerInterface, MiddlewareAwareInterface
+class NormalHandler implements RequestHandlerInterface, MiddlewareAwareInterface
 {
     use MiddlewareAwareTrait;
 

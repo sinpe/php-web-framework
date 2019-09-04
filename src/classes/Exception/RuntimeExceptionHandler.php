@@ -1,5 +1,5 @@
 <?php
- /*
+/*
  * This file is part of the long/framework package.
  *
  * (c) Sinpe <support@sinpe.com>
@@ -12,7 +12,7 @@ namespace Sinpe\Framework\Exception;
 
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
-use Sinpe\Framework\ExceptionHandler;
+use Sinpe\Framework\Http\ExceptionHandler;
 
 /**
  * Exception handler base class.
@@ -46,10 +46,8 @@ class RuntimeExceptionHandler extends ExceptionHandler
         ResponseInterface $response
     ): ResponseInterface {
 
-        $setting = container(SettingInterface::class);
-
         // Write to the error log if debug is false
-        if (!$setting->debug) {
+        if (!config('runtime.debug')) {
             self::errorLog($this->getException());
         }
 
@@ -70,9 +68,8 @@ class RuntimeExceptionHandler extends ExceptionHandler
             'message' => 'Error'
         ];
 
-        $setting = container(SettingInterface::class);
         // 
-        if ($setting->debug) {
+        if (config('runtime.debug')) {
 
             $ex = $this->getException();
 

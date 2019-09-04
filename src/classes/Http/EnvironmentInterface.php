@@ -19,4 +19,7 @@ namespace Sinpe\Framework\Http;
 interface EnvironmentInterface
 {
     public static function mock(array $settings = []);
+
+    public function getHost();
+    public function getScheme();
 }

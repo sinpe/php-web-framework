@@ -16,13 +16,19 @@ use Sinpe\Framework\Exception\RequestExceptionHandler;
 
 return [
     'http_version' => '1.1',
+    'host_readers' => [
+        'X-FORWARDED-HOST',
+        'X-FORWARDED-SERVER',
+        'HTTP_HOST',
+        'SERVER_NAME'
+    ],
     'response_chunk_size' => 4096,
     'output_buffering' => 'append',
     'debug' => false,
     'route_cache' => function () {
         return false;
     },
-    'throwable_handlers' => [
+    'exception_handlers' => [
         BadRequestException::class => BadRequestExceptionHandler::class,
         RequestException::class => RequestExceptionHandler::class,
         \Exception::class => RuntimeExceptionHandler::class,

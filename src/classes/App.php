@@ -16,7 +16,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
 use Sinpe\Framework\Http\EnvironmentInterface;
-use Sinpe\Framework\Http\RequestHandler;
+use Sinpe\Framework\Http\NormalHandler;
 
 /**
  * This is the primary class with which you instantiate,
@@ -46,34 +46,19 @@ class App
      */
     final public function __construct(EnvironmentInterface $environment)
     {
-        // set_exception_handler(
-        //     function ($ex) use ($request) {
-        //         $response = $this->($ex, $request);
-        //         $this->end($response);
-        //     }
-        // );
+        // TODO
+        // set_exception_handler(function ($ex) {
+        //     // $response = $this->($ex, $request);
+        //     //$this->end($response);
+        // });
 
         $this->environment = $environment;
 
         // container instance
         $container = container();
         // 
-        if ($container instanceof ContainerInterface) {
+        if (!$container instanceof ContainerInterface) {
             throw new \Exception(sprintf('container() return Must be %s', ContainerInterface::class));
-        }
-
-        // event instance (optional)
-        $event = $this->eventFactory();
-        // 
-        if ($event) {
-            if ($event instanceof EventDispatcherInterface) {
-                throw new \Exception(sprintf(
-                    '%s::eventFactory return Must be %s',
-                    static::class,
-                    EventDispatcherInterface::class
-                ));
-            }
-            $container->set(EventDispatcherInterface::class, $event);
         }
 
         // config instance
@@ -86,6 +71,8 @@ class App
         }
         $container->set('config', $config);
         $container->set(get_class($config), $config);
+
+        $config->load(__DIR__ . '/../runtime.php');
 
         // 生命周期函数__init
         $this->__init();
@@ -102,21 +89,9 @@ class App
     { }
 
     /**
-     * create event dispatcher
+     * Config factory
      * 
-     * 覆盖此方法
-     *
-     * @return EventDispatcherInterface
-     */
-    protected function eventFactory()
-    {
-        throw new \Exception(sprintf('%s needs to be overrided', __METHOD__));
-    }
-
-    /**
-     * Create config
-     * 
-     * 覆盖此方法
+     * You MUST override this method.
      *
      * @return Object
      */
@@ -257,9 +232,7 @@ class App
         $router = container('router');
 
         $group = $router->pushGroup($pattern, $callable);
-
         $group->run();
-
         $router->popGroup();
 
         return $group;
@@ -268,7 +241,7 @@ class App
     /**
      * 中间件
      */
-    public function middleware($middleware)
+    public function use($middleware)
     {
         $this->middlewares[] = $middleware;
         return $this;
@@ -291,22 +264,25 @@ class App
     {
         $request = Http\Request::createFromEnvironment($this->environment);
 
-        $request = container(EventDispatcherInterface::class)
-            ->dispatch(new Event\AppRunBefore($request))->getRequest();
+        if (container()->has(EventDispatcherInterface::class)) {
+            $request = container(EventDispatcherInterface::class)
+                ->dispatch(new Event\AppRunBefore($request))->getRequest();
+        }
 
         try {
             ob_start();
             // Traverse middleware stack
             try {
-                $handler = new RequestHandler(container('router'));
-                $handler->middlewares(array_reverse($this->middlewares));
+                $handler = new NormalHandler(container('router'));
+                //
+                $handler->manyUse(array_reverse($this->middlewares));
                 // if exception thrown, response should be loss.
                 $response = $handler->handle($request);
-            } catch (\Throwable $ex) {
+            } catch (\Exception $ex) {
 
-                $handlers = config('runtime.throwable_handlers');
+                $handlers = config('runtime.exception_handlers');
 
-                if ($ex instanceof RuntimeException || $ex instanceof RequestException) {
+                if ($ex instanceof Exception\RuntimeException || $ex instanceof Exception\RequestException) {
                     if (!array_key_exists(get_class($ex), $handlers)) {
                         $handlerClass = $ex->getHandler();
                         if (class_exists($handlerClass)) {
@@ -326,21 +302,26 @@ class App
                 if (isset($handler)) {
                     try {
                         $response = $handler->handle($request);
-                    } catch (\Throwable $exAgain) {
+                    } catch (\Exception $exAgain) {
                         $handler = new Exception\HandlingExceptionHandler($exAgain, $ex);
                         $response = $handler->handle($request);
+                    } catch (\Throwable $exAgain) {
+                        throw $exAgain;
                     }
                 } else {
-                    $response = container(EventDispatcherInterface::class)
-                        ->dispatch(new Event\UnHandledException($ex))->getResponse();
+                    throw $ex;
                 }
             }
+        } catch (\Throwable $ex) {
+            throw $ex;
         } finally {
             $output = ob_get_clean();
         }
 
-        $response = container(EventDispatcherInterface::class)
-            ->dispatch(new Event\AppRunAfter($response))->getResponse();
+        if (container()->has(EventDispatcherInterface::class)) {
+            $response = container(EventDispatcherInterface::class)
+                ->dispatch(new Event\AppRunAfter($response))->getResponse();
+        }
 
         if (!empty($output) && $response->getBody()->isWritable()) {
             $outputBuffering = config('runtime.output_buffering');
@@ -386,14 +367,12 @@ class App
             }
 
             // Status
-            header(
-                sprintf(
-                    'HTTP/%s %s %s',
-                    $response->getProtocolVersion(),
-                    $response->getStatusCode(),
-                    $response->getReasonPhrase()
-                )
-            );
+            header(sprintf(
+                'HTTP/%s %s %s',
+                $response->getProtocolVersion(),
+                $response->getStatusCode(),
+                $response->getReasonPhrase()
+            ));
         }
 
         // Body
@@ -413,8 +392,10 @@ class App
                 $contentLength = $body->getSize();
             }
 
-            $body = container(EventDispatcherInterface::class)
-                ->dispatch(new Event\AppEchoBefore($body))->getBody();
+            if (container()->has(EventDispatcherInterface::class)) {
+                $body = container(EventDispatcherInterface::class)
+                    ->dispatch(new Event\AppEchoBefore($body))->getBody();
+            }
 
             $offset = 0;
             $contentRange = $response->getHeaderLine('Content-Range');

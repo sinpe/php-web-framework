@@ -34,8 +34,8 @@ class Environment extends ArrayObject implements EnvironmentInterface
     public static function mock(array $userData = [])
     {
         //Validates if default protocol is HTTPS to set default port 443
-        if ((isset($userData['HTTPS']) && $userData['HTTPS'] !== 'off') || 
-            ((isset($userData['REQUEST_SCHEME']) && $userData['REQUEST_SCHEME'] === 'https'))) {
+        if ((isset($userData['HTTPS']) && $userData['HTTPS'] !== 'off') || ((isset($userData['REQUEST_SCHEME']) && $userData['REQUEST_SCHEME'] === 'https'))
+        ) {
             $defscheme = 'https';
             $defport = 443;
         } else {
@@ -63,5 +63,42 @@ class Environment extends ArrayObject implements EnvironmentInterface
         ], $userData);
 
         return new static($data);
+    }
+
+    /**
+     * Get host
+     *
+     * @return string
+     */
+    public function getHost(): string
+    {
+        $host = '127.0.0.1';
+
+        $hostReaders = config('runtime.host_readers');
+
+        foreach((array)$hostReaders as $item) {
+            if ($this->has($item)) {
+                $host = $this->get($item);
+                break;
+            } 
+        }
+
+        return $host;
+    }
+
+    /**
+     * Get scheme
+     *
+     * @return string
+     */
+    public function getScheme(): string
+    {
+        $scheme = 'http';
+        // 
+        $isSecure = $this->get('HTTPS');
+        // 
+        $scheme = (empty($isSecure) || $isSecure === 'off') ? 'http' : 'https';
+
+        return $scheme;
     }
 }

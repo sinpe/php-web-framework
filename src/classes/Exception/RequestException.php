@@ -10,8 +10,6 @@
 
 namespace Sinpe\Framework\Exception;
 
-use Sinpe\Framework\ExceptionTrait;
-
 /**
  * Client error.
  * 

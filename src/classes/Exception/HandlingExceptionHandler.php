@@ -26,7 +26,7 @@ class HandlingExceptionHandler extends RuntimeExceptionHandler
     /**
      * __construct
      */
-    public function __construct($exception, $originalException)
+    public function __construct(\Exception $exception, \Exception $originalException)
     {
         $this->originalException = $originalException;
 
