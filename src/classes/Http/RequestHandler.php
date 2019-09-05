@@ -1,5 +1,5 @@
 <?php
- /*
+/*
  * This file is part of the long/framework package.
  *
  * (c) Sinpe <support@sinpe.com>
@@ -14,19 +14,17 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 
-use Sinpe\Framework\Http\Body;
-use Sinpe\Framework\Http\Response;
 use Sinpe\Framework\Renderer\Json as JsonRenderer;
 use Sinpe\Framework\Renderer\Html as HtmlRenderer;
 use Sinpe\Framework\Renderer\Xml as XmlRenderer;
 
 /**
- * The exception handler base class.
+ * The request handler base class.
  * 
  * @package Sinpe\Framework
  * @since   1.0.0
  */
-abstract class ExceptionHandler implements RequestHandlerInterface
+abstract class RequestHandler implements RequestHandlerInterface
 {
     const CONTENT_TYPE_JSON = 'application/json';
     const CONTENT_TYPE_HTML = 'text/html';
@@ -48,37 +46,12 @@ abstract class ExceptionHandler implements RequestHandlerInterface
      *
      * @var array
      */
-    protected $renderers = [
+    protected static $renderers = [
         self::CONTENT_TYPE_JSON => JsonRenderer::class,
         self::CONTENT_TYPE_XML1 => XmlRenderer::class,
         self::CONTENT_TYPE_XML2 => XmlRenderer::class,
         self::CONTENT_TYPE_HTML => HtmlRenderer::class
     ];
-
-    /**
-     * @var \Exception
-     */
-    private $exception;
-
-    /**
-     * __construct
-     * 
-     * @param \Exception $ex
-     */
-    public function __construct(\Exception $ex)
-    {
-        $this->exception = $ex;
-    }
-
-    /**
-     * Get exception
-     *
-     * @return \Exception
-     */
-    protected function getException(): \Exception
-    {
-        return $this->exception;
-    }
 
     /**
      * Content type
@@ -100,11 +73,11 @@ abstract class ExceptionHandler implements RequestHandlerInterface
      * @param  ServerRequestInterface $request
      * @return string
      */
-    private function determineContentType($request)
+    protected function determineContentType($request)
     {
         $acceptHeader = $request->getHeaderLine('Accept');
 
-        $defaultContentTypes = array_keys($this->renderers);
+        $defaultContentTypes = array_keys(static::$renderers);
 
         $selectedContentTypes = array_intersect(explode(',', $acceptHeader), $defaultContentTypes);
 
@@ -126,27 +99,6 @@ abstract class ExceptionHandler implements RequestHandlerInterface
         }
 
         return $this->contentType;
-    }
-
-    /**
-     * Invoke the handler
-     *
-     * @param  ServerRequestInterface $request
-     * 
-     * @return ResponseInterface
-     * @throws UnexpectedValueException
-     */
-    public function handle(ServerRequestInterface $request): ResponseInterface
-    {
-        $this->determineContentType($request);
-
-        $response = $this->process($request, new Response());
-
-        $body = new Body(fopen('php://temp', 'r+'));
-
-        $body->write($this->content);
-
-        return $response->withBody($body);
     }
 
     /**
@@ -172,9 +124,9 @@ abstract class ExceptionHandler implements RequestHandlerInterface
         ResponseInterface $response
     ): ResponseInterface {
 
-        if (array_key_exists($this->getContentType(), $this->renderers)) {
+        if (array_key_exists($this->getContentType(), static::$renderers)) {
 
-            $renderer = $this->renderers[$this->getContentType()];
+            $renderer = static::$renderers[$this->getContentType()];
 
             if ($renderer instanceof \Closure) {
                 /*
@@ -204,9 +156,9 @@ abstract class ExceptionHandler implements RequestHandlerInterface
      *
      * @return void
      */
-    protected function registerRenderers(array $renderers)
+    public static function registerRenderers(array $renderers)
     {
-        $this->renderers = array_merge($this->renderers, $renderers);
+        static::$renderers = array_merge(static::$renderers, $renderers);
     }
 
     /**

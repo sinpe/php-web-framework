@@ -25,14 +25,14 @@ class RequestExceptionHandler extends RuntimeExceptionHandler
      */
     protected function getRendererOutput()
     {
-        $ex = $this->getException();
+        $except = $this->getException();
 
         $error = [
-            'code' => $ex->getCode(),
-            'message' => $ex->getMessage()
+            'code' => $except->getCode(),
+            'message' => $except->getMessage()
         ];
 
-        $data = $ex->getData();
+        $data = $except->getContext();
 
         if (!empty($data)) {
             $error['data'] = $data;

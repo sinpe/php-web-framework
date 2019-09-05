@@ -12,6 +12,7 @@ namespace Sinpe\Framework\Exception;
 
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 
 /**
  * 405.
@@ -34,7 +35,7 @@ class MethodNotAllowedException extends BadRequestException
      * @param string[] $allowedMethods
      * @param mixed $previous
      */
-    public function __construct(array $allowedMethods) 
+    public function __construct(array $allowedMethods)
     {
         $this->allowedMethods = $allowedMethods;
 
@@ -49,5 +50,13 @@ class MethodNotAllowedException extends BadRequestException
     public function getAllowedMethods()
     {
         return $this->allowedMethods;
+    }
+
+    /**
+     * @return RequestHandlerInterface
+     */
+    public function getResponseHandler(): RequestHandlerInterface
+    {
+        return new MethodNotAllowedExceptionHandler($this);
     }
 }

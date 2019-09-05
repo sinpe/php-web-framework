@@ -12,6 +12,7 @@ namespace Sinpe\Framework\Exception;
 
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 
 /**
  * 404.
@@ -24,9 +25,16 @@ class PageNotFoundException extends BadRequestException
     /**
      * __construct
      */
-    public function __construct() 
-    {        
+    public function __construct()
+    {
         parent::__construct('Page not found', -404);
     }
 
+    /**
+     * @return RequestHandlerInterface
+     */
+    public function getResponseHandler(): RequestHandlerInterface
+    {
+        return new PageNotFoundExceptionHandler($this);
+    }
 }

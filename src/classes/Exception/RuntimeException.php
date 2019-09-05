@@ -1,5 +1,5 @@
 <?php
- /*
+/*
  * This file is part of the long/framework package.
  *
  * (c) Sinpe <support@sinpe.com>
@@ -10,6 +10,8 @@
 
 namespace Sinpe\Framework\Exception;
 
+use Psr\Http\Server\RequestHandlerInterface;
+
 /**
  * Exception with request response.
  * 
@@ -18,7 +20,66 @@ namespace Sinpe\Framework\Exception;
  */
 class RuntimeException extends \RuntimeException
 {
-    use ExceptionTrait;
+    /**
+     * @var array
+     */
+    private $context = [];
+
+    /**
+     * __construct
+     *
+     * @param string $message
+     * @param mixed $code
+     * @param mixed $previous
+     * @param mixed $context
+     */
+    public function __construct(
+        string $message,
+        $code = null,
+        $previous = null,
+        $context = []
+    ) {
+
+        if (!is_int($code)) {
+            if (!$code instanceof \Throwable) {
+                $context = $code;
+            } else {
+                $previous = $code;
+            }
+            $code = $this->getDefaultCode();
+        }
+
+        if (!$previous instanceof \Throwable) {
+            $context = $previous;
+            $previous = null;
+        }
+
+        if (!is_array($context)) {
+            $context = [];
+        }
+
+        $this->context = $context;
+
+        parent::__construct($message, $code, $previous);
+    }
+
+    /**
+     * Attached data.
+     *
+     * @return array
+     */
+    public function getContext()
+    {
+        return $this->context;
+    }
+
+    /**
+     * @return RequestHandlerInterface
+     */
+    public function getResponseHandler(): RequestHandlerInterface
+    {
+        return new RuntimeExceptionHandler($this);
+    }
 
     /**
      * Return default code.

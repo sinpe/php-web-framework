@@ -30,7 +30,7 @@ class MethodNotAllowedExceptionHandler extends BadRequestExceptionHandler
     {
         parent::__construct($ex);
 
-        $this->registerRenderers([
+        static::registerRenderers([
             static::CONTENT_TYPE_HTML => MethodNotAllowedExceptionHtmlRenderer::class
         ]);
     }

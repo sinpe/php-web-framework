@@ -1,5 +1,5 @@
 <?php
- /*
+/*
  * This file is part of the long/route package.
  *
  * (c) Sinpe <support@sinpe.com>
@@ -22,9 +22,9 @@ use Sinpe\Framework\Exception\PageNotFoundException;
 use Sinpe\Framework\Http\Response;
 
 /**
- * Normal handler
+ * Handle the request and output a response
  */
-class NormalHandler implements RequestHandlerInterface, MiddlewareAwareInterface
+class NormalHandler extends RequestHandler implements RequestHandlerInterface, MiddlewareAwareInterface
 {
     use MiddlewareAwareTrait;
 
@@ -44,6 +44,24 @@ class NormalHandler implements RequestHandlerInterface, MiddlewareAwareInterface
     }
 
     /**
+     * Dispatch 
+     *
+     * @param ServerRequestInterface $request
+     * @return ResponseInterface
+     */
+    public function dispatch(ServerRequestInterface $request): ResponseInterface
+    {
+        $response = $this->handle($request);
+
+        $this->determineContentType($request);
+        $response = $this->process($request, $response);
+        $body = new Body(fopen('php://temp', 'r+'));
+        $body->write($this->content);
+
+        return $response->withBody($body);
+    }
+
+    /**
      * Dispatch route callable against current Request and Response objects
      *
      * This method invokes the route object's callable. If middleware is
@@ -54,7 +72,7 @@ class NormalHandler implements RequestHandlerInterface, MiddlewareAwareInterface
      * @return \Psr\Http\Message\ResponseInterface
      * @throws \Exception  if the route callable throws an exception
      */
-    protected function process(ServerRequestInterface $request): ResponseInterface
+    protected function run(ServerRequestInterface $request): ResponseInterface
     {
         // Ensure basePath is set
         $router = $this->router;
@@ -78,7 +96,6 @@ class NormalHandler implements RequestHandlerInterface, MiddlewareAwareInterface
             // $route->prepare($request, $routeArguments);
 
             return $route->run($request, new Response(), $routeArguments);
-            
         } elseif ($routeInfo[0] === Dispatcher::METHOD_NOT_ALLOWED) {
             throw new MethodNotAllowedException($routeInfo[1]);
         }

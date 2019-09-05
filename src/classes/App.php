@@ -47,8 +47,8 @@ class App
     final public function __construct(EnvironmentInterface $environment)
     {
         // TODO
-        // set_exception_handler(function ($ex) {
-        //     // $response = $this->($ex, $request);
+        // set_exception_handler(function ($except) {
+        //     // $response = $this->($except, $request);
         //     //$this->end($response);
         // });
 
@@ -277,43 +277,41 @@ class App
                 //
                 $handler->manyUse(array_reverse($this->middlewares));
                 // if exception thrown, response should be loss.
-                $response = $handler->handle($request);
-            } catch (\Exception $ex) {
+                $response = $handler->dispatch($request);
+            } catch (\Exception $except) {
 
                 $handlers = config('runtime.exception_handlers');
 
-                if ($ex instanceof Exception\RuntimeException || $ex instanceof Exception\RequestException) {
-                    if (!array_key_exists(get_class($ex), $handlers)) {
-                        $handlerClass = $ex->getHandler();
-                        if (class_exists($handlerClass)) {
-                            $handler = new $handlerClass($ex);
-                        }
+                if ($except instanceof Exception\RuntimeException) {
+                    // use default handler
+                    if (!array_key_exists(get_class($except), $handlers)) {
+                        $responseHandler = $except->getResponseHandler();
                     }
                 }
 
-                if (!isset($handler)) {
+                if (!isset($responseHandler)) {
                     foreach ($handlers as $targetClass => $handlerClass) {
-                        if ($ex instanceof $targetClass) {
-                            $handler = new $handlerClass($ex);
+                        if ($except instanceof $targetClass) {
+                            $responseHandler = new $handlerClass($except);
                         }
                     }
                 }
 
-                if (isset($handler)) {
+                if (isset($responseHandler)) {
                     try {
-                        $response = $handler->handle($request);
+                        $response = $responseHandler->handle($request);
                     } catch (\Exception $exAgain) {
-                        $handler = new Exception\HandlingExceptionHandler($exAgain, $ex);
-                        $response = $handler->handle($request);
+                        $responseHandler = new Exception\HandlingExceptionHandler($exAgain, $except);
+                        $response = $responseHandler->handle($request);
                     } catch (\Throwable $exAgain) {
                         throw $exAgain;
                     }
                 } else {
-                    throw $ex;
+                    throw $except;
                 }
             }
-        } catch (\Throwable $ex) {
-            throw $ex;
+        } catch (\Throwable $except) {
+            throw $except;
         } finally {
             $output = ob_get_clean();
         }
@@ -324,7 +322,9 @@ class App
         }
 
         if (!empty($output) && $response->getBody()->isWritable()) {
+            // 
             $outputBuffering = config('runtime.output_buffering');
+            //
             if ($outputBuffering === 'prepend') {
                 // prepend output buffer content
                 $body = new Http\Body(fopen('php://temp', 'r+'));

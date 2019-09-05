@@ -1,5 +1,5 @@
 <?php
- /*
+/*
  * This file is part of the long/framework package.
  *
  * (c) Sinpe <support@sinpe.com>
@@ -10,6 +10,8 @@
 
 namespace Sinpe\Framework\Exception;
 
+use Psr\Http\Server\RequestHandlerInterface;
+
 /**
  * Client error.
  * 
@@ -18,58 +20,21 @@ namespace Sinpe\Framework\Exception;
  */
 class RequestException extends RuntimeException
 {
-    use ExceptionTrait;
-
     /**
-     * @var array
+     * @return RequestHandlerInterface
      */
-    protected $data = [];
-
-    /**
-     * __construct
-     *
-     * @param string $message
-     * @param mixed $code
-     * @param mixed $previous
-     * @param mixed $data
-     */
-    public function __construct(
-        string $message,
-        $code = null,
-        $previous = null,
-        $data = []
-    ) {
-
-        if (!is_int($code)) {
-            if (!$code instanceof \Throwable) {
-                $data = $code;
-            } else {
-                $previous = $code;
-            }
-            $code = $this->getDefaultCode();
-        }
-
-        if (!$previous instanceof \Throwable) {
-            $data = $previous;
-            $previous = null;
-        }
-
-        if (!is_array($data)) {
-            $data = [];
-        }
-
-        $this->data = $data;
-
-        parent::__construct($message, $code, $previous);
+    public function getResponseHandler(): RequestHandlerInterface
+    {
+        return new RequestExceptionHandler($this);
     }
 
     /**
-     * Attached data.
+     * Return default code.
      *
-     * @return array
+     * @return integer
      */
-    public function getData()
+    protected function getDefaultCode()
     {
-        return $this->data;
+        return -1;
     }
 }

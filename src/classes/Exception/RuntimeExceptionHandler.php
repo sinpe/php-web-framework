@@ -12,7 +12,6 @@ namespace Sinpe\Framework\Exception;
 
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
-use Sinpe\Framework\Http\ExceptionHandler;
 
 /**
  * Exception handler base class.
@@ -25,13 +24,13 @@ class RuntimeExceptionHandler extends ExceptionHandler
     /**
      * __construct
      * 
-     * @param \Exception $ex
+     * @param \Exception $except
      */
-    public function __construct(\Exception $ex)
+    public function __construct(\Exception $except)
     {
-        parent::__construct($ex);
+        parent::__construct($except);
 
-        $this->registerRenderers([
+        static::registerRenderers([
             static::CONTENT_TYPE_HTML => RuntimeExceptionHtmlRenderer::class
         ]);
     }
@@ -71,22 +70,22 @@ class RuntimeExceptionHandler extends ExceptionHandler
         // 
         if (config('runtime.debug')) {
 
-            $ex = $this->getException();
+            $except = $this->getException();
 
-            $error['type'] = get_class($ex);
-            $error['message'] = self::createCdataSection($ex->getMessage());
-            $error['file'] = $ex->getFile();
-            $error['line'] = $ex->getLine();
-            $error['trace'] = self::createCdataSection($ex->getTraceAsString());
+            $error['type'] = get_class($except);
+            $error['message'] = self::createCdataSection($except->getMessage());
+            $error['file'] = $except->getFile();
+            $error['line'] = $except->getLine();
+            $error['trace'] = self::createCdataSection($except->getTraceAsString());
 
-            while ($ex = $ex->getPrevious()) {
+            while ($except = $except->getPrevious()) {
                 $error['previous'][] = [
-                    'type' => get_class($ex),
-                    'code' => $ex->getCode(),
-                    'message' => self::createCdataSection($ex->getMessage()),
-                    'file' => $ex->getFile(),
-                    'line' => $ex->getLine(),
-                    'trace' => self::createCdataSection($ex->getTraceAsString())
+                    'type' => get_class($except),
+                    'code' => $except->getCode(),
+                    'message' => self::createCdataSection($except->getMessage()),
+                    'file' => $except->getFile(),
+                    'line' => $except->getLine(),
+                    'trace' => self::createCdataSection($except->getTraceAsString())
                 ];
             }
         }
@@ -99,18 +98,18 @@ class RuntimeExceptionHandler extends ExceptionHandler
      *
      * @return void
      */
-    private static function errorLog($ex)
+    private static function errorLog($except)
     {
         $message = 'Error:' . PHP_EOL;
 
-        $message .= self::ex2text($ex);
+        $message .= self::ex2text($except);
 
-        while ($ex = $ex->getPrevious()) {
-            $message .= PHP_EOL . 'Previous error:' . PHP_EOL;
-            $message .= self::ex2text($ex);
+        while ($except = $except->getPrevious()) {
+            $message .= PHP_EOL . 'previous error:' . PHP_EOL;
+            $message .= self::ex2text($except);
         }
 
-        $message .= PHP_EOL . 'View in rendered output by enabling the "debug" setting.' . PHP_EOL;
+        $message .= PHP_EOL . 'view in rendered output by enabling the "debug" setting.' . PHP_EOL;
 
         error_log($message);
     }
@@ -118,32 +117,32 @@ class RuntimeExceptionHandler extends ExceptionHandler
     /**
      * Render error as Text.
      *
-     * @param \Throwable $ex
+     * @param \Throwable $except
      *
      * @return string
      */
-    private static function ex2text($ex)
+    private static function ex2text($except)
     {
-        $text = sprintf('Type: %s' . PHP_EOL, get_class($ex));
+        $text = sprintf('type: %s' . PHP_EOL, get_class($except));
 
-        if ($code = $ex->getCode()) {
-            $text .= sprintf('Code: %s' . PHP_EOL, $code);
+        if ($code = $except->getCode()) {
+            $text .= sprintf('code: %s' . PHP_EOL, $code);
         }
 
-        if ($message = $ex->getMessage()) {
-            $text .= sprintf('Message: %s' . PHP_EOL, htmlentities($message));
+        if ($message = $except->getMessage()) {
+            $text .= sprintf('message: %s' . PHP_EOL, htmlentities($message));
         }
 
-        if ($file = $ex->getFile()) {
-            $text .= sprintf('File: %s' . PHP_EOL, $file);
+        if ($file = $except->getFile()) {
+            $text .= sprintf('file: %s' . PHP_EOL, $file);
         }
 
-        if ($line = $ex->getLine()) {
-            $text .= sprintf('Line: %s' . PHP_EOL, $line);
+        if ($line = $except->getLine()) {
+            $text .= sprintf('line: %s' . PHP_EOL, $line);
         }
 
-        if ($trace = $ex->getTraceAsString()) {
-            $text .= sprintf('Trace: %s', $trace);
+        if ($trace = $except->getTraceAsString()) {
+            $text .= sprintf('trace: %s', $trace);
         }
 
         return $text;

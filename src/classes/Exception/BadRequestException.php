@@ -10,6 +10,8 @@
 
 namespace Sinpe\Framework\Exception;
 
+use Psr\Http\Server\RequestHandlerInterface;
+
 /**
  * 400.
  * 
@@ -18,6 +20,14 @@ namespace Sinpe\Framework\Exception;
  */
 class BadRequestException extends RequestException
 {
+    /**
+     * @return RequestHandlerInterface
+     */
+    public function getResponseHandler(): RequestHandlerInterface
+    {
+        return new BadRequestExceptionHandler($this);
+    }
+
     /**
      * Return default code.
      *
