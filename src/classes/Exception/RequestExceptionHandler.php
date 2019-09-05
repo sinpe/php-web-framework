@@ -23,7 +23,7 @@ class RequestExceptionHandler extends RuntimeExceptionHandler
      *
      * @return array
      */
-    protected function getRendererOutput()
+    public function getOutput()
     {
         $except = $this->getException();
 

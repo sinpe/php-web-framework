@@ -8,7 +8,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Sinpe\Framework\Http;
+namespace Sinpe\Framework;
 
 /**
  * Environment Interface

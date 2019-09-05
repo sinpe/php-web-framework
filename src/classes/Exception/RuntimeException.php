@@ -13,7 +13,7 @@ namespace Sinpe\Framework\Exception;
 use Psr\Http\Server\RequestHandlerInterface;
 
 /**
- * Exception with request response.
+ * Exception with response.
  * 
  * @package Sinpe\Framework
  * @since   1.0.0

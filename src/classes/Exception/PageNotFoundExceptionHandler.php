@@ -22,11 +22,6 @@ use Psr\Http\Message\ServerRequestInterface;
 class PageNotFoundExceptionHandler extends BadRequestExceptionHandler
 {
     /**
-     * @var ServerRequestInterface
-     */
-    private $request;
-
-    /**
      * __construct
      * 
      * @param \Exception $ex
@@ -35,8 +30,8 @@ class PageNotFoundExceptionHandler extends BadRequestExceptionHandler
     {
         parent::__construct($ex);
 
-        static::registerRenderers([
-            static::CONTENT_TYPE_HTML => PageNotFoundExceptionHtmlRenderer::class
+        $this->registerWriters([
+            static::CONTENT_TYPE_HTML => PageNotFoundExceptionHtmlFormatter::class
         ]);
     }
 
@@ -45,16 +40,11 @@ class PageNotFoundExceptionHandler extends BadRequestExceptionHandler
      *
      * @return string
      */
-    protected function process(
-        ServerRequestInterface $request,
-        ResponseInterface $response
-    ) : ResponseInterface {
-
-        $this->request = $request;
-
+    protected function process(ResponseInterface $response): ResponseInterface
+    {
         $response = $response->withStatus(404);
 
-        return $this->doProcess($request, $response);
+        return $response;
     }
 
     /**
@@ -62,19 +52,16 @@ class PageNotFoundExceptionHandler extends BadRequestExceptionHandler
      *
      * @return []
      */
-    protected function getRendererOutput()
+    public function getOutput()
     {
         $ex = $this->getException();
 
         $error = [
             'code' => $ex->getCode(),
             'message' => $ex->getMessage(),
-            'data' => [
-                'home' => (string) $this->request->getUri()->withPath('')->withQuery('')->withFragment('')
-            ]
+            'data' => $this->getContext()
         ];
 
         return $error;
     }
-
 }

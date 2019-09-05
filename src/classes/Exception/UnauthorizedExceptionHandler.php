@@ -27,7 +27,6 @@ abstract class UnauthorizedExceptionHandler extends BadRequestExceptionHandler
      * @return string
      */
     protected function process(
-        ServerRequestInterface $request, 
         ResponseInterface $response
     ) : ResponseInterface {
         
@@ -37,7 +36,7 @@ abstract class UnauthorizedExceptionHandler extends BadRequestExceptionHandler
             $response = $response->withStatus(401);
         }
 
-        return $this->doProcess($request, $response);
+        return $response;
     }
 
     /**

@@ -24,14 +24,14 @@ class MethodNotAllowedExceptionHandler extends BadRequestExceptionHandler
     /**
      * __construct
      * 
-     * @param \Exception $ex
+     * @param \Exception $except
      */
-    public function __construct(\Exception $ex)
+    public function __construct(\Exception $except)
     {
-        parent::__construct($ex);
+        parent::__construct($except);
 
-        static::registerRenderers([
-            static::CONTENT_TYPE_HTML => MethodNotAllowedExceptionHtmlRenderer::class
+        $this->registerWriters([
+            static::CONTENT_TYPE_HTML => MethodNotAllowedExceptionHtmlFormatter::class
         ]);
     }
 
@@ -40,15 +40,12 @@ class MethodNotAllowedExceptionHandler extends BadRequestExceptionHandler
      *
      * @return string
      */
-    protected function process(
-        ServerRequestInterface $request, 
-        ResponseInterface $response
-    ) : ResponseInterface {
-        
+    protected function process(ResponseInterface $response): ResponseInterface
+    {
         $response = $response->withStatus(405)
             ->withHeader('Allow', implode(', ', $this->getException()->getAllowedMethods()));
 
-        return $this->doProcess($request, $response);
+        return $response;
     }
 
     /**
@@ -56,19 +53,18 @@ class MethodNotAllowedExceptionHandler extends BadRequestExceptionHandler
      *
      * @return []
      */
-    protected function getRendererOutput()
+    public function getOutput()
     {
-        $ex = $this->getException();
+        $except = $this->getException();
 
         $error = [
-            'code' => $ex->getCode(),
-            'message' => $ex->getMessage(),
+            'code' => $except->getCode(),
+            'message' => $except->getMessage(),
             'data' => [
-                'allowed' => $ex->getAllowedMethods()
+                'allowed' => $except->getAllowedMethods()
             ]
         ];
 
         return $error;
     }
-
 }

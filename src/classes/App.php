@@ -15,7 +15,6 @@ use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
-use Sinpe\Framework\Http\EnvironmentInterface;
 use Sinpe\Framework\Http\NormalHandler;
 
 /**
@@ -248,6 +247,44 @@ class App
     }
 
     /**
+     * Determine which content type we know about is wanted using Accept header
+     *
+     * Note: This method is a bare-bones implementation designed specifically for
+     * error handling requirements. Consider a fully-feature solution such
+     * as willdurand/negotiation for any other situation.
+     *
+     * @param  ServerRequestInterface $request
+     * @return string
+     */
+    protected function prepare(ServerRequestInterface $request): ServerRequestInterface
+    {
+        $acceptHeader = $request->getHeaderLine('Accept');
+
+        $contentTypes = array_keys(config('runtime.writers'));
+
+        $selectedContentTypes = array_intersect(explode(',', $acceptHeader), $contentTypes);
+
+        if (count($selectedContentTypes)) {
+            $contentType = current($selectedContentTypes);
+        } else {
+            // handle +json and +xml specially
+            if (preg_match('/\+(json|xml)/', $acceptHeader, $matches)) {
+                //
+                $mediaType = 'application/' . $matches[1];
+                if (in_array($mediaType, $contentTypes)) {
+                    $contentType = $mediaType;
+                }
+            }
+        }
+
+        if (empty($contentType)) {
+            $contentType = 'text/html';
+        }
+
+        return $request->withHeader('Accept', $contentType);
+    }
+
+    /**
      * Run application
      *
      * This method traverses the application middleware stack and then sends the
@@ -264,6 +301,8 @@ class App
     {
         $request = Http\Request::createFromEnvironment($this->environment);
 
+        $request = $this->prepare($request);
+
         if (container()->has(EventDispatcherInterface::class)) {
             $request = container(EventDispatcherInterface::class)
                 ->dispatch(new Event\AppRunBefore($request))->getRequest();
@@ -277,7 +316,7 @@ class App
                 //
                 $handler->manyUse(array_reverse($this->middlewares));
                 // if exception thrown, response should be loss.
-                $response = $handler->dispatch($request);
+                $response = $handler->handle($request);
             } catch (\Exception $except) {
 
                 $handlers = config('runtime.exception_handlers');
@@ -340,7 +379,7 @@ class App
 
         if ($request->getMethod() === 'OPTIONS') {
             $response = $response->withStatus(200)
-                ->withHeader('Content-type', 'text/plain');
+                ->withHeader('Content-Type', 'text/plain');
         }
 
         if (!$silent) {
@@ -455,13 +494,17 @@ class App
         $env = $this->environment;
         $uri = Http\Uri::createFromEnvironment($env)->withPath($path)->withQuery($query);
         $headers = new Http\Headers($headers);
+
         $serverParams = $env->all();
         $body = new Http\Body(fopen('php://temp', 'r+'));
         $body->write($bodyContent);
         $body->rewind();
+
         $request = new Http\Request($method, $uri, $headers, $cookies, $serverParams, $body);
 
-        // return $this->handle($request); TODO
+        $handler = new NormalHandler(container('router'));
+        //
+        return $handler->handle($request);
     }
 
     /**

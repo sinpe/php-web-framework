@@ -24,7 +24,7 @@ use Sinpe\Framework\Http\Response;
 /**
  * Handle the request and output a response
  */
-class NormalHandler extends RequestHandler implements RequestHandlerInterface, MiddlewareAwareInterface
+class NormalHandler implements RequestHandlerInterface, MiddlewareAwareInterface
 {
     use MiddlewareAwareTrait;
 
@@ -41,24 +41,6 @@ class NormalHandler extends RequestHandler implements RequestHandlerInterface, M
     public function __construct(RouterInterface $router)
     {
         $this->router = $router;
-    }
-
-    /**
-     * Dispatch 
-     *
-     * @param ServerRequestInterface $request
-     * @return ResponseInterface
-     */
-    public function dispatch(ServerRequestInterface $request): ResponseInterface
-    {
-        $response = $this->handle($request);
-
-        $this->determineContentType($request);
-        $response = $this->process($request, $response);
-        $body = new Body(fopen('php://temp', 'r+'));
-        $body->write($this->content);
-
-        return $response->withBody($body);
     }
 
     /**
@@ -95,11 +77,14 @@ class NormalHandler extends RequestHandler implements RequestHandlerInterface, M
 
             // $route->prepare($request, $routeArguments);
 
-            return $route->run($request, new Response(), $routeArguments);
+            return $route->run(new Response($request), $routeArguments);
+            //
         } elseif ($routeInfo[0] === Dispatcher::METHOD_NOT_ALLOWED) {
             throw new MethodNotAllowedException($routeInfo[1]);
         }
 
-        throw new PageNotFoundException();
+        throw new PageNotFoundException([
+            'home' => (string) $request->getUri()->withPath('')->withQuery('')->withFragment('')
+        ]);
     }
 }

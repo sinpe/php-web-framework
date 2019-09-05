@@ -17,6 +17,7 @@ use Psr\Http\Message\StreamInterface;
 
 use Sinpe\Framework\ArrayObject;
 use Sinpe\Framework\Http\HeadersInterface;
+use Sinpe\Framework\EnvironmentInterface;
 
 /**
  * Request

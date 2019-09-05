@@ -8,28 +8,23 @@
  * file that was distributed with this source code.
  */
 
-namespace Sinpe\Framework\Renderer;
+namespace Sinpe\Framework;
 
-use Spatie\ArrayToXml\ArrayToXml;
 use Sinpe\Framework\ArrayObject;
-use Sinpe\Framework\RendererInterface;
 
 /**
- * Xml renderer for common.
+ * The writer interface.
  * 
  * @package Sinpe\Framework
  * @since   1.0.0
  */
-class XmlRenderer implements RendererInterface
+interface WriterFormatterInterface
 {
     /**
-     * Process a handler output and return the result.
+     * Process a handler context and assign result to "output" property.
      *
      * @return string
      */
-    public function process(ArrayObject $output)
-    {
-        return ArrayToXml::convert($output->toArray());
-    }
+    public function process($data);
 
 }

@@ -10,7 +10,7 @@
 namespace Sinpe\Framework\Http;
 
 use \Psr\Http\Message\UriInterface;
-use Sinpe\Framework\Http\Environment;
+use Sinpe\Framework\EnvironmentInterface;
 
 /**
  * Value object representing a URI.

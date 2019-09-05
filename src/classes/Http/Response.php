@@ -11,6 +11,7 @@
 namespace Sinpe\Framework\Http;
 
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UriInterface;
 use Sinpe\Framework\Http\HeadersInterface;
@@ -30,6 +31,11 @@ use Sinpe\Framework\Http\HeadersInterface;
  */
 class Response extends Message implements ResponseInterface
 {
+    /**
+     * @var ServerRequestInterface
+     */
+    private $request;
+
     /**
      * Status code
      *
@@ -136,13 +142,17 @@ class Response extends Message implements ResponseInterface
      * @param StreamInterface|null  $body    The response body.
      */
     public function __construct(
-        $status = 200, 
-        HeadersInterface $headers = null, 
+        ServerRequestInterface $request,
+        $status = 200,
+        HeadersInterface $headers = null,
         StreamInterface $body = null
     ) {
+        $this->request = $request;
         $this->status = $this->filterStatus($status);
         $this->headers = $headers ? $headers : new Headers();
         $this->body = $body ? $body : new Body(fopen('php://temp', 'r+'));
+
+        $this->headers->set('Content-Type', $request->getHeaderLine('Accept'));
     }
 
     /**
@@ -154,6 +164,15 @@ class Response extends Message implements ResponseInterface
     public function __clone()
     {
         $this->headers = clone $this->headers;
+        $this->request = clone $this->request;
+    }
+
+    /**
+     * @return ServerRequestInterface
+     */
+    public function getRequest(): ServerRequestInterface
+    {
+        return $this->request;
     }
 
     /**
@@ -305,7 +324,7 @@ class Response extends Message implements ResponseInterface
      */
     public function withRedirect($url, $status = null)
     {
-        $responseWithRedirect = $this->withHeader('Location', (string)$url);
+        $responseWithRedirect = $this->withHeader('Location', (string) $url);
 
         if (is_null($status) && $this->getStatusCode() === 200) {
             $status = 302;
@@ -459,7 +478,7 @@ class Response extends Message implements ResponseInterface
             $output .= i18n('%s: %s', $name, $this->getHeaderLine($name)) . Response::EOL;
         }
         $output .= Response::EOL;
-        $output .= (string)$this->getBody();
+        $output .= (string) $this->getBody();
 
         return $output;
     }

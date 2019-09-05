@@ -11,15 +11,15 @@
 namespace Sinpe\Framework\Exception;
 
 use Sinpe\Framework\ArrayObject;
-use Sinpe\Framework\RendererInterface;
+use Sinpe\Framework\WriterInterface;
 
 /**
- * The HTML renderer for exception with debug details.
+ * The HTML writer for exception with debug details.
  * 
  * @package Sinpe\Framework
  * @since   1.0.0
  */
-class RuntimeExceptionHtmlRenderer implements RendererInterface
+class RuntimeExceptionHtmlFormatter implements WriterInterface
 {
     /**
      * Process a handler output and return the result.
@@ -53,7 +53,6 @@ class RuntimeExceptionHtmlRenderer implements RendererInterface
             $title,
             $html
         );
-
     }
 
     /**
@@ -88,5 +87,4 @@ class RuntimeExceptionHtmlRenderer implements RendererInterface
 
         return $html;
     }
-
 }

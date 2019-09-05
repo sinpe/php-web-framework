@@ -25,9 +25,9 @@ class PageNotFoundException extends BadRequestException
     /**
      * __construct
      */
-    public function __construct()
+    public function __construct(array $context)
     {
-        parent::__construct('Page not found', -404);
+        parent::__construct('Page not found', -404, $context);
     }
 
     /**

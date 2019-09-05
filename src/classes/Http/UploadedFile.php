@@ -12,7 +12,7 @@ namespace Sinpe\Framework\Http;
 
 use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UploadedFileInterface;
-
+use Sinpe\Framework\EnvironmentInterface;
 /**
  * Represents Uploaded Files.
  *

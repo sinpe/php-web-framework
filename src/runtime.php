@@ -13,6 +13,9 @@ use Sinpe\Framework\Exception\BadRequestExceptionHandler;
 use Sinpe\Framework\Exception\RuntimeExceptionHandler;
 use Sinpe\Framework\Exception\RequestException;
 use Sinpe\Framework\Exception\RequestExceptionHandler;
+use Sinpe\Framework\Writer\Json as JsonFormatter;
+use Sinpe\Framework\Writer\Html as HtmlFormatter;
+use Sinpe\Framework\Writer\Xml as XmlFormatter;
 
 return [
     'http_version' => '1.1',
@@ -33,5 +36,11 @@ return [
         RequestException::class => RequestExceptionHandler::class,
         \Exception::class => RuntimeExceptionHandler::class,
         \Error::class => RuntimeExceptionHandler::class
+    ],
+    'writers' => [
+        'application/json' => JsonFormatter::class,
+        'text/html' => XmlFormatter::class,
+        'text/xml' => XmlFormatter::class,
+        'application/xml' => HtmlFormatter::class
     ]
 ];

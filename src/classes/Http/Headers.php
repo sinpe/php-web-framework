@@ -11,6 +11,7 @@
 namespace Sinpe\Framework\Http;
 
 use Sinpe\Framework\ArrayObject;
+use Sinpe\Framework\EnvironmentInterface;
 
 /**
  * Headers

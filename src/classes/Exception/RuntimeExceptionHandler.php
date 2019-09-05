@@ -30,8 +30,8 @@ class RuntimeExceptionHandler extends ExceptionHandler
     {
         parent::__construct($except);
 
-        static::registerRenderers([
-            static::CONTENT_TYPE_HTML => RuntimeExceptionHtmlRenderer::class
+        $this->registerWriters([
+            static::CONTENT_TYPE_HTML => RuntimeExceptionHtmlFormatter::class
         ]);
     }
 
@@ -40,11 +40,8 @@ class RuntimeExceptionHandler extends ExceptionHandler
      *
      * @return string
      */
-    protected function process(
-        ServerRequestInterface $request,
-        ResponseInterface $response
-    ): ResponseInterface {
-
+    protected function process(ResponseInterface $response): ResponseInterface
+    {
         // Write to the error log if debug is false
         if (!config('runtime.debug')) {
             self::errorLog($this->getException());
@@ -52,7 +49,7 @@ class RuntimeExceptionHandler extends ExceptionHandler
 
         $response = $response->withStatus(500);
 
-        return $this->doProcess($request, $response);
+        return $response;
     }
 
     /**
@@ -60,7 +57,7 @@ class RuntimeExceptionHandler extends ExceptionHandler
      *
      * @return []
      */
-    protected function getRendererOutput()
+    public function getOutput()
     {
         $error = [
             'code' => $this->getException()->getCode(),

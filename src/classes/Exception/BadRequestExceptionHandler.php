@@ -26,14 +26,10 @@ class BadRequestExceptionHandler extends RequestExceptionHandler
      *
      * @return string
      */
-    protected function process(
-        ServerRequestInterface $request, 
-        ResponseInterface $response
-    ) : ResponseInterface {
-        
+    protected function process(ResponseInterface $response): ResponseInterface
+    {
         $response = $response->withStatus(400);
-
-        return $this->doProcess($request, $response);
+        return $response;
     }
 
     /**
@@ -41,16 +37,15 @@ class BadRequestExceptionHandler extends RequestExceptionHandler
      *
      * @return []
      */
-    protected function getRendererOutput()
+    public function getOutput()
     {
-        $ex = $this->getException();
-        
+        $except = $this->getException();
+
         $error = [
-            'code' => $ex->getCode(),
-            'message' => $ex->getMessage()
+            'code' => $except->getCode(),
+            'message' => $except->getMessage()
         ];
 
         return $error;
     }
-
 }

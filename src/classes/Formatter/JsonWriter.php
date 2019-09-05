@@ -8,18 +8,18 @@
  * file that was distributed with this source code.
  */
 
-namespace Sinpe\Framework\Renderer;
+namespace Sinpe\Framework\Formatter;
 
 use Sinpe\Framework\ArrayObject;
-use Sinpe\Framework\RendererInterface;
+use Sinpe\Framework\WriterFormatterInterface;
 
 /**
- * JSON renderer for common.
+ * JSON writer for common.
  * 
  * @package Sinpe\Framework
  * @since   1.0.0
  */
-class JsonRenderer implements RendererInterface
+class JsonFormatter implements WriterFormatterInterface
 {
     /**
      * Unicode convertors
@@ -69,11 +69,11 @@ class JsonRenderer implements RendererInterface
     /**
      * @return mixed
      */
-    protected function convert($content) 
+    protected function convert($content)
     {
         $content = (array) $content;
 
-        return array_map(function($item) {
+        return array_map(function ($item) {
             if (is_array($item)) {
                 return $this->convert($item);
             } else {
@@ -84,7 +84,7 @@ class JsonRenderer implements RendererInterface
                 }
                 return $item;
             }
-        }, $content);        
+        }, $content);
     }
 
     /**
@@ -103,5 +103,4 @@ class JsonRenderer implements RendererInterface
 
         return $content;
     }
-
 }

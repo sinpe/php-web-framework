@@ -10,7 +10,6 @@
 
 namespace Sinpe\Framework;
 
-use Sinpe\Framework\CallableResolver;
 use Sinpe\Route\Router;
 use Sinpe\Route\RouterInterface;
 use Sinpe\Route\StrategyAutowiring;

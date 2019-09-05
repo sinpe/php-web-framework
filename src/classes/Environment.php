@@ -8,9 +8,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Sinpe\Framework\Http;
-
-use Sinpe\Framework\ArrayObject;
+namespace Sinpe\Framework;
 
 /**
  * Environment
@@ -76,11 +74,11 @@ class Environment extends ArrayObject implements EnvironmentInterface
 
         $hostReaders = config('runtime.host_readers');
 
-        foreach((array)$hostReaders as $item) {
+        foreach ((array) $hostReaders as $item) {
             if ($this->has($item)) {
                 $host = $this->get($item);
                 break;
-            } 
+            }
         }
 
         return $host;

@@ -61,7 +61,6 @@ abstract class Message implements MessageInterface
      */
     protected $body;
 
-
     /**
      * Disable magic setter to ensure immutability
      */

@@ -11,15 +11,15 @@
 namespace Sinpe\Framework\Exception;
 
 use Sinpe\Framework\ArrayObject;
-use Sinpe\Framework\RendererInterface;
+use Sinpe\Framework\WriterInterface;
 
 /**
- * The HTML renderer for route not found exception.
+ * The HTML writer for route not found exception.
  * 
  * @package Sinpe\Framework
  * @since   1.0.0
  */
-class PageNotFoundExceptionHtmlRenderer implements RendererInterface
+class PageNotFoundExceptionHtmlFormatter implements WriterInterface
 {
     /**
      * Process a handler output and return the result.
@@ -61,7 +61,5 @@ class PageNotFoundExceptionHtmlRenderer implements RendererInterface
     </body>
 </html>
 END;
-
     }
-
 }
