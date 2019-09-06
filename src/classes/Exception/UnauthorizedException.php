@@ -10,8 +10,6 @@
 
 namespace Sinpe\Framework\Exception;
 
-use Psr\Http\Server\RequestHandlerInterface;
-
 /**
  * 401.
  * 

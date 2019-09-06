@@ -10,9 +10,7 @@
 
 namespace Sinpe\Framework\Exception;
 
-use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Server\RequestHandlerInterface;
+use Sinpe\Framework\Http\ResponseHandlerInterface;
 
 /**
  * 404.
@@ -31,9 +29,9 @@ class PageNotFoundException extends BadRequestException
     }
 
     /**
-     * @return RequestHandlerInterface
+     * @return ResponseHandlerInterface
      */
-    public function getResponseHandler(): RequestHandlerInterface
+    public function getResponseHandler(): ResponseHandlerInterface
     {
         return new PageNotFoundExceptionHandler($this);
     }

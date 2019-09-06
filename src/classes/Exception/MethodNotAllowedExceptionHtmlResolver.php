@@ -14,12 +14,12 @@ use Sinpe\Framework\ArrayObject;
 use Sinpe\Framework\WriterInterface;
 
 /**
- * The HTML writer for route not found exception.
+ * The HTML writer for method not allowed exception.
  * 
  * @package Sinpe\Framework
  * @since   1.0.0
  */
-class PageNotFoundExceptionHtmlFormatter implements WriterInterface
+class MethodNotAllowedExceptionHtmlResolver implements WriterInterface
 {
     /**
      * Process a handler output and return the result.
@@ -28,6 +28,8 @@ class PageNotFoundExceptionHtmlFormatter implements WriterInterface
      */
     public function process(ArrayObject $output)
     {
+        $allowed = implode(', ', $output->data->allowed);
+
         return <<<END
 <html>
     <head>
@@ -44,20 +46,11 @@ class PageNotFoundExceptionHtmlFormatter implements WriterInterface
                 font-weight:normal;
                 line-height:48px;
             }
-            strong{
-                display:inline-block;
-                width:65px;
-            }
         </style>
     </head>
     <body>
         <h1>{$output->message}</h1>
-        <p>
-            The page you are looking for could not be found. Check the address bar
-            to ensure your URL is spelled correctly. If all else fails, you can
-            visit our home page at the link below.
-        </p>
-        <a href='{$output->data->home}'>Visit the Home Page</a>
+        <p>Method not allowed. Must be one of: <strong>{$allowed}</strong></p>
     </body>
 </html>
 END;

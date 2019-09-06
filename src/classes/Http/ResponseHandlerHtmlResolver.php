@@ -9,15 +9,14 @@
  * file that was distributed with this source code.
  */
 
-namespace Sinpe\Framework\Formatter;
+namespace Sinpe\Framework\Http;
 
 use Sinpe\Framework\ArrayObject;
-use Sinpe\Framework\WriterFormatterInterface;
 
 /**
  * Html
  */
-class HtmlFormatter implements WriterFormatterInterface
+class ResponseHandlerHtmlResolver implements ResponseHandlerResolverInterface
 {
     /**
      * Render HTML not allowed message

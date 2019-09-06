@@ -15,7 +15,8 @@ use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
-use Sinpe\Framework\Http\NormalHandler;
+use Sinpe\Framework\Http\Response;
+use Sinpe\Framework\Http\RequestHandler;
 
 /**
  * This is the primary class with which you instantiate,
@@ -260,7 +261,7 @@ class App
     {
         $acceptHeader = $request->getHeaderLine('Accept');
 
-        $contentTypes = array_keys(config('runtime.writers'));
+        $contentTypes = array_keys(config('runtime.formatters'));
 
         $selectedContentTypes = array_intersect(explode(',', $acceptHeader), $contentTypes);
 
@@ -312,11 +313,11 @@ class App
             ob_start();
             // Traverse middleware stack
             try {
-                $handler = new NormalHandler(container('router'));
+                $requestHandler = new RequestHandler(container('router'));
                 //
-                $handler->manyUse(array_reverse($this->middlewares));
+                $requestHandler->manyUse(array_reverse($this->middlewares));
                 // if exception thrown, response should be loss.
-                $response = $handler->handle($request);
+                $response = $requestHandler->handle($request);
             } catch (\Exception $except) {
 
                 $handlers = config('runtime.exception_handlers');
@@ -338,10 +339,10 @@ class App
 
                 if (isset($responseHandler)) {
                     try {
-                        $response = $responseHandler->handle($request);
+                        $response = $responseHandler->handle(new Response($request));
                     } catch (\Exception $exAgain) {
                         $responseHandler = new Exception\HandlingExceptionHandler($exAgain, $except);
-                        $response = $responseHandler->handle($request);
+                        $response = $responseHandler->handle(new Response($request));
                     } catch (\Throwable $exAgain) {
                         throw $exAgain;
                     }
@@ -502,9 +503,9 @@ class App
 
         $request = new Http\Request($method, $uri, $headers, $cookies, $serverParams, $body);
 
-        $handler = new NormalHandler(container('router'));
+        $requestHandler = new RequestHandler(container('router'));
         //
-        return $handler->handle($request);
+        return $requestHandler->handle($request);
     }
 
     /**

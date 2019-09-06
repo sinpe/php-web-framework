@@ -19,7 +19,7 @@ use Sinpe\Framework\WriterInterface;
  * @package Sinpe\Framework
  * @since   1.0.0
  */
-class RuntimeExceptionHtmlFormatter implements WriterInterface
+class RuntimeExceptionHtmlResolver implements WriterInterface
 {
     /**
      * Process a handler output and return the result.

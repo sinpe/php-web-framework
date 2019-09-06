@@ -36,9 +36,9 @@ class HandlingExceptionHandler extends RuntimeExceptionHandler
     /**
      * Get original exception
      *
-     * @return \Throwable
+     * @return \Exception
      */
-    protected function getOriginalException(): \Throwable
+    protected function getOriginalException(): \Exception
     {
         return $this->originalException;
     }

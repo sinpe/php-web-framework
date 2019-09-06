@@ -11,7 +11,7 @@
 namespace Sinpe\Framework\Exception;
 
 use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
+use Sinpe\Framework\ArrayObject;
 
 /**
  * Handler for 404.
@@ -30,29 +30,31 @@ class PageNotFoundExceptionHandler extends BadRequestExceptionHandler
     {
         parent::__construct($ex);
 
-        $this->registerWriters([
-            static::CONTENT_TYPE_HTML => PageNotFoundExceptionHtmlFormatter::class
+        $this->registerResolvers([
+            'text/html' => PageNotFoundExceptionHtmlResolver::class
         ]);
     }
 
     /**
-     * Handler procedure.
+     * Invoke the handler
      *
-     * @return string
+     * @param  ResponseInterface $response
+     * @return ResponseInterface
+     * @throws UnexpectedValueException
      */
-    protected function process(ResponseInterface $response): ResponseInterface
+    public function handle(ResponseInterface $response): ResponseInterface
     {
+        $response = parent::handle($response);
         $response = $response->withStatus(404);
-
         return $response;
     }
 
     /**
-     * Create the variable will be rendered.
+     * Format the variable will be output.
      *
-     * @return []
+     * @return mixed
      */
-    public function getOutput()
+    protected function fmtOutput()
     {
         $ex = $this->getException();
 
@@ -62,6 +64,6 @@ class PageNotFoundExceptionHandler extends BadRequestExceptionHandler
             'data' => $this->getContext()
         ];
 
-        return $error;
+        return new ArrayObject($error);
     }
 }

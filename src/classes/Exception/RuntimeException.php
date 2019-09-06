@@ -10,7 +10,7 @@
 
 namespace Sinpe\Framework\Exception;
 
-use Psr\Http\Server\RequestHandlerInterface;
+use Sinpe\Framework\Http\ResponseHandlerInterface;
 
 /**
  * Exception with response.
@@ -74,9 +74,9 @@ class RuntimeException extends \RuntimeException
     }
 
     /**
-     * @return RequestHandlerInterface
+     * @return ResponseHandlerInterface
      */
-    public function getResponseHandler(): RequestHandlerInterface
+    public function getResponseHandler(): ResponseHandlerInterface
     {
         return new RuntimeExceptionHandler($this);
     }

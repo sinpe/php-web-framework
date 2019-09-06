@@ -8,19 +8,18 @@
  * file that was distributed with this source code.
  */
 
-namespace Sinpe\Framework\Formatter;
+namespace Sinpe\Framework\ContentResolver;
 
 use Spatie\ArrayToXml\ArrayToXml;
 use Sinpe\Framework\ArrayObject;
-use Sinpe\Framework\WriterFormatterInterface;
 
 /**
- * Xml Formatter for common.
+ * Xml ContentType for common.
  * 
  * @package Sinpe\Framework
  * @since   1.0.0
  */
-class XmlFormatter implements WriterFormatterInterface
+class ResponseHandlerXmlResolver implements ResponseHandlerResolverInterface
 {
     /**
      * Process a handler output and return the result.

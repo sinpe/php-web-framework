@@ -10,9 +10,7 @@
 
 namespace Sinpe\Framework\Exception;
 
-use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Server\RequestHandlerInterface;
+use Sinpe\Framework\Http\ResponseHandlerInterface;
 
 /**
  * 405.
@@ -53,9 +51,9 @@ class MethodNotAllowedException extends BadRequestException
     }
 
     /**
-     * @return RequestHandlerInterface
+     * @return ResponseHandlerInterface
      */
-    public function getResponseHandler(): RequestHandlerInterface
+    public function getResponseHandler(): ResponseHandlerInterface
     {
         return new MethodNotAllowedExceptionHandler($this);
     }

@@ -10,8 +10,8 @@
 
 namespace Sinpe\Framework\Exception;
 
-use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use Sinpe\Framework\ArrayObject;
 
 /**
  * Exception handler base class.
@@ -22,6 +22,11 @@ use Psr\Http\Message\ResponseInterface;
 class RuntimeExceptionHandler extends ExceptionHandler
 {
     /**
+     * var string
+     */
+    private $acceptType;
+
+    /**
      * __construct
      * 
      * @param \Exception $except
@@ -30,34 +35,38 @@ class RuntimeExceptionHandler extends ExceptionHandler
     {
         parent::__construct($except);
 
-        $this->registerWriters([
-            static::CONTENT_TYPE_HTML => RuntimeExceptionHtmlFormatter::class
+        $this->registerResolvers([
+            'text/html' => RuntimeExceptionHtmlResolver::class
         ]);
     }
 
     /**
-     * Handler procedure.
+     * Invoke the handler
      *
-     * @return string
+     * @param  ResponseInterface $response
+     * @return ResponseInterface
+     * @throws UnexpectedValueException
      */
-    protected function process(ResponseInterface $response): ResponseInterface
+    public function handle(ResponseInterface $response): ResponseInterface
     {
+        $this->acceptType = $response->getHeaderLine('Content-Type');
+
         // Write to the error log if debug is false
         if (!config('runtime.debug')) {
             self::errorLog($this->getException());
         }
 
+        $response = parent::handle($response);
         $response = $response->withStatus(500);
-
         return $response;
     }
 
     /**
-     * Create the variable will be rendered.
+     * Format the variable will be output.
      *
-     * @return []
+     * @return mixed
      */
-    public function getOutput()
+    protected function fmtOutput()
     {
         $error = [
             'code' => $this->getException()->getCode(),
@@ -70,24 +79,24 @@ class RuntimeExceptionHandler extends ExceptionHandler
             $except = $this->getException();
 
             $error['type'] = get_class($except);
-            $error['message'] = self::createCdataSection($except->getMessage());
+            $error['message'] = $this->wrapCdata($except->getMessage());
             $error['file'] = $except->getFile();
             $error['line'] = $except->getLine();
-            $error['trace'] = self::createCdataSection($except->getTraceAsString());
+            $error['trace'] = $this->wrapCdata($except->getTraceAsString());
 
             while ($except = $except->getPrevious()) {
                 $error['previous'][] = [
                     'type' => get_class($except),
                     'code' => $except->getCode(),
-                    'message' => self::createCdataSection($except->getMessage()),
+                    'message' => $this->wrapCdata($except->getMessage()),
                     'file' => $except->getFile(),
                     'line' => $except->getLine(),
-                    'trace' => self::createCdataSection($except->getTraceAsString())
+                    'trace' => $this->wrapCdata($except->getTraceAsString())
                 ];
             }
         }
 
-        return $error;
+        return new ArrayObject($error);
     }
 
     /**
@@ -151,11 +160,11 @@ class RuntimeExceptionHandler extends ExceptionHandler
      * @param  string $content
      * @return string
      */
-    private static function createCdataSection($content)
+    private function wrapCdata($content)
     {
-        if (in_array($this->getContentType(), [
-            static::CONTENT_TYPE_XML1,
-            static::CONTENT_TYPE_XML2
+        if (in_array($this->acceptType, [
+            'application/xml',
+            'text/xml'
         ])) {
             return sprintf('<![CDATA[%s]]>', str_replace(']]>', ']]]]><![CDATA[>', $content));
         } else {

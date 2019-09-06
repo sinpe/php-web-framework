@@ -17,7 +17,7 @@ use Psr\Http\Message\ResponseInterface;
  * @package Sinpe\Framework
  * @since   1.0.0
  */
-class Controller
+class Controller extends Http\ResponseHandler
 {
     /**
      * @var int
@@ -51,9 +51,7 @@ class Controller
         $this->code = $code ?? 0;
         $this->data = $data;
 
-        array_keys(config('runtime.writers'));
-
-        return $response;
+        return $this->handle($response);
     }
 
     /**
@@ -75,7 +73,7 @@ class Controller
         $this->message = $message;
         $this->data = $data;
 
-        return $response;
+        return $this->handle($response);
     }
 
     /**
@@ -123,11 +121,11 @@ class Controller
     }
 
     /**
-     * 构建输出的内容
+     * Format the variable will be output.
      *
-     * @return void
+     * @return mixed
      */
-    protected function getContentOfHandler()
+    protected function fmtOutput()
     {
         $content = [
             'code' => $this->code,

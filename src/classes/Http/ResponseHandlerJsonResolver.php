@@ -8,10 +8,9 @@
  * file that was distributed with this source code.
  */
 
-namespace Sinpe\Framework\Formatter;
+namespace Sinpe\Framework\ContentResolver;
 
 use Sinpe\Framework\ArrayObject;
-use Sinpe\Framework\WriterFormatterInterface;
 
 /**
  * JSON writer for common.
@@ -19,7 +18,7 @@ use Sinpe\Framework\WriterFormatterInterface;
  * @package Sinpe\Framework
  * @since   1.0.0
  */
-class JsonFormatter implements WriterFormatterInterface
+class ResponseHandlerJsonResolver implements ResponseHandlerResolverInterface
 {
     /**
      * Unicode convertors

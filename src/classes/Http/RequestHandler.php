@@ -24,7 +24,7 @@ use Sinpe\Framework\Http\Response;
 /**
  * Handle the request and output a response
  */
-class NormalHandler implements RequestHandlerInterface, MiddlewareAwareInterface
+class RequestHandler implements RequestHandlerInterface, MiddlewareAwareInterface
 {
     use MiddlewareAwareTrait;
 

@@ -11,7 +11,6 @@
 namespace Sinpe\Framework\Exception;
 
 use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
 
 /**
  * Handler for 401.
@@ -22,15 +21,18 @@ use Psr\Http\Message\ServerRequestInterface;
 abstract class UnauthorizedExceptionHandler extends BadRequestExceptionHandler
 {
     /**
-     * Handler procedure.
+     * Invoke the handler
      *
-     * @return string
+     * @param  ResponseInterface $response
+     * @return ResponseInterface
+     * @throws UnexpectedValueException
      */
-    protected function process(
-        ResponseInterface $response
-    ) : ResponseInterface {
-        
-        if ($this->getContentType() == static::CONTENT_TYPE_HTML) {
+    public function handle(ResponseInterface $response): ResponseInterface
+    {
+        $acceptType = $response->getHeaderLine('Content-Type');
+
+        $response = parent::handle($response);
+        if ($acceptType == 'text/html') {
             $response = $response->withRedirect($this->getRedirectUrl())->withStatus(302);
         } else {
             $response = $response->withStatus(401);

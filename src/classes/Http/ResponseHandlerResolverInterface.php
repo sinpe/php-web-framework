@@ -8,7 +8,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Sinpe\Framework;
+namespace Sinpe\Framework\Http;
 
 use Sinpe\Framework\ArrayObject;
 
@@ -18,13 +18,12 @@ use Sinpe\Framework\ArrayObject;
  * @package Sinpe\Framework
  * @since   1.0.0
  */
-interface WriterFormatterInterface
+interface ResponseHandlerResolverInterface
 {
     /**
      * Process a handler context and assign result to "output" property.
      *
      * @return string
      */
-    public function process($data);
-
+    public function process(ArrayObject $data);
 }

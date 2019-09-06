@@ -10,6 +10,8 @@
 
 namespace Sinpe\Framework\Exception;
 
+use Sinpe\Framework\ArrayObject;
+
 /**
  * Handler for runtime error.
  * 
@@ -19,11 +21,11 @@ namespace Sinpe\Framework\Exception;
 class RequestExceptionHandler extends RuntimeExceptionHandler
 {
     /**
-     * Create the content will be rendered.
+     * Format the variable will be output.
      *
-     * @return array
+     * @return mixed
      */
-    public function getOutput()
+    protected function fmtOutput()
     {
         $except = $this->getException();
 
@@ -38,7 +40,6 @@ class RequestExceptionHandler extends RuntimeExceptionHandler
             $error['data'] = $data;
         }
 
-        return $error;
+        return new ArrayObject($error);
     }
-
 }
