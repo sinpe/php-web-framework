@@ -23,6 +23,18 @@ namespace Sinpe\Framework;
 class Environment extends ArrayObject implements EnvironmentInterface
 {
     /**
+     * hosts
+     * You can override by your subclass
+     * @var array
+     */
+    protected $hostLiterals = [
+        'X-FORWARDED-HOST',
+        'X-FORWARDED-SERVER',
+        'HTTP_HOST',
+        'SERVER_NAME'
+    ];
+
+    /**
      * Create mock environment
      *
      * @param  array $userData Array of custom environment keys and values
@@ -72,9 +84,9 @@ class Environment extends ArrayObject implements EnvironmentInterface
     {
         $host = '127.0.0.1';
 
-        $hostReaders = config('runtime.host_readers');
+        $literals = $this->hostLiterals;
 
-        foreach ((array) $hostReaders as $item) {
+        foreach ((array) $literals as $item) {
             if ($this->has($item)) {
                 $host = $this->get($item);
                 break;

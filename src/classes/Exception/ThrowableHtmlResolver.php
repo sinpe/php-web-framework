@@ -11,7 +11,7 @@
 namespace Sinpe\Framework\Exception;
 
 use Sinpe\Framework\ArrayObject;
-use Sinpe\Framework\WriterInterface;
+use Sinpe\Framework\Http\ResponseHandlerResolverInterface;
 
 /**
  * The HTML writer for exception with debug details.
@@ -19,14 +19,14 @@ use Sinpe\Framework\WriterInterface;
  * @package Sinpe\Framework
  * @since   1.0.0
  */
-class RuntimeExceptionHtmlResolver implements WriterInterface
+class ThrowableHtmlResolver implements ResponseHandlerResolverInterface
 {
     /**
      * Process a handler output and return the result.
      *
      * @return string
      */
-    public function process(ArrayObject $output)
+    public function resolve(ArrayObject $output)
     {
         $title = 'Error';
 

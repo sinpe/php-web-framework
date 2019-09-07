@@ -41,7 +41,7 @@ class RuntimeException extends \RuntimeException
     ) {
 
         if (!is_int($code)) {
-            if (!$code instanceof \Throwable) {
+            if (!$code instanceof \Exception) {
                 $context = $code;
             } else {
                 $previous = $code;
@@ -49,7 +49,7 @@ class RuntimeException extends \RuntimeException
             $code = $this->getDefaultCode();
         }
 
-        if (!$previous instanceof \Throwable) {
+        if (!$previous instanceof \Exception) {
             $context = $previous;
             $previous = null;
         }

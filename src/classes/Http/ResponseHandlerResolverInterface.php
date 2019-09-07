@@ -25,5 +25,5 @@ interface ResponseHandlerResolverInterface
      *
      * @return string
      */
-    public function process(ArrayObject $data);
+    public function resolve(ArrayObject $data);
 }

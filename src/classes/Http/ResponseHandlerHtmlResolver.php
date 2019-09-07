@@ -23,7 +23,7 @@ class ResponseHandlerHtmlResolver implements ResponseHandlerResolverInterface
      *
      * @return string
      */
-    public function process(ArrayObject $output)
+    public function resolve(ArrayObject $output)
     {
         $html = '';
 

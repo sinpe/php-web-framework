@@ -83,7 +83,7 @@ final class CallableResolver implements CallableResolverInterface
         // }
         
         if (!class_exists($class)) {
-            throw new \RuntimeException(i18n('Callable %s does not exist', $class));
+            throw new \RuntimeException(i18n('callable %s does not exist', $class));
         }
 
         // return [new $class($this->container), $method];

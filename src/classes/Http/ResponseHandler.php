@@ -41,12 +41,39 @@ abstract class ResponseHandler implements ResponseHandlerInterface
      */
     public function handle(ResponseInterface $response): ResponseInterface
     {
-        // 
-        $acceptType = $response->getHeaderLine('Content-Type');
+        if (!$response->hasHeader('Content-Type')) {
+            // 
+            $acceptType = $response->getRequest()->getHeaderLine('Accept');
+            //
+            $acceptTypes = array_keys($this->resolvers);
+            
+            $selectedContentTypes = array_intersect(explode(',', $acceptType), $acceptTypes);
 
-        if (array_key_exists($acceptType, $this->resolvers)) {
+            if (count($selectedContentTypes)) {
+                $contentType = current($selectedContentTypes);
+            } else {
+                // handle +json and +xml specially
+                if (preg_match('/\+(json|xml)/', $acceptType, $matches)) {
+                    //
+                    $mediaType = 'application/' . $matches[1];
+                    if (in_array($mediaType, $acceptTypes)) {
+                        $contentType = $mediaType;
+                    }
+                }
+            }
 
-            $resolver = $this->resolvers[$acceptType];
+            if (empty($contentType)) {
+                $contentType = 'text/html';
+            }
+            
+            $response = $response->withHeader('Content-Type', $contentType);
+        } else {
+            $contentType = $response->getHeaderLine('Content-Type');
+        }
+
+        if (array_key_exists($contentType, $this->resolvers)) {
+
+            $resolver = $this->resolvers[$contentType];
 
             if ($resolver instanceof \Closure) {
                 /*
@@ -59,11 +86,12 @@ abstract class ResponseHandler implements ResponseHandlerInterface
                 */
                 $content = $resolver($this->fmtOutput());
             } else {
+                // Resolver can be overrided with container
                 $content = container($resolver)->resolve($this->fmtOutput());
             }
             //
         } else {
-            throw new \UnexpectedValueException('can not render unknown content type ' . $acceptType);
+            throw new \UnexpectedValueException(i18n('can not render unknown content type "%s"', $contentType));
         }
 
         $body = new Body(fopen('php://temp', 'r+'));

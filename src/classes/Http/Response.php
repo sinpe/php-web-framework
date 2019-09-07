@@ -151,8 +151,7 @@ class Response extends Message implements ResponseInterface
         $this->status = $this->filterStatus($status);
         $this->headers = $headers ? $headers : new Headers();
         $this->body = $body ? $body : new Body(fopen('php://temp', 'r+'));
-
-        $this->headers->set('Content-Type', $request->getHeaderLine('Accept'));
+        $this->protocolVersion = $request->getProtocolVersion();
     }
 
     /**
@@ -213,7 +212,7 @@ class Response extends Message implements ResponseInterface
         $code = $this->filterStatus($code);
 
         if (!is_string($reasonPhrase) && !method_exists($reasonPhrase, '__toString')) {
-            throw new \InvalidArgumentException('ReasonPhrase must be a string');
+            throw new \InvalidArgumentException(i18n('reason phrase must be a string'));
         }
 
         $clone = clone $this;
@@ -223,7 +222,7 @@ class Response extends Message implements ResponseInterface
         }
 
         if ($reasonPhrase === '') {
-            throw new \InvalidArgumentException('ReasonPhrase must be supplied for this code');
+            throw new \InvalidArgumentException(i18n('reason phrase must be supplied for this code'));
         }
 
         $clone->reasonPhrase = $reasonPhrase;
@@ -241,7 +240,7 @@ class Response extends Message implements ResponseInterface
     protected function filterStatus($status)
     {
         if (!is_integer($status) || $status < 100 || $status > 599) {
-            throw new \InvalidArgumentException('Invalid HTTP status code');
+            throw new \InvalidArgumentException(i18n('invalid HTTP status code'));
         }
 
         return $status;
@@ -467,7 +466,7 @@ class Response extends Message implements ResponseInterface
      */
     public function __toString()
     {
-        $output = i18n(
+        $output = sprintf(
             'HTTP/%s %s %s',
             $this->getProtocolVersion(),
             $this->getStatusCode(),
@@ -475,7 +474,7 @@ class Response extends Message implements ResponseInterface
         );
         $output .= Response::EOL;
         foreach ($this->getHeaders() as $name => $values) {
-            $output .= i18n('%s: %s', $name, $this->getHeaderLine($name)) . Response::EOL;
+            $output .= sprintf('%s: %s', $name, $this->getHeaderLine($name)) . Response::EOL;
         }
         $output .= Response::EOL;
         $output .= (string) $this->getBody();

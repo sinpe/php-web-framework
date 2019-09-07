@@ -102,9 +102,9 @@ abstract class Message implements MessageInterface
     public function withProtocolVersion($version)
     {
         if (!isset(self::$validProtocolVersions[$version])) {
-            throw new \InvalidArgumentException(
-                'Invalid HTTP version. Must be one of: '
-                    . implode(', ', array_keys(self::$validProtocolVersions))
+            throw new \InvalidArgumentException(i18n(
+                'invalid HTTP version. Must be one of: '
+                    . implode(', ', array_keys(self::$validProtocolVersions)))
             );
         }
         $clone = clone $this;
@@ -131,7 +131,7 @@ abstract class Message implements MessageInterface
      *     // Emit headers iteratively:
      *     foreach ($message->getHeaders() as $name => $values) {
      *         foreach ($values as $value) {
-     *             header(i18n('%s: %s', $name, $value), false);
+     *             header(sprintf('%s: %s', $name, $value), false);
      *         }
      *     }
      *

@@ -21,16 +21,16 @@ class HandlingExceptionHandler extends RuntimeExceptionHandler
     /**
      * @var \Exception
      */
-    private $originalException;
+    private $originalExcept;
 
     /**
      * __construct
      */
-    public function __construct(\Exception $exception, \Exception $originalException)
+    public function __construct(\Exception $except, \Exception $originalExcept)
     {
-        $this->originalException = $originalException;
+        $this->originalExcept = $originalExcept;
 
-        parent::__construct($exception);
+        parent::__construct($except);
     }
 
     /**
@@ -40,6 +40,6 @@ class HandlingExceptionHandler extends RuntimeExceptionHandler
      */
     protected function getOriginalException(): \Exception
     {
-        return $this->originalException;
+        return $this->originalExcept;
     }
 }

@@ -26,9 +26,6 @@
     "autoload": {
         "psr-4": {
             "Sinpe\\Framework\\": "src/classes"
-        },
-        "files": [
-            "src/helpers.php"
-        ]
+        }
     }
 }

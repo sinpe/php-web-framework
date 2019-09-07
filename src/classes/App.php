@@ -15,8 +15,12 @@ use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
+use Sinpe\Framework\Exception\RuntimeExceptionHandler;
 use Sinpe\Framework\Http\Response;
 use Sinpe\Framework\Http\RequestHandler;
+
+require_once __DIR__ . '/../defines.php';
+require_once __DIR__ . '/../helpers.php';
 
 /**
  * This is the primary class with which you instantiate,
@@ -46,25 +50,30 @@ class App
      */
     final public function __construct(EnvironmentInterface $environment)
     {
-        // TODO
-        // set_exception_handler(function ($except) {
-        //     // $response = $this->($except, $request);
-        //     //$this->end($response);
-        // });
-
         $this->environment = $environment;
+
+        set_exception_handler(function ($except) {
+            $responseHandler = new Exception\ThrowableHandler($except);
+            try {
+                $request = Http\Request::createFromEnvironment($this->environment);
+                $response = $responseHandler->handle(new Response($request));
+                $this->end($response);
+            } catch (\Throwable $except) {
+                FatalLogger::write($except);
+            }
+        });
 
         // container instance
         $container = container();
         // 
         if (!$container instanceof ContainerInterface) {
-            throw new \Exception(sprintf('container() return Must be %s', ContainerInterface::class));
+            throw new \Exception(i18n('container() return Must be %s', ContainerInterface::class));
         }
 
         // config instance
         $config = $this->configFactory();
         if (!$config || !method_exists($config, 'get')) {
-            throw new \Exception(sprintf(
+            throw new \Exception(i18n(
                 '%s::configFactory return Must has "get" method',
                 static::class
             ));
@@ -97,7 +106,7 @@ class App
      */
     protected function configFactory()
     {
-        throw new \Exception(sprintf('%s needs to be overrided', __METHOD__));
+        throw new \Exception(i18n('%s needs to be overrided', __METHOD__));
     }
 
     /**
@@ -248,44 +257,6 @@ class App
     }
 
     /**
-     * Determine which content type we know about is wanted using Accept header
-     *
-     * Note: This method is a bare-bones implementation designed specifically for
-     * error handling requirements. Consider a fully-feature solution such
-     * as willdurand/negotiation for any other situation.
-     *
-     * @param  ServerRequestInterface $request
-     * @return string
-     */
-    protected function prepare(ServerRequestInterface $request): ServerRequestInterface
-    {
-        $acceptHeader = $request->getHeaderLine('Accept');
-
-        $contentTypes = array_keys(config('runtime.formatters'));
-
-        $selectedContentTypes = array_intersect(explode(',', $acceptHeader), $contentTypes);
-
-        if (count($selectedContentTypes)) {
-            $contentType = current($selectedContentTypes);
-        } else {
-            // handle +json and +xml specially
-            if (preg_match('/\+(json|xml)/', $acceptHeader, $matches)) {
-                //
-                $mediaType = 'application/' . $matches[1];
-                if (in_array($mediaType, $contentTypes)) {
-                    $contentType = $mediaType;
-                }
-            }
-        }
-
-        if (empty($contentType)) {
-            $contentType = 'text/html';
-        }
-
-        return $request->withHeader('Accept', $contentType);
-    }
-
-    /**
      * Run application
      *
      * This method traverses the application middleware stack and then sends the
@@ -301,8 +272,6 @@ class App
     public function run($silent = false)
     {
         $request = Http\Request::createFromEnvironment($this->environment);
-
-        $request = $this->prepare($request);
 
         if (container()->has(EventDispatcherInterface::class)) {
             $request = container(EventDispatcherInterface::class)
@@ -350,10 +319,10 @@ class App
                     throw $except;
                 }
             }
+
+            $output = ob_get_clean();
         } catch (\Throwable $except) {
             throw $except;
-        } finally {
-            $output = ob_get_clean();
         }
 
         if (container()->has(EventDispatcherInterface::class)) {
@@ -532,8 +501,8 @@ class App
         }
 
         if (ob_get_length() > 0) {
-            throw new \RuntimeException("Unexpected data in output buffer. " .
-                "Maybe you have characters before an opening <?php tag?");
+            throw new \RuntimeException(i18n("unexpected data in output buffer. " .
+                "Maybe you have characters before an opening <?php tag?"));
         }
 
         $size = $response->getBody()->getSize();

@@ -91,7 +91,7 @@ class ResponseHandlerJsonResolver implements ResponseHandlerResolverInterface
      *
      * @return string
      */
-    public function process(ArrayObject $output)
+    public function resolve(ArrayObject $output)
     {
         $content = json_encode($this->convert($output->all()), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
 

@@ -92,7 +92,7 @@ class Controller extends Http\ResponseHandler
     ) {
 
         if ($code < 0) {
-            throw new \RuntimeException(i18n('Code must be greater than or equal to 0'));
+            throw new \RuntimeException(i18n('normal code must be greater than or equal to 0'));
         }
 
         return $this->message($response, $message, $code, $data);
@@ -114,7 +114,7 @@ class Controller extends Http\ResponseHandler
     ) {
 
         if ($code >= 0) {
-            throw new \RuntimeException(i18n('Code must be less than 0'));
+            throw new \RuntimeException(i18n('error code must be less than 0'));
         }
 
         return $this->message($response, $message, $code, $data);

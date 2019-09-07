@@ -24,11 +24,11 @@ class PageNotFoundExceptionHandler extends BadRequestExceptionHandler
     /**
      * __construct
      * 
-     * @param \Exception $ex
+     * @param \Exception $except
      */
-    public function __construct(\Exception $ex)
+    public function __construct(\Exception $except)
     {
-        parent::__construct($ex);
+        parent::__construct($except);
 
         $this->registerResolvers([
             'text/html' => PageNotFoundExceptionHtmlResolver::class
@@ -56,12 +56,12 @@ class PageNotFoundExceptionHandler extends BadRequestExceptionHandler
      */
     protected function fmtOutput()
     {
-        $ex = $this->getException();
+        $except = $this->getException();
 
         $error = [
-            'code' => $ex->getCode(),
-            'message' => $ex->getMessage(),
-            'data' => $this->getContext()
+            'code' => $except->getCode(),
+            'message' => $except->getMessage(),
+            'data' => $except->getContext()
         ];
 
         return new ArrayObject($error);

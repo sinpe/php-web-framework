@@ -8,39 +8,16 @@
  * file that was distributed with this source code.
  */
 
-use Sinpe\Framework\Exception\BadRequestException;
-use Sinpe\Framework\Exception\BadRequestExceptionHandler;
 use Sinpe\Framework\Exception\RuntimeExceptionHandler;
-use Sinpe\Framework\Exception\RequestException;
-use Sinpe\Framework\Exception\RequestExceptionHandler;
-use Sinpe\Framework\Writer\Json as JsonFormatter;
-use Sinpe\Framework\Writer\Html as HtmlFormatter;
-use Sinpe\Framework\Writer\Xml as XmlFormatter;
 
 return [
-    'http_version' => '1.1',
-    'host_readers' => [
-        'X-FORWARDED-HOST',
-        'X-FORWARDED-SERVER',
-        'HTTP_HOST',
-        'SERVER_NAME'
-    ],
     'response_chunk_size' => 4096,
     'output_buffering' => 'append',
-    'debug' => false,
     'route_cache' => function () {
         return false;
     },
     'exception_handlers' => [
-        BadRequestException::class => BadRequestExceptionHandler::class,
-        RequestException::class => RequestExceptionHandler::class,
         \Exception::class => RuntimeExceptionHandler::class,
-        \Error::class => RuntimeExceptionHandler::class
-    ],
-    'writers' => [
-        'application/json' => JsonFormatter::class,
-        'text/html' => XmlFormatter::class,
-        'text/xml' => XmlFormatter::class,
-        'application/xml' => HtmlFormatter::class
+        \Error::class => ThrowableHandler::class
     ]
 ];

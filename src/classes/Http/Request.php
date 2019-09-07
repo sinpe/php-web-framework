@@ -147,14 +147,16 @@ class Request extends Message implements ServerRequestInterface
         $body = new RequestBody();
         $uploadedFiles = UploadedFile::createFromEnvironment($environment);
 
-        $request = new static($method, $uri, $headers, $cookies, (array)$environment, $body, $uploadedFiles);
+        $request = new static($method, $uri, $headers, $cookies, (array) $environment, $body, $uploadedFiles);
 
-        if ($method === 'POST' &&
-            in_array($request->getMediaType(), ['application/x-www-form-urlencoded', 'multipart/form-data'])) {
+        if (
+            $method === 'POST' &&
+            in_array($request->getMediaType(), ['application/x-www-form-urlencoded', 'multipart/form-data'])
+        ) {
             // parsed body must be $_POST
             $request = $request->withParsedBody($_POST);
         }
-        
+
         return $request;
     }
 
@@ -335,7 +337,7 @@ class Request extends Message implements ServerRequestInterface
 
         if (!is_string($method)) {
             throw new \InvalidArgumentException(i18n(
-                'Unsupported HTTP method; must be a string, received %s',
+                'unsupported HTTP method; must be a string, received %s',
                 (is_object($method) ? get_class($method) : gettype($method))
             ));
         }
@@ -343,7 +345,7 @@ class Request extends Message implements ServerRequestInterface
         $method = strtoupper($method);
 
         if (preg_match("/^[!#$%&'*+.^_`|~0-9a-z-]+$/i", $method) !== 1) {
-            throw new \RuntimeException(i18n('Unsupported HTTP method "%s" provided', $method));
+            throw new \RuntimeException(i18n('unsupported HTTP method "%s" provided', $method));
         }
 
         return $method;
@@ -523,7 +525,7 @@ class Request extends Message implements ServerRequestInterface
     {
         if (preg_match('#\s#', $requestTarget)) {
             throw new \InvalidArgumentException(
-                'Invalid request target provided; must be a string and cannot contain whitespace'
+                i18n('invalid request target provided; must be a string and cannot contain whitespace')
             );
         }
         $clone = clone $this;
@@ -678,7 +680,7 @@ class Request extends Message implements ServerRequestInterface
     {
         $result = $this->headers->get('Content-Length');
 
-        return $result ? (int)$result[0] : null;
+        return $result ? (int) $result[0] : null;
     }
 
     /*******************************************************************************
@@ -1028,12 +1030,12 @@ class Request extends Message implements ServerRequestInterface
         }
 
         if (isset($this->bodyParsers[$mediaType]) === true) {
-            $body = (string)$this->getBody();
+            $body = (string) $this->getBody();
             $parsed = $this->bodyParsers[$mediaType]($body);
 
             if (!is_null($parsed) && !is_object($parsed) && !is_array($parsed)) {
                 throw new \RuntimeException(
-                    'Request body media type parser return value must be an array, an object, or null'
+                    i18n('request body media type parser return value must be an array, an object, or null')
                 );
             }
             $this->bodyParsed = $parsed;
@@ -1074,7 +1076,7 @@ class Request extends Message implements ServerRequestInterface
     public function withParsedBody($data)
     {
         if (!is_null($data) && !is_object($data) && !is_array($data)) {
-            throw new \InvalidArgumentException('Parsed body value must be an array, an object, or null');
+            throw new \InvalidArgumentException(i18n('parsed body value must be an array, an object, or null'));
         }
 
         $clone = clone $this;
@@ -1112,7 +1114,7 @@ class Request extends Message implements ServerRequestInterface
         if ($callable instanceof \Closure) {
             $callable = $callable->bindTo($this);
         }
-        $this->bodyParsers[(string)$mediaType] = $callable;
+        $this->bodyParsers[(string) $mediaType] = $callable;
     }
 
     /*******************************************************************************
@@ -1202,7 +1204,7 @@ class Request extends Message implements ServerRequestInterface
         $params = $this->getQueryParams();
         $postParams = $this->getParsedBody();
         if ($postParams) {
-            $params = array_merge($params, (array)$postParams);
+            $params = array_merge($params, (array) $postParams);
         }
 
         if ($only) {
@@ -1217,4 +1219,5 @@ class Request extends Message implements ServerRequestInterface
 
         return $params;
     }
+
 }

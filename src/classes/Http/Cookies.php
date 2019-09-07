@@ -178,7 +178,7 @@ class Cookies implements CookiesInterface
         }
 
         if (is_string($header) === false) {
-            throw new \InvalidArgumentException('Cannot parse Cookie data. Header value must be a string.');
+            throw new \InvalidArgumentException(i18n('can not parse Cookie data. Header value must be a string'));
         }
 
         $header = rtrim($header, "\r\n");

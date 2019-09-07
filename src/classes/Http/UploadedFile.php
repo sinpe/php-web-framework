@@ -189,7 +189,7 @@ class UploadedFile implements UploadedFileInterface
     public function getStream()
     {
         if ($this->moved) {
-            throw new \RuntimeException(i18n('Uploaded file %1s has already been moved', $this->name));
+            throw new \RuntimeException(i18n('uploaded file %1s has already been moved', $this->name));
         }
         if ($this->stream === null) {
             $this->stream = new Stream($this->getResource());
@@ -206,7 +206,7 @@ class UploadedFile implements UploadedFileInterface
     public function getResource()
     {
         if ($this->moved) {
-            throw new \RuntimeException(sprintf('Uploaded file %s has already been moved', $this->name));
+            throw new \RuntimeException(i18n('uploaded file %s has already been moved', $this->name));
         }
 
         if ($this->resource === null) {
@@ -253,20 +253,20 @@ class UploadedFile implements UploadedFileInterface
     public function moveTo($targetPath)
     {
         if ($this->moved) {
-            throw new \RuntimeException('Uploaded file already moved');
+            throw new \RuntimeException(i18n('uploaded file already moved'));
         }
 
         $targetIsStream = strpos($targetPath, '://') > 0;
         if (!$targetIsStream && !is_writable(dirname($targetPath))) {
-            throw new \InvalidArgumentException('Upload target path is not writable');
+            throw new \InvalidArgumentException(i18n('upload target path is not writable'));
         }
 
         if ($targetIsStream) {
             if (!copy($this->file, $targetPath)) {
-                throw new \RuntimeException(i18n('Error moving uploaded file %1s to %2s', $this->name, $targetPath));
+                throw new \RuntimeException(i18n('error moving uploaded file %1s to %2s', $this->name, $targetPath));
             }
             if (!unlink($this->file)) {
-                throw new \RuntimeException(i18n('Error removing uploaded file %1s', $this->name));
+                throw new \RuntimeException(i18n('error removing uploaded file %1s', $this->name));
             }
         } elseif ($this->sapi) {
             if (!is_uploaded_file($this->file)) {
@@ -274,11 +274,11 @@ class UploadedFile implements UploadedFileInterface
             }
 
             if (!move_uploaded_file($this->file, $targetPath)) {
-                throw new \RuntimeException(i18n('Error moving uploaded file %1s to %2s', $this->name, $targetPath));
+                throw new \RuntimeException(i18n('error moving uploaded file %1s to %2s', $this->name, $targetPath));
             }
         } else {
             if (!rename($this->file, $targetPath)) {
-                throw new \RuntimeException(i18n('Error moving uploaded file %1s to %2s', $this->name, $targetPath));
+                throw new \RuntimeException(i18n('error moving uploaded file %1s to %2s', $this->name, $targetPath));
             }
         }
 
