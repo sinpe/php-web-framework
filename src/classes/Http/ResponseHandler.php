@@ -41,6 +41,18 @@ abstract class ResponseHandler implements ResponseHandlerInterface
      */
     public function handle(ResponseInterface $response): ResponseInterface
     {
+        return $this->_handle($response);
+    }
+
+    /**
+     * _handle
+     *
+     * @param  ResponseInterface $response
+     * @return ResponseInterface
+     * @throws UnexpectedValueException
+     */
+    protected function _handle(ResponseInterface $response): ResponseInterface
+    {
         if (!$response->hasHeader('Content-Type')) {
             // 
             $acceptType = $response->getRequest()->getHeaderLine('Accept');

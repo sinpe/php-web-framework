@@ -18,6 +18,6 @@ return [
     },
     'exception_handlers' => [
         \Exception::class => RuntimeExceptionHandler::class,
-        \Error::class => ThrowableHandler::class
+        \Error::class => ErrorHandler::class
     ]
 ];

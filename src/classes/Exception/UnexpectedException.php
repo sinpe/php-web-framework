@@ -18,14 +18,14 @@ use Sinpe\Framework\Http\ResponseHandlerInterface;
  * @package Sinpe\Framework
  * @since   1.0.0
  */
-class RequestException extends RuntimeException
+class UnexpectedException extends RuntimeException
 {
     /**
      * @return ResponseHandlerInterface
      */
     public function getResponseHandler(): ResponseHandlerInterface
     {
-        return new RequestExceptionHandler($this);
+        return new UnexpectedExceptionHandler($this);
     }
 
     /**

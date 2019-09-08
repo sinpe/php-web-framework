@@ -1,6 +1,6 @@
 <?php
 /*
- * This file is part of the long/route package.
+ * This file is part of the long/framework package.
  *
  * (c) Sinpe <support@sinpe.com>
  *

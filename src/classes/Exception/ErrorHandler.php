@@ -11,6 +11,7 @@
 namespace Sinpe\Framework\Exception;
 
 use Psr\Http\Message\ResponseInterface;
+use Sinpe\Framework\ArrayObject;
 use Sinpe\Framework\Http\ResponseHandler;
 
 /**
@@ -19,12 +20,17 @@ use Sinpe\Framework\Http\ResponseHandler;
  * @package Sinpe\Framework
  * @since   1.0.0
  */
-class ThrowableHandler extends ResponseHandler
+class ErrorHandler extends ResponseHandler
 {
     /**
      * @var \Throwable
      */
     private $except;
+
+    /**
+     * var string
+     */
+    private $acceptType;
 
     /**
      * __construct
@@ -36,7 +42,7 @@ class ThrowableHandler extends ResponseHandler
         $this->except = $except;
 
         $this->registerResolvers([
-            'text/html' => ThrowableHtmlResolver::class
+            'text/html' => ErrorHtmlResolver::class
         ]);
     }
 
@@ -49,6 +55,7 @@ class ThrowableHandler extends ResponseHandler
      */
     public function handle(ResponseInterface $response): ResponseInterface
     {
+        $this->acceptType = $response->getHeaderLine('Content-Type');
         $response = parent::handle($response);
         $response = $response->withStatus(500);
         return $response;

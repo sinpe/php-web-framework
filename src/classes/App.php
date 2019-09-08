@@ -53,7 +53,7 @@ class App
         $this->environment = $environment;
 
         set_exception_handler(function ($except) {
-            $responseHandler = new Exception\ThrowableHandler($except);
+            $responseHandler = new Exception\ErrorHandler($except);
             try {
                 $request = Http\Request::createFromEnvironment($this->environment);
                 $response = $responseHandler->handle(new Response($request));

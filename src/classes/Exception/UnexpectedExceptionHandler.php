@@ -10,7 +10,9 @@
 
 namespace Sinpe\Framework\Exception;
 
+use Psr\Http\Message\ResponseInterface;
 use Sinpe\Framework\ArrayObject;
+use Sinpe\Framework\Http\ResponseHandlerHtmlResolver;
 
 /**
  * Handler for runtime error.
@@ -18,8 +20,36 @@ use Sinpe\Framework\ArrayObject;
  * @package Sinpe\Framework
  * @since   1.0.0
  */
-class RequestExceptionHandler extends RuntimeExceptionHandler
+class UnexpectedExceptionHandler extends RuntimeExceptionHandler
 {
+    /**
+     * __construct
+     * 
+     * @param \Exception $except
+     */
+    public function __construct(\Exception $except)
+    {
+        parent::__construct($except);
+
+        $this->registerResolvers([
+            'text/html' => ResponseHandlerHtmlResolver::class
+        ]);
+    }
+
+    /**
+     * Invoke the handler
+     *
+     * @param  ResponseInterface $response
+     * @return ResponseInterface
+     * @throws UnexpectedValueException
+     */
+    public function handle(ResponseInterface $response): ResponseInterface
+    {
+        $response = $this->_handle($response);
+
+        return $response;
+    }
+
     /**
      * Format the variable will be output.
      *

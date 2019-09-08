@@ -100,3 +100,14 @@ if (!function_exists('studly')) {
         return str_replace(' ', '', $value);
     }
 }
+
+if (!function_exists('i18n')) {
+    /**
+     * 多语言
+     */
+    function i18n()
+    {
+        $arguments = func_get_args();
+        return sprintf(...$arguments);
+    }
+}

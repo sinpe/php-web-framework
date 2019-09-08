@@ -10,35 +10,20 @@
 
 namespace Sinpe\Framework\Exception;
 
-use Psr\Http\Message\ResponseInterface;
 use Sinpe\Framework\ArrayObject;
 
 /**
- * Handler for 400.
+ * Exception handler base class.
  * 
  * @package Sinpe\Framework
  * @since   1.0.0
  */
-class BadRequestExceptionHandler extends UnexpectedExceptionHandler
+class UnexpectedValueExceptionHandler extends UnexpectedExceptionHandler
 {
     /**
-     * Invoke the handler
+     * Format the variable will be output.
      *
-     * @param  ResponseInterface $response
-     * @return ResponseInterface
-     * @throws UnexpectedValueException
-     */
-    public function handle(ResponseInterface $response): ResponseInterface
-    {
-        $response = parent::handle($response);
-        $response = $response->withStatus(400);
-        return $response;
-    }
-
-    /**
-     * Create the variable will be rendered.
-     *
-     * @return 
+     * @return mixed
      */
     protected function fmtOutput()
     {
@@ -48,6 +33,18 @@ class BadRequestExceptionHandler extends UnexpectedExceptionHandler
             'code' => $except->getCode(),
             'message' => $except->getMessage()
         ];
+
+        $field = $except->getField();
+
+        if (!empty($field)) {
+            $error['field'] = $field;
+        }
+
+        $data = $except->getContext();
+
+        if (!empty($data)) {
+            $error['data'] = $data;
+        }
 
         return new ArrayObject($error);
     }

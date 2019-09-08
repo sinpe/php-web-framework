@@ -18,7 +18,7 @@ use Sinpe\Framework\Http\ResponseHandlerInterface;
  * @package Sinpe\Framework
  * @since   1.0.0
  */
-class BadRequestException extends RequestException
+class BadRequestException extends UnexpectedException
 {
     /**
      * @return ResponseHandlerInterface

@@ -13,61 +13,53 @@ namespace Sinpe\Framework\Exception;
 use Sinpe\Framework\Http\ResponseHandlerInterface;
 
 /**
- * Exception with response.
- * 
+ * UnexpectedValueException
  * @package Sinpe\Framework
  * @since   1.0.0
  */
-class RuntimeException extends \RuntimeException
+class UnexpectedValueException extends UnexpectedException
 {
     /**
-     * @var array
+     * @var string
      */
-    private $context = [];
+    private $field;
 
     /**
      * __construct
      *
      * @param string $message
+     * @param mixed $field
      * @param mixed $code
      * @param mixed $previous
-     * @param mixed $context
+     * @param array $context
      */
     public function __construct(
         string $message,
+        $field = null,
         $code = null,
         $previous = null,
         $context = []
     ) {
-
-        if (!is_int($code)) {
+        if (!is_string($field)) {
             $context = $previous;
             $previous = $code;
-            $code = $this->getDefaultCode();
+            $code = $field;
+            $field = '';
         }
 
-        if (!$previous instanceof \Exception) {
-            $context = $previous;
-            $previous = null;
-        }
+        $this->field = $field;
 
-        if (!is_array($context)) {
-            $context = [];
-        }
-
-        $this->context = $context;
-
-        parent::__construct($message, $code, $previous);
+        parent::__construct($message, $code, $previous, $context);
     }
 
     /**
-     * Attached data.
+     * 返回异常的字段名
      *
-     * @return array
+     * @return string
      */
-    public function getContext()
+    public function getField(): string
     {
-        return $this->context;
+        return $this->field;
     }
 
     /**
@@ -75,16 +67,6 @@ class RuntimeException extends \RuntimeException
      */
     public function getResponseHandler(): ResponseHandlerInterface
     {
-        return new RuntimeExceptionHandler($this);
-    }
-
-    /**
-     * Return default code.
-     *
-     * @return integer
-     */
-    protected function getDefaultCode()
-    {
-        return -500;
+        return new UnexpectedValueExceptionHandler($this);
     }
 }

@@ -32,6 +32,7 @@ abstract class UnauthorizedExceptionHandler extends BadRequestExceptionHandler
         $acceptType = $response->getHeaderLine('Content-Type');
 
         $response = parent::handle($response);
+        
         if ($acceptType == 'text/html') {
             $response = $response->withRedirect($this->getRedirectUrl())->withStatus(302);
         } else {

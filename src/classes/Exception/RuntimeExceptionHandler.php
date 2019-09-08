@@ -11,7 +11,6 @@
 namespace Sinpe\Framework\Exception;
 
 use Psr\Http\Message\ResponseInterface;
-use Sinpe\Framework\ArrayObject;
 use Sinpe\Framework\FatalLogger;
 
 /**
@@ -20,23 +19,8 @@ use Sinpe\Framework\FatalLogger;
  * @package Sinpe\Framework
  * @since   1.0.0
  */
-class RuntimeExceptionHandler extends ExceptionHandler
+class RuntimeExceptionHandler extends ErrorHandler
 {
-    /**
-     * var string
-     */
-    private $acceptType;
-
-    /**
-     * __construct
-     * 
-     * @param \Exception $except
-     */
-    public function __construct(\Exception $except)
-    {
-        parent::__construct($except);
-    }
-
     /**
      * Invoke the handler
      *
@@ -46,16 +30,13 @@ class RuntimeExceptionHandler extends ExceptionHandler
      */
     public function handle(ResponseInterface $response): ResponseInterface
     {
-        $this->acceptType = $response->getHeaderLine('Content-Type');
-
         // Write to the error log if debug is false
         if (!APP_DEBUG) {
             FatalLogger::write($this->getException());
         }
 
         $response = parent::handle($response);
-        $response = $response->withStatus(500);
-
+        
         return $response;
     }
 
