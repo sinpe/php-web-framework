@@ -900,7 +900,7 @@ class Request extends Message implements ServerRequestInterface
      */
     public function getAttributes()
     {
-        return $this->attributes->all();
+        return $this->attributes;
     }
 
     /**

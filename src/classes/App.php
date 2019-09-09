@@ -465,12 +465,11 @@ class App
         $uri = Http\Uri::createFromEnvironment($env)->withPath($path)->withQuery($query);
         $headers = new Http\Headers($headers);
 
-        $serverParams = $env->all();
         $body = new Http\Body(fopen('php://temp', 'r+'));
         $body->write($bodyContent);
         $body->rewind();
 
-        $request = new Http\Request($method, $uri, $headers, $cookies, $serverParams, $body);
+        $request = new Http\Request($method, $uri, $headers, $cookies, $env->toArray(), $body);
 
         $requestHandler = new RequestHandler(container('router'));
         //

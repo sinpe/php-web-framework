@@ -93,7 +93,7 @@ class ResponseHandlerJsonResolver implements ResponseHandlerResolverInterface
      */
     public function resolve(ArrayObject $output)
     {
-        $content = json_encode($this->convert($output->all()), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+        $content = json_encode($this->convert($output->toArray()), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
 
         // Ensure that the json encoding passed successfully
         if ($content === false) {
