@@ -32,6 +32,13 @@ require_once __DIR__ . '/../helpers.php';
 class App
 {
     /**
+     * Is Head method
+     *
+     * @var boolean
+     */
+    private $isHead = false;
+
+    /**
      * @var array
      */
     protected $middlewares = [];
@@ -56,6 +63,7 @@ class App
             $responseHandler = new Exception\ErrorHandler($except);
             try {
                 $request = Http\Request::createFromEnvironment($this->environment);
+                $this->isHead = $request->getMethod() === 'HEAD';
                 $response = $responseHandler->handle(new Response($request));
                 $this->end($response);
             } catch (\Throwable $except) {
@@ -273,6 +281,8 @@ class App
     {
         $request = Http\Request::createFromEnvironment($this->environment);
 
+        $this->isHead = $request->getMethod() === 'HEAD';
+
         if (container()->has(EventDispatcherInterface::class)) {
             $request = container(EventDispatcherInterface::class)
                 ->dispatch(new Event\AppRunBefore($request))->getRequest();
@@ -385,7 +395,7 @@ class App
         }
 
         // Body
-        if (!$this->isEmptyResponse($response)) {
+        if (!$this->isEmptyResponse($response) && !$this->isHead) {
 
             $body = $response->getBody();
 
@@ -484,18 +494,18 @@ class App
      */
     protected function finalize(ResponseInterface $response)
     {
-        $headers = Http\Headers::createFromEnvironment($this->environment);
+        // $headers = Http\Headers::createFromEnvironment($this->environment);
 
-        foreach ($headers->all() as $key => $value) {
-            if (!$response->hasHeader($key)) {
-                $response = $response->withHeader($key, $value);
-            }
-        }
+        // foreach ($headers->all() as $key => $value) {
+        //     if (!$response->hasHeader($key)) {
+        //         $response = $response->withHeader($key, $value);
+        //     }
+        // }
 
         // stop PHP sending a Content-Type automatically
         ini_set('default_mimetype', '');
 
-        if ($this->isEmptyResponse($response)) {
+        if ($this->isEmptyResponse($response) && !$this->isHead) {
             return $response->withoutHeader('Content-Type')->withoutHeader('Content-Length');
         }
 
@@ -508,6 +518,11 @@ class App
 
         if ($size !== null && !$response->hasHeader('Content-Length')) {
             $response = $response->withHeader('Content-Length', (string) $size);
+        }
+
+        // clear the body if this is a HEAD request
+        if ($this->isHead) {
+            return $response->withBody(new Body(fopen('php://temp', 'r+')));
         }
 
         return $response;
@@ -530,4 +545,5 @@ class App
 
         return in_array($response->getStatusCode(), [204, 205, 304]);
     }
+
 }

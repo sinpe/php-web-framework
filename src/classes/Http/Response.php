@@ -473,10 +473,13 @@ class Response extends Message implements ResponseInterface
             $this->getReasonPhrase()
         );
         $output .= Response::EOL;
+
         foreach ($this->getHeaders() as $name => $values) {
             $output .= sprintf('%s: %s', $name, $this->getHeaderLine($name)) . Response::EOL;
         }
+
         $output .= Response::EOL;
+        
         $output .= (string) $this->getBody();
 
         return $output;

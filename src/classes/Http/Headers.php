@@ -57,6 +57,7 @@ class Headers extends ArrayObject implements HeadersInterface
     {
         $data = [];
         $environment = self::determineAuthorization($environment);
+
         foreach ($environment as $key => $value) {
             $key = strtoupper(str_replace('-', '_', $key));
             if (isset(static::$special[$key]) || strpos($key, 'HTTP_') === 0) {

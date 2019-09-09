@@ -280,6 +280,8 @@ class Request extends Message implements ServerRequestInterface
                     $this->getBody()->rewind();
                 }
             }
+
+            $this->method = strtoupper($this->method);
         }
 
         return $this->method;
