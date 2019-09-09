@@ -28,6 +28,6 @@ class ResponseHandlerXmlResolver implements ResponseHandlerResolverInterface
      */
     public function resolve(ArrayObject $output)
     {
-        return ArrayToXml::convert((array)$output);
+        return ArrayToXml::convert($output->toArray();
     }
 }

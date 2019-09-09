@@ -39,7 +39,7 @@ class ArrayObject extends \ArrayObject
      */
     public function set($key, $value)
     {
-        $this->{$key} = $value;
+        $this->offsetSet($key, $value);
     }
 
     /**
@@ -52,7 +52,7 @@ class ArrayObject extends \ArrayObject
      */
     public function get($key, $default = null)
     {
-        return $this->has($key) ? $this->{$key} : $default;
+        return $this->has($key) ? $this->offsetGet($key) : $default;
     }
 
     /**
@@ -62,7 +62,7 @@ class ArrayObject extends \ArrayObject
      */
     public function keys()
     {
-        return array_keys((array)$this);
+        return array_keys($this->getArrayCopy());
     }
 
     /**
@@ -75,6 +75,14 @@ class ArrayObject extends \ArrayObject
     public function has($key)
     {
         return parent::offsetExists($key);
+    }
+
+    /**
+     * toArray
+     */
+    public function toArray()
+    {
+        return $this->getArrayCopy();
     }
 
 }
