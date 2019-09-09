@@ -21,51 +21,6 @@ use Sinpe\Framework\ArrayObject;
 class ResponseHandlerJsonResolver implements ResponseHandlerResolverInterface
 {
     /**
-     * Unicode convertors
-     *
-     * @var array
-     */
-    private static $convertors = [
-        // [self::class, 'gb2312']
-    ];
-
-    /**
-     * gb2312
-     *
-     * @return mixed
-     */
-    protected static function gb2312($content)
-    {
-        $result = @iconv('gb2312', 'utf-8', $content);
-
-        if ($result) {
-            return $result;
-        }
-
-        return $content;
-    }
-
-    /**
-     * Set convertors.
-     *
-     * @param mixed $convertors
-     * @param boolean $override
-     * @return void
-     */
-    public static function setConvertors($convertors, $override = false)
-    {
-        if (is_array($convertors)) {
-            if ($override) {
-                self::$convertors = $convertors;
-            } else {
-                self::$convertors = array_merge(self::$convertors, $convertors);
-            }
-        } else {
-            self::$convertors[] = $convertors;
-        }
-    }
-
-    /**
      * @return mixed
      */
     protected function convert($content)
@@ -77,9 +32,9 @@ class ResponseHandlerJsonResolver implements ResponseHandlerResolverInterface
                 return $this->convert($item);
             } else {
                 if (is_string($item)) {
-                    foreach (self::$convertors as $callable) {
-                        $item = call_user_func($callable, $item);
-                    }
+                    $ary[] = "EUC-CN";
+                    $ary[] = "UTF-8";
+                    $item =  @iconv(mb_detect_encoding($item, $ary), 'utf-8', $item);
                 }
                 return $item;
             }
