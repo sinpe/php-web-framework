@@ -39,7 +39,7 @@ class Container extends \Sinpe\Container\Container
              *
              * @return RouterInterface
              */
-            $container['router'] = function ($container) {
+            $container['router'] = function () use ($container) {
 
                 $routerCacheFile = false;
 

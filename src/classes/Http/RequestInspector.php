@@ -11,9 +11,12 @@
 namespace Sinpe\Framework\Http;
 
 use Psr\Http\Message\ServerRequestInterface;
+use Sinpe\Framework\ArrayObject;
 
 /**
  * 请求检查
+ * 
+ * 检查器的使命是根据Request的输入，返回出可以逻辑层可以直接使用的数据对象
  * 
  * @author sinpe <wupinglong@huitongjt.com>
  */
@@ -27,11 +30,18 @@ abstract class RequestInspector
     private $routeParams = [];
 
     /**
-     * 模式
+     * 子模式
      *
      * @var Object|string
      */
     protected $mode;
+
+    /**
+     * 严格
+     *
+     * @var boolean
+     */
+    private $strict = false;
 
     /**
      * 字段及检查顺序，可由子类覆盖
@@ -41,20 +51,11 @@ abstract class RequestInspector
     protected $fields = [];
 
     /**
-     * 预设值
+     * 字段的预设值
      *
      * @var array
      */
-    protected $datas = [];
-
-    /**
-     * 排序字段到真实字段映射，由子类实际指定
-     *
-     * @var array
-     */
-    protected $orderFieldMaps = [
-        // 'table_field_name' => 'sort_name'
-    ];
+    protected $defaultValues = [];
 
     /**
      * 表单字段到表字段映射，由子类实际指定
@@ -85,19 +86,28 @@ abstract class RequestInspector
      * 设置模式
      *
      * @param Object|string $mode
+     * @return static
+     */
+    final public function setMode($mode) 
+    {
+        $this->mode = $mode;
+        return $this;
+    }
+
+    /**
+     * 设置字段
+     *
      * @param array $fields 字段
-     * @param array $datas 预设值
+     * @param array $defaultValues 预设值
      * 
      * @return void
      */
-    final public function setMode(
-        $mode,
-        array $fields = [],
-        array $datas = []
+    final public function setFields(
+        array $fields,
+        array $defaultValues = []
     ) {
-        $this->mode = $mode;
         $this->fields = $fields;
-        $this->datas = $datas;
+        $this->defaultValues = $defaultValues;
         return $this;
     }
 
@@ -125,13 +135,6 @@ abstract class RequestInspector
     }
 
     /**
-     * 严格
-     *
-     * @var boolean
-     */
-    private $strict = false;
-
-    /**
      * 设置严格模式开启，控制字段的检查范围，比如在增加、修改操作时过滤未指定的字段的输入
      *
      * @param boolean $value
@@ -147,23 +150,25 @@ abstract class RequestInspector
      * 执行检查
      *
      * @param ServerRequestInterface $request
-     * @return \ArrayObject
+     * @return ArrayObject
      */
-    final public function handle(ServerRequestInterface $request): \ArrayObject
+    final public function handle(ServerRequestInterface $request): ArrayObject
     {
         // 绑定route参数
         foreach ($request->getAttribute('route')->getArguments() as $key => $value) {
             $this->routeParams[snake($key)] = $value; // 蛇型
-            $this->routeParams[camel($key)] = $value; // 驼峰型
+            //$this->routeParams[camel($key)] = $value; // 驼峰型
         }
 
         $params = $this->getParams($request);
 
-        $handled = new \ArrayObject([], \ArrayObject::ARRAY_AS_PROPS);
+        $handled = new ArrayObject();
 
         if (!$this->strict) {
             $fields = array_merge($this->fields, array_diff(array_keys($params), $this->fields));
         } else {
+            // 严格模式时，只接受指定的字段输入
+            // 一般地，需要做必输检查时，需要启用严格模式
             $fields = $this->fields;
         }
 
@@ -172,6 +177,7 @@ abstract class RequestInspector
             if (is_string($this->mode)) {
                 $studlyMode = studly($this->mode);
                 $reflectionClass = new \ReflectionClass(static::class);
+                // 和检查器同存放位置
                 $modeClass = $reflectionClass->getNamespaceName() . "\\{$studlyMode}Mode";
                 if (class_exists($modeClass)) {
                     $mode = new $modeClass($this);
@@ -189,7 +195,6 @@ abstract class RequestInspector
             // 检查各字段，有才检查，表单提交有或通过指定fields
             $handleMethod = 'handle' . studly($field);
 
-            // 有独立的mode类，则忽略inspecter类中待mode的方法
             if (!$mode) {
                 $modeHandleMethod = 'handle' . $studlyMode . studly($field);
                 if (method_exists($this, $modeHandleMethod)) {
@@ -199,11 +204,11 @@ abstract class RequestInspector
                 } else {
                     $callable = null;
                 }
-            } else {
+            } else { // 有独立的mode类，则忽略inspecter类中待mode的方法
                 // mode中做检查
-                if (method_exists($mode, $handleMethod)) {
+                if (method_exists($mode, $handleMethod)) { // 在模式中实现
                     $callable = [$mode, $handleMethod];
-                } elseif (method_exists($this, $handleMethod)) { // 主对象中做检查
+                } elseif (method_exists($this, $handleMethod)) { // 在主对象中实现
                     $callable = [$this, $handleMethod];
                 } else {
                     $callable = null;
@@ -218,10 +223,7 @@ abstract class RequestInspector
                 if (!is_null($processed)) {
                     // 返回generator函数，一般是返回多个key的值
                     if ($processed instanceof \Closure) {
-                        $handled = new \ArrayObject(
-                            array_merge((array) $handled, iterator_to_array($processed($handled))),
-                            \ArrayObject::ARRAY_AS_PROPS
-                        );
+                        $handled = new ArrayObject(array_merge((array) $handled, iterator_to_array($processed($handled))));
                     } else { // 返回普通的值，一般是保持单key值
                         $tableField = $this->tableField2FormField($field, true);
                         $handled[$tableField] = $processed;
@@ -242,18 +244,24 @@ abstract class RequestInspector
             }
         }
 
-        // 对检查通过的一并再处理，比如：再附加路由参数到整个数据集中
+        // 子模式综合加工结果，比如：再附加路由参数到整个数据集中
         if ($mode && method_exists($mode, 'process')) {
             $handled = $mode->process($handled);
         }
 
         // 预设值
-        foreach ($this->datas as $key => $value) {
+        foreach ($this->defaultValues as $key => $value) {
 
             $tableField = $this->tableField2FormField($key, true);
+
             if (!isset($handled[$tableField])) {
                 $handled[$tableField] = $value;
             }
+        }
+
+        // 主检查器再次加工结果
+        if (method_exists($this, 'process')) {
+            $handled = $this->process($handled);
         }
 
         return $handled;

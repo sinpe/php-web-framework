@@ -57,7 +57,7 @@ class PageNotFoundExceptionHtmlResolver implements ResponseHandlerResolverInterf
             to ensure your URL is spelled correctly. If all else fails, you can
             visit our home page at the link below.
         </p>
-        <a href='{$output->data->home}'>Visit the Home Page</a>
+        <a href='{$output->data['home']}'>Visit the Home Page</a>
     </body>
 </html>
 END;

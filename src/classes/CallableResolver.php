@@ -14,19 +14,6 @@ final class CallableResolver implements CallableResolverInterface
     const CALLABLE_PATTERN = '!^([^\:]+)\:([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)$!';
 
     /**
-     * @var ContainerInterface
-     */
-    private $container;
-
-    /**
-     * @param ContainerInterface $container
-     */
-    public function __construct(ContainerInterface $container)
-    {
-        $this->container = $container;
-    }
-
-    /**
      * Resolve toResolve into a closure so that the router can dispatch.
      *
      * If toResolve is of the format 'class:method', then try to extract 'class'
@@ -77,17 +64,12 @@ final class CallableResolver implements CallableResolverInterface
      * @throws \RuntimeException if the callable does not exist
      */
     protected function resolveCallable($class, $method = '__invoke')
-    {
-        // if ($this->container->has($class)) {
-        //     return [$this->container->get($class), $method];
-        // }
-        
+    {       
         if (!class_exists($class)) {
             throw new \RuntimeException(i18n('callable %s does not exist', $class));
         }
 
-        // return [new $class($this->container), $method];
-        return [$this->container->get($class), $method];
+        return [container($class), $method];
     }
 
     /**

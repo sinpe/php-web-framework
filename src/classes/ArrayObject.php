@@ -74,27 +74,7 @@ class ArrayObject extends \ArrayObject
      */
     public function has($key)
     {
-        return isset($this->{$key});
+        return parent::offsetExists($key);
     }
 
-    /**
-     * Dynamically access object proxies.
-     *
-     * @param  string  $key
-     * @return mixed
-     */
-    public function __get($key)
-    {
-        $value = null;
-
-        if ($this->has($key)) {
-            $value = $this->get($key);
-        }
-
-        if ($value instanceof \ArrayAccess) {
-            $value = new self($value);
-        }
-
-        return $value;
-    }
 }

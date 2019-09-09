@@ -28,7 +28,7 @@ class MethodNotAllowedExceptionHtmlResolver implements ResponseHandlerResolverIn
      */
     public function resolve(ArrayObject $output)
     {
-        $allowed = implode(', ', $output->data->allowed);
+        $allowed = implode(', ', $output->data['allowed']);
 
         return <<<END
 <html>

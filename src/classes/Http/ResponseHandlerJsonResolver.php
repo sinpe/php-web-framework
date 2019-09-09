@@ -8,7 +8,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Sinpe\Framework\ContentResolver;
+namespace Sinpe\Framework\Http;
 
 use Sinpe\Framework\ArrayObject;
 

@@ -44,7 +44,7 @@ class MethodNotAllowedExceptionHandler extends BadRequestExceptionHandler
      */
     public function handle(ResponseInterface $response): ResponseInterface
     {
-        $response = parent::handle($response);
+        $response = $this->_handle($response);
         $response = $response->withStatus(405)
             ->withHeader('Allow', implode(', ', $this->getException()->getAllowedMethods()));
         return $response;

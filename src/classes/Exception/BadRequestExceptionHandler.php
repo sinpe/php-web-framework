@@ -30,7 +30,7 @@ class BadRequestExceptionHandler extends UnexpectedExceptionHandler
      */
     public function handle(ResponseInterface $response): ResponseInterface
     {
-        $response = parent::handle($response);
+        $response = $this->_handle($response);
         $response = $response->withStatus(400);
         return $response;
     }
