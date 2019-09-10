@@ -15,7 +15,6 @@ use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
-use Sinpe\Framework\Exception\RuntimeExceptionHandler;
 use Sinpe\Framework\Http\Response;
 use Sinpe\Framework\Http\RequestHandler;
 
@@ -61,14 +60,10 @@ class App
 
         set_exception_handler(function ($except) {
             $responseHandler = new Exception\ErrorHandler($except);
-            try {
-                $request = Http\Request::createFromEnvironment($this->environment);
-                $this->isHead = $request->getMethod() === 'HEAD';
-                $response = $responseHandler->handle(new Response($request));
-                $this->end($response);
-            } catch (\Throwable $except) {
-                FatalLogger::write($except);
-            }
+            $request = Http\Request::createFromEnvironment($this->environment);
+            $this->isHead = $request->getMethod() === 'HEAD';
+            $response = $responseHandler->handle(new Response($request));
+            $this->flush($response);
         });
 
         // container instance
@@ -289,7 +284,9 @@ class App
         }
 
         try {
-            ob_start();
+            if (APP_DEBUG) {
+                ob_start();
+            }
             // Traverse middleware stack
             try {
                 $requestHandler = new RequestHandler(container('router'));
@@ -330,7 +327,9 @@ class App
                 }
             }
 
-            $output = ob_get_clean();
+            if (APP_DEBUG) {
+                $output = ob_get_clean();
+            }
         } catch (\Throwable $except) {
             throw $except;
         }
@@ -340,7 +339,7 @@ class App
                 ->dispatch(new Event\AppRunAfter($response))->getResponse();
         }
 
-        if (!empty($output) && $response->getBody()->isWritable()) {
+        if (APP_DEBUG && !empty($output) && $response->getBody()->isWritable()) {
             // 
             $outputBuffering = config('runtime.output_buffering');
             //
@@ -363,7 +362,7 @@ class App
         }
 
         if (!$silent) {
-            $this->end($response);
+            $this->flush($response);
         }
 
         return $response;
@@ -374,7 +373,7 @@ class App
      *
      * @param ResponseInterface $response
      */
-    public function end(ResponseInterface $response)
+    protected function flush(ResponseInterface $response)
     {
         // Send response
         if (!headers_sent()) {
@@ -447,46 +446,6 @@ class App
     }
 
     /**
-     * Perform a sub-request from within an application route
-     *
-     * This method allows you to prepare and initiate a sub-request, run within
-     * the context of the current request. This WILL NOT issue a remote HTTP
-     * request. Instead, it will route the provided URL, method, headers,
-     * cookies, body, and server variables against the set of registered
-     * application routes. The result response object is returned.
-     *
-     * @param  string            $method      The request method (e.g., GET, POST, PUT, etc.)
-     * @param  string            $path        The request URI path
-     * @param  string            $query       The request URI query string
-     * @param  array             $headers     The request headers (key-value array)
-     * @param  array             $cookies     The request cookies (key-value array)
-     * @param  string            $bodyContent The request body
-     * @return ResponseInterface
-     */
-    public function subRequest(
-        $method,
-        $path,
-        $query = '',
-        array $headers = [],
-        array $cookies = [],
-        $bodyContent = ''
-    ) {
-        $env = $this->environment;
-        $uri = Http\Uri::createFromEnvironment($env)->withPath($path)->withQuery($query);
-        $headers = new Http\Headers($headers);
-
-        $body = new Http\Body(fopen('php://temp', 'r+'));
-        $body->write($bodyContent);
-        $body->rewind();
-
-        $request = new Http\Request($method, $uri, $headers, $cookies, $env->toArray(), $body);
-
-        $requestHandler = new RequestHandler(container('router'));
-        //
-        return $requestHandler->handle($request);
-    }
-
-    /**
      * Finalize response
      *
      * @param ResponseInterface $response
@@ -545,5 +504,4 @@ class App
 
         return in_array($response->getStatusCode(), [204, 205, 304]);
     }
-
 }

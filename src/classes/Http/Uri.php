@@ -7,6 +7,7 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+
 namespace Sinpe\Framework\Http;
 
 use \Psr\Http\Message\UriInterface;
@@ -170,7 +171,6 @@ class Uri implements UriInterface
     {
         // Scheme
         $scheme = $env->getScheme();
-
         // Authority: Username and password
         $username = $env->get('PHP_AUTH_USER', '');
         $password = $env->get('PHP_AUTH_PW', '');
@@ -178,25 +178,23 @@ class Uri implements UriInterface
         // Authority: Host
         $host = $env->getHost();
         // Authority: Port
-        $port = (int)$env->get('SERVER_PORT', 80);
+        $port = (int) $env->get('SERVER_PORT', 80);
         // 
         if (preg_match('/^(\[[a-fA-F0-9:.]+\])(:\d+)?\z/', $host, $matches)) {
             $host = $matches[1];
             if (isset($matches[2])) {
-                $port = (int)substr($matches[2], 1);
+                $port = (int) substr($matches[2], 1);
             }
         } else {
             $pos = strpos($host, ':');
             if ($pos !== false) {
-                $port = (int)substr($host, $pos + 1);
+                $port = (int) substr($host, $pos + 1);
                 $host = strstr($host, ':', true);
             }
         }
-
         // Path
         $requestScriptName = parse_url($env->get('SCRIPT_NAME'), PHP_URL_PATH);
-        $requestScriptDir = dirname($requestScriptName);
-
+        $requestScriptDir = str_replace('\\', '/', dirname($requestScriptName));
         // parse_url() requires a full URL. As we don't extract the domain name or scheme,
         // we use a stand-in.
         $requestUri = parse_url('http://example.com' . $env->get('REQUEST_URI'), PHP_URL_PATH);
@@ -221,20 +219,15 @@ class Uri implements UriInterface
 
         // Fragment
         $fragment = '';
-
         // Build Uri
         $uri = new static($scheme, $host, $port, $virtualPath, $queryString, $fragment, $username, $password);
-        
+
         if ($basePath) {
             $uri = $uri->withBasePath($basePath);
         }
 
         return $uri;
     }
-
-    /********************************************************************************
-     * Scheme
-     *******************************************************************************/
 
     /**
      * Retrieve the scheme component of the URI.
@@ -300,7 +293,7 @@ class Uri implements UriInterface
             throw new \InvalidArgumentException(i18n('URI scheme must be a string'));
         }
 
-        $scheme = str_replace('://', '', strtolower((string)$scheme));
+        $scheme = str_replace('://', '', strtolower((string) $scheme));
         if (!isset($valid[$scheme])) {
             throw new \InvalidArgumentException(i18n('URI scheme must be one of: "", "https", "http"'));
         }
@@ -697,7 +690,7 @@ class Uri implements UriInterface
         if (!is_string($query) && !method_exists($query, '__toString')) {
             throw new \InvalidArgumentException(i18n('URI query must be a string'));
         }
-        $query = ltrim((string)$query, '?');
+        $query = ltrim((string) $query, '?');
         $clone = clone $this;
         $clone->query = $this->filterQuery($query);
 
@@ -765,7 +758,7 @@ class Uri implements UriInterface
         if (!is_string($fragment) && !method_exists($fragment, '__toString')) {
             throw new \InvalidArgumentException(i18n('URI fragment must be a string'));
         }
-        $fragment = ltrim((string)$fragment, '#');
+        $fragment = ltrim((string) $fragment, '#');
         $clone = clone $this;
         $clone->fragment = $this->filterQuery($fragment);
 

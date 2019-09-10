@@ -10,6 +10,37 @@
  * Note: Other Loaded before me can override all.
  */
 
+if (!function_exists('env')) {
+    /**
+     * 读环境设置
+     */
+    function env($key, $default = null)
+    {
+        $value = getenv($key);
+
+        $valueLength = strlen($value);
+
+        if ($valueLength <= 0) {
+            return $default;
+        }
+
+        if ($value[0] === '"' && $value[$valueLength - 1] === '"') {
+            $value = substr($value, 1, -1);
+        }
+
+        switch (strtolower($value)) {
+            case 'true':
+                return true;
+            case 'false':
+                return false;
+            case 'null':
+                return;
+        }
+
+        return $value;
+    }
+}
+
 if (!function_exists('container')) {
     /**
      * Dependency injection container.

@@ -28,10 +28,23 @@ class Environment extends ArrayObject implements EnvironmentInterface
      * @var array
      */
     protected $hostLiterals = [
+        'HTTP_X_FORWARDED_HOST',
         'X-FORWARDED-HOST',
+        'HTTP_X_FORWARDED_SERVER',
         'X-FORWARDED-SERVER',
         'HTTP_HOST',
         'SERVER_NAME'
+    ];
+
+    /**
+     * scheme
+     * You can override by your subclass
+     * @var array
+     */
+    protected $schemeLiterals = [
+        'HTTP_X_FORWARDED_PROTO',
+        'X-FORWARDED-PROTO',
+        'REQUEST_SCHEME',
     ];
 
     /**
@@ -44,8 +57,7 @@ class Environment extends ArrayObject implements EnvironmentInterface
     public static function mock(array $userData = [])
     {
         //Validates if default protocol is HTTPS to set default port 443
-        if ((isset($userData['HTTPS']) && $userData['HTTPS'] !== 'off') || ((isset($userData['REQUEST_SCHEME']) && $userData['REQUEST_SCHEME'] === 'https'))
-        ) {
+        if (isset($userData['REQUEST_SCHEME']) && $userData['REQUEST_SCHEME'] === 'https') {
             $defscheme = 'https';
             $defport = 443;
         } else {
@@ -104,10 +116,15 @@ class Environment extends ArrayObject implements EnvironmentInterface
     public function getScheme(): string
     {
         $scheme = 'http';
-        // 
-        $isSecure = $this->get('HTTPS');
-        // 
-        $scheme = (empty($isSecure) || $isSecure === 'off') ? 'http' : 'https';
+
+        $literals = $this->schemeLiterals;
+
+        foreach ((array) $literals as $item) {
+            if ($this->has($item)) {
+                $scheme = $this->get($item);
+                break;
+            }
+        }
 
         return $scheme;
     }
