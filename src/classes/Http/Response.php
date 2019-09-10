@@ -484,4 +484,80 @@ class Response extends Message implements ResponseInterface
 
         return $output;
     }
+
+    /**
+     * Send the response to the client
+     */
+    public function flush()
+    {
+        // Send response
+        if (!headers_sent()) {
+            // Headers
+            foreach ($this->getHeaders() as $name => $values) {
+                foreach ($values as $value) {
+                    header(sprintf('%s: %s', $name, $value), false);
+                }
+            }
+
+            // Status
+            header(sprintf(
+                'HTTP/%s %s %s',
+                $this->getProtocolVersion(),
+                $this->getStatusCode(),
+                $this->getReasonPhrase()
+            ));
+        }
+
+        // Body
+        if (!$this->isEmpty() && !$this->request->isHead()) {
+
+            $body = $this->getBody();
+
+            if ($body->isSeekable()) {
+                $body->rewind();
+            }
+
+            $chunkSize = config('runtime.response_chunk_size');
+
+            $contentLength = $this->getHeaderLine('Content-Length');
+
+            if (!$contentLength) {
+                $contentLength = $body->getSize();
+            }
+
+            if (container()->has(EventDispatcherInterface::class)) {
+                $body = container(EventDispatcherInterface::class)
+                    ->dispatch(new Event\AppEchoBefore($body))->getBody();
+            }
+
+            $offset = 0;
+            $contentRange = $this->getHeaderLine('Content-Range');
+            if ($contentRange) {
+                if (preg_match('#(\\d+)-(\\d+)/(\\d+)#', $contentRange, $matches)) {
+                    $offset = (int) $matches[1];
+                }
+            }
+            $body->seek($offset);
+
+            if (isset($contentLength)) {
+                $amountToRead = $contentLength;
+                while ($amountToRead > 0 && !$body->eof()) {
+                    $data = $body->read(min($chunkSize, $amountToRead));
+                    echo $data;
+                    $amountToRead -= strlen($data);
+                    if (connection_status() != CONNECTION_NORMAL) {
+                        break;
+                    }
+                }
+            } else {
+                while (!$body->eof()) {
+                    echo $body->read($chunkSize);
+                    if (connection_status() != CONNECTION_NORMAL) {
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
 }

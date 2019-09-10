@@ -31,13 +31,6 @@ require_once __DIR__ . '/../helpers.php';
 class App
 {
     /**
-     * Is Head method
-     *
-     * @var boolean
-     */
-    private $isHead = false;
-
-    /**
      * @var array
      */
     protected $middlewares = [];
@@ -61,9 +54,8 @@ class App
         set_exception_handler(function ($except) {
             $responseHandler = new Exception\ErrorHandler($except);
             $request = Http\Request::createFromEnvironment($this->environment);
-            $this->isHead = $request->getMethod() === 'HEAD';
             $response = $responseHandler->handle(new Response($request));
-            $this->flush($response);
+            $response->flush();
         });
 
         // container instance
@@ -276,8 +268,6 @@ class App
     {
         $request = Http\Request::createFromEnvironment($this->environment);
 
-        $this->isHead = $request->getMethod() === 'HEAD';
-
         if (container()->has(EventDispatcherInterface::class)) {
             $request = container(EventDispatcherInterface::class)
                 ->dispatch(new Event\AppRunBefore($request))->getRequest();
@@ -356,93 +346,16 @@ class App
 
         $response = $this->finalize($response);
 
-        if ($request->getMethod() === 'OPTIONS') {
+        if ($request->isOptions()) {
             $response = $response->withStatus(200)
                 ->withHeader('Content-Type', 'text/plain');
         }
 
         if (!$silent) {
-            $this->flush($response);
+            $response->flush();
         }
 
         return $response;
-    }
-
-    /**
-     * Send the response to the client
-     *
-     * @param ResponseInterface $response
-     */
-    protected function flush(ResponseInterface $response)
-    {
-        // Send response
-        if (!headers_sent()) {
-            // Headers
-            foreach ($response->getHeaders() as $name => $values) {
-                foreach ($values as $value) {
-                    header(sprintf('%s: %s', $name, $value), false);
-                }
-            }
-
-            // Status
-            header(sprintf(
-                'HTTP/%s %s %s',
-                $response->getProtocolVersion(),
-                $response->getStatusCode(),
-                $response->getReasonPhrase()
-            ));
-        }
-
-        // Body
-        if (!$this->isEmptyResponse($response) && !$this->isHead) {
-
-            $body = $response->getBody();
-
-            if ($body->isSeekable()) {
-                $body->rewind();
-            }
-
-            $chunkSize = config('runtime.response_chunk_size');
-
-            $contentLength = $response->getHeaderLine('Content-Length');
-
-            if (!$contentLength) {
-                $contentLength = $body->getSize();
-            }
-
-            if (container()->has(EventDispatcherInterface::class)) {
-                $body = container(EventDispatcherInterface::class)
-                    ->dispatch(new Event\AppEchoBefore($body))->getBody();
-            }
-
-            $offset = 0;
-            $contentRange = $response->getHeaderLine('Content-Range');
-            if ($contentRange) {
-                if (preg_match('#(\\d+)-(\\d+)/(\\d+)#', $contentRange, $matches)) {
-                    $offset = (int) $matches[1];
-                }
-            }
-            $body->seek($offset);
-
-            if (isset($contentLength)) {
-                $amountToRead = $contentLength;
-                while ($amountToRead > 0 && !$body->eof()) {
-                    $data = $body->read(min($chunkSize, $amountToRead));
-                    echo $data;
-                    $amountToRead -= strlen($data);
-                    if (connection_status() != CONNECTION_NORMAL) {
-                        break;
-                    }
-                }
-            } else {
-                while (!$body->eof()) {
-                    echo $body->read($chunkSize);
-                    if (connection_status() != CONNECTION_NORMAL) {
-                        break;
-                    }
-                }
-            }
-        }
     }
 
     /**
@@ -453,18 +366,10 @@ class App
      */
     protected function finalize(ResponseInterface $response)
     {
-        // $headers = Http\Headers::createFromEnvironment($this->environment);
-
-        // foreach ($headers->all() as $key => $value) {
-        //     if (!$response->hasHeader($key)) {
-        //         $response = $response->withHeader($key, $value);
-        //     }
-        // }
-
         // stop PHP sending a Content-Type automatically
         ini_set('default_mimetype', '');
 
-        if ($this->isEmptyResponse($response) && !$this->isHead) {
+        if ($response->isEmpty() && !$response->getRequest()->isHead()) {
             return $response->withoutHeader('Content-Type')->withoutHeader('Content-Length');
         }
 
@@ -480,28 +385,10 @@ class App
         }
 
         // clear the body if this is a HEAD request
-        if ($this->isHead) {
+        if ($response->getRequest()->isHead()) {
             return $response->withBody(new Body(fopen('php://temp', 'r+')));
         }
 
         return $response;
-    }
-
-    /**
-     * Helper method, which returns true if the provided response must not output a body and false
-     * if the response could have a body.
-     *
-     * @see https://tools.ietf.org/html/rfc7231
-     *
-     * @param ResponseInterface $response
-     * @return bool
-     */
-    protected function isEmptyResponse(ResponseInterface $response)
-    {
-        if (method_exists($response, 'isEmpty')) {
-            return $response->isEmpty();
-        }
-
-        return in_array($response->getStatusCode(), [204, 205, 304]);
     }
 }
