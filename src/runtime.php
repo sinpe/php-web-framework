@@ -15,9 +15,5 @@ return [
     'output_buffering' => 'append',
     'route_cache' => function () {
         return false;
-    },
-    'exception_handlers' => [
-        \Exception::class => RuntimeExceptionHandler::class,
-        \Error::class => ErrorHandler::class
-    ]
+    }
 ];

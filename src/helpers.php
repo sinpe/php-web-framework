@@ -50,7 +50,7 @@ if (!function_exists('container')) {
      * @param  string  $value
      * @return string
      */
-    function container(string $name = null)
+    function container(string $name = null, bool $check=false)
     {
         static $container;
 
@@ -58,11 +58,15 @@ if (!function_exists('container')) {
             $container = new \Sinpe\Framework\Container;
         }
 
-        if (is_null($name)) {
+        if (func_num_args() === 0) {
             return $container;
         }
 
-        return $container->get($name);
+        if ($check) {
+            return $container->has($name);
+        } else {
+            return $container->get($name);
+        }
     }
 }
 

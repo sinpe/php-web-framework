@@ -10,11 +10,13 @@
 
 namespace Sinpe\Framework\Http;
 
+use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UriInterface;
 use Sinpe\Framework\Http\HeadersInterface;
+use Sinpe\Framework\Event\ResponseFlushBefore;
 
 /**
  * Response
@@ -525,9 +527,9 @@ class Response extends Message implements ResponseInterface
                 $contentLength = $body->getSize();
             }
 
-            if (container()->has(EventDispatcherInterface::class)) {
+            if (container(EventDispatcherInterface::class, true)) {
                 $body = container(EventDispatcherInterface::class)
-                    ->dispatch(new Event\AppEchoBefore($body))->getBody();
+                    ->dispatch(new ResponseFlushBefore($body))->getBody();
             }
 
             $offset = 0;

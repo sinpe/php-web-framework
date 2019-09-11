@@ -234,11 +234,9 @@ class App
     public function group($pattern, $callable)
     {
         $router = container('router');
-
         $group = $router->pushGroup($pattern, $callable);
         $group->run();
         $router->popGroup();
-
         return $group;
     }
 
@@ -268,65 +266,58 @@ class App
     {
         $request = Http\Request::createFromEnvironment($this->environment);
 
-        if (container()->has(EventDispatcherInterface::class)) {
+        if (container(EventDispatcherInterface::class, true)) {
             $request = container(EventDispatcherInterface::class)
-                ->dispatch(new Event\AppRunBefore($request))->getRequest();
+                ->dispatch(new Event\AppRunBegin($request))->getRequest();
         }
 
+        if (APP_DEBUG) {
+            ob_start();
+        }
+        // Traverse middleware stack
         try {
-            if (APP_DEBUG) {
-                ob_start();
-            }
-            // Traverse middleware stack
-            try {
-                $requestHandler = new RequestHandler(container('router'));
-                //
-                $requestHandler->manyUse(array_reverse($this->middlewares));
-                // if exception thrown, response should be loss.
-                $response = $requestHandler->handle($request);
-            } catch (\Exception $except) {
+            $requestHandler = new RequestHandler(container('router'));
+            //
+            $requestHandler->manyUse(array_reverse($this->middlewares));
+            // if exception thrown, response should be loss.
+            $response = $requestHandler->handle($request);
+        } catch (\Exception $except) {
 
-                $handlers = config('runtime.exception_handlers');
+            $exceptions = config('exceptions');
 
-                if ($except instanceof Exception\RuntimeException) {
-                    // use default handler
-                    if (!array_key_exists(get_class($except), $handlers)) {
-                        $responseHandler = $except->getResponseHandler();
-                    }
-                }
-
-                if (!isset($responseHandler)) {
-                    foreach ($handlers as $targetClass => $handlerClass) {
-                        if ($except instanceof $targetClass) {
-                            $responseHandler = new $handlerClass($except);
-                        }
-                    }
-                }
-
-                if (isset($responseHandler)) {
-                    try {
-                        $response = $responseHandler->handle(new Response($request));
-                    } catch (\Exception $exAgain) {
-                        $responseHandler = new Exception\HandlingExceptionHandler($exAgain, $except);
-                        $response = $responseHandler->handle(new Response($request));
-                    } catch (\Throwable $exAgain) {
-                        throw $exAgain;
-                    }
-                } else {
-                    throw $except;
+            if ($except instanceof Exception\RuntimeException) {
+                // use default handler
+                if (!array_key_exists(get_class($except), $exceptions)) {
+                    $responseHandler = $except->getResponseHandler();
                 }
             }
 
-            if (APP_DEBUG) {
-                $output = ob_get_clean();
+            if (!isset($responseHandler)) {
+                foreach ($exceptions as $targetClass => $handlerClass) {
+                    if ($targetClass == get_class($except) || $except instanceof $targetClass) {
+                        $responseHandler = new $handlerClass($except);
+                    }
+                }
+            }
+
+            if (isset($responseHandler)) {
+                $response = $responseHandler->handle(new Response($request));
+            } else {
+                $responseHandler = new Exception\RuntimeExceptionHandler($except);
+                $response = $responseHandler->handle(new Response($request));
             }
         } catch (\Throwable $except) {
-            throw $except;
+            $responseHandler = new Exception\ErrorHandler($except);
+            $response = $responseHandler->handle(new Response($request));
         }
 
-        if (container()->has(EventDispatcherInterface::class)) {
+        if (APP_DEBUG) {
+            $output = ob_get_clean();
+        }
+
+        if (container(EventDispatcherInterface::class, true)) {
             $response = container(EventDispatcherInterface::class)
-                ->dispatch(new Event\AppRunAfter($response))->getResponse();
+                ->dispatch(new Event\AppRunEnd($response))->getResponse();
         }
 
         if (APP_DEBUG && !empty($output) && $response->getBody()->isWritable()) {
@@ -347,8 +338,7 @@ class App
         $response = $this->finalize($response);
 
         if ($request->isOptions()) {
-            $response = $response->withStatus(200)
-                ->withHeader('Content-Type', 'text/plain');
+            $response = $response->withStatus(200)->withHeader('Content-Type', 'text/plain');
         }
 
         if (!$silent) {
@@ -386,7 +376,7 @@ class App
 
         // clear the body if this is a HEAD request
         if ($response->getRequest()->isHead()) {
-            return $response->withBody(new Body(fopen('php://temp', 'r+')));
+            return $response->withBody(new Http\Body(fopen('php://temp', 'r+')));
         }
 
         return $response;

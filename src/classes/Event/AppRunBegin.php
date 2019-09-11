@@ -17,7 +17,7 @@ use Sinpe\Event\Event;
  * @package Sinpe\Framework
  * @since   1.0.0
  */
-class AppRunBefore extends Event
+class AppRunBegin extends Event
 {
     /**
      * @var ServerRequestInterface
