@@ -76,6 +76,7 @@ class RequestHandler implements RequestHandlerInterface, MiddlewareAwareInterfac
             $route = $routeInfo[1];
 
             // $route->prepare($request, $routeArguments);
+            // $request = $request->withAttribute('route', $route);
 
             return $route->run(new Response($request), $routeArguments);
             //

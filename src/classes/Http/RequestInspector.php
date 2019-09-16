@@ -88,7 +88,7 @@ abstract class RequestInspector
      * @param Object|string $mode
      * @return static
      */
-    final public function setMode($mode) 
+    final public function setMode($mode)
     {
         $this->mode = $mode;
         return $this;
@@ -152,15 +152,14 @@ abstract class RequestInspector
      * @param ServerRequestInterface $request
      * @return ArrayObject
      */
-    final public function handle(ServerRequestInterface $request): ArrayObject
+    final public function handle(ServerRequestInterface $request, ArrayObject $routeParams = null): ArrayObject
     {
         // 绑定route参数
-        foreach ($request->getAttribute('route')->getArguments() as $key => $value) {
-            $this->routeParams[snake($key)] = $value; // 蛇型
-            //$this->routeParams[camel($key)] = $value; // 驼峰型
+        if ($routeParams) {
+            $this->routeParams = $routeParams;
         }
 
-        $params = $this->getParams($request);
+        $params = $this->getFieldParams($request);
 
         $handled = new ArrayObject();
 
@@ -251,9 +250,7 @@ abstract class RequestInspector
 
         // 预设值
         foreach ($this->defaultValues as $key => $value) {
-
             $tableField = $this->tableField2FormField($key, true);
-
             if (!isset($handled[$tableField])) {
                 $handled[$tableField] = $value;
             }
@@ -268,35 +265,25 @@ abstract class RequestInspector
     }
 
     /**
-     * 获取request参数
+     * Get input field value
      *
      * 默认返回reqeust的所有参数，可按需在子类覆盖重写，做一定的过滤
      *
      * @param ServerRequestInterface $request
      * @return array
      */
-    protected function getParams(ServerRequestInterface $request): array
+    protected function getFieldParams(ServerRequestInterface $request): array
     {
-        $requestParams = $request->getParams();
-
-        $normalized = [];
-
-        foreach ($requestParams as $key => $value) {
-            $normalized[snake($key)] = $value; // 蛇形串
-        }
-
-        return $normalized;
+        return $request->getParams();
     }
 
     /**
-     * __get
+     * Get route parameter value
      * 
-     * 快捷使用路由参数
-     *
      * @param string $key
      * @return mixed
      */
-    public function __get($key)
+    protected function getRouteParams(string $key)
     {
         return $this->routeParams[$key] ?? null;
     }

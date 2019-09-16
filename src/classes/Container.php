@@ -50,7 +50,12 @@ class Container extends \Sinpe\Container\Container
                 $router = (new Router())->setCacheFile($routerCacheFile);
 
                 $router->setResolver(new CallableResolver($container));
-                $router->setStrategy(new StrategyAutowiring($container));
+                $router->setStrategy(new StrategyAutowiring(
+                    $container,
+                    function ($args) {
+                        return new ArrayObject($args);
+                    }
+                ));
 
                 return $router;
             };

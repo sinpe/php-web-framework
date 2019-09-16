@@ -127,7 +127,8 @@ class UploadedFile implements UploadedFileInterface
                 $parsed[$field] = new static(
                     $uploadedFile['tmp_name'],
                     isset($uploadedFile['name']) ? $uploadedFile['name'] : null,
-                    isset($uploadedFile['type']) ? $uploadedFile['type'] : null,
+                    mime_content_type($uploadedFile['tmp_name']),
+                    // isset($uploadedFile['type']) ? $uploadedFile['type'] : null,
                     isset($uploadedFile['size']) ? $uploadedFile['size'] : null,
                     $uploadedFile['error'],
                     true
@@ -137,8 +138,9 @@ class UploadedFile implements UploadedFileInterface
                 foreach ($uploadedFile['error'] as $fileIdx => $error) {
                     // normalise subarray and re-parse to move the input's keyname up a level
                     $subArray[$fileIdx]['name'] = $uploadedFile['name'][$fileIdx];
-                    $subArray[$fileIdx]['type'] = $uploadedFile['type'][$fileIdx];
+                    // $subArray[$fileIdx]['type'] = $uploadedFile['type'][$fileIdx];
                     $subArray[$fileIdx]['tmp_name'] = $uploadedFile['tmp_name'][$fileIdx];
+                    $subArray[$fileIdx]['type'] = mime_content_type($subArray[$fileIdx]['tmp_name']);
                     $subArray[$fileIdx]['error'] = $uploadedFile['error'][$fileIdx];
                     $subArray[$fileIdx]['size'] = $uploadedFile['size'][$fileIdx];
 
