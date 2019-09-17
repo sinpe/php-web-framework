@@ -159,18 +159,6 @@ abstract class RequestInspector
             $this->routeParams = $routeParams;
         }
 
-        $params = $this->getFieldParams($request);
-
-        $handled = new ArrayObject();
-
-        if (!$this->strict) {
-            $fields = array_merge($this->fields, array_diff(array_keys($params), $this->fields));
-        } else {
-            // 严格模式时，只接受指定的字段输入
-            // 一般地，需要做必输检查时，需要启用严格模式
-            $fields = $this->fields;
-        }
-
         // 指定特定模式做检查
         if ($this->mode) {
             if (is_string($this->mode)) {
@@ -184,6 +172,27 @@ abstract class RequestInspector
             } else {
                 $mode = $this->mode;
             }
+        }
+
+        if (!$mode) {
+            $params = $this->getFieldParams($request);
+        } else {
+            // mode中取参数
+            if (method_exists($mode, 'getFieldParams')) { // 在模式中实现
+                $params = $mode->getFieldParams($request);
+            } else {
+                $params = $this->getFieldParams($request);
+            }
+        }
+
+        $handled = new ArrayObject();
+
+        if (!$this->strict) {
+            $fields = array_merge($this->fields, array_diff(array_keys($params), $this->fields));
+        } else {
+            // 严格模式时，只接受指定的字段输入
+            // 一般地，需要做必输检查时，需要启用严格模式
+            $fields = $this->fields;
         }
 
         // 根据指定的字段或者表单字段验证
@@ -244,8 +253,8 @@ abstract class RequestInspector
         }
 
         // 子模式综合加工结果，比如：再附加路由参数到整个数据集中
-        if ($mode && method_exists($mode, 'process')) {
-            $handled = $mode->process($handled);
+        if ($mode && method_exists($mode, 'handled')) {
+            $handled = $mode->handled($handled);
         }
 
         // 预设值
@@ -257,8 +266,8 @@ abstract class RequestInspector
         }
 
         // 主检查器再次加工结果
-        if (method_exists($this, 'process')) {
-            $handled = $this->process($handled);
+        if (method_exists($this, 'handled')) {
+            $handled = $this->handled($handled);
         }
 
         return $handled;
