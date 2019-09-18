@@ -69,16 +69,16 @@ abstract class RequestInspector
     /**
      * @var callable[]
      */
-    private $relCheckFn = [];
+    private $finalizes = [];
 
     /**
      * 关联检查
      *
      * @return void
      */
-    final public function putRelCheck(callable $fn)
+    final public function finalize(callable $fn)
     {
-        $this->relCheckFn[] = $fn;
+        $this->finalizes[] = $fn;
         return $this;
     }
 
@@ -154,11 +154,6 @@ abstract class RequestInspector
      */
     final public function handle(ServerRequestInterface $request, ArrayObject $routeParams = null): ArrayObject
     {
-        // 绑定route参数
-        if ($routeParams) {
-            $this->routeParams = $routeParams;
-        }
-
         // 指定特定模式做检查
         if ($this->mode) {
             if (is_string($this->mode)) {
@@ -174,16 +169,16 @@ abstract class RequestInspector
             }
         }
 
-        if (!$mode) {
-            $params = $this->getFieldParams($request);
-        } else {
-            // mode中取参数
-            if (method_exists($mode, 'getFieldParams')) { // 在模式中实现
-                $params = $mode->getFieldParams($request);
-            } else {
-                $params = $this->getFieldParams($request);
-            }
+        if ($mode) {
+            return $mode->handle($request, $routeParams);
         }
+
+        // 绑定route参数
+        if ($routeParams) {
+            $this->routeParams = $routeParams;
+        }
+
+        $params = $this->getFieldParams($request);
 
         $handled = new ArrayObject();
 
@@ -203,25 +198,22 @@ abstract class RequestInspector
             // 检查各字段，有才检查，表单提交有或通过指定fields
             $handleMethod = 'handle' . studly($field);
 
-            if (!$mode) {
-                $modeHandleMethod = 'handle' . $studlyMode . studly($field);
-                if (method_exists($this, $modeHandleMethod)) {
-                    $callable = [$this, $modeHandleMethod];
-                } elseif (method_exists($this, $handleMethod)) {
-                    $callable = [$this, $handleMethod];
-                } else {
-                    $callable = null;
-                }
-            } else { // 有独立的mode类，则忽略inspecter类中待mode的方法
-                // mode中做检查
-                if (method_exists($mode, $handleMethod)) { // 在模式中实现
-                    $callable = [$mode, $handleMethod];
-                } elseif (method_exists($this, $handleMethod)) { // 在主对象中实现
-                    $callable = [$this, $handleMethod];
-                } else {
-                    $callable = null;
-                }
+            if (method_exists($this, $handleMethod)) {
+                $callable = [$this, $handleMethod];
+            } else {
+                $callable = null;
             }
+
+            // } else { // 有独立的mode类，则忽略inspecter类中待mode的方法
+            //     // mode中做检查
+            //     if (method_exists($mode, $handleMethod)) { // 在模式中实现
+            //         $callable = [$mode, $handleMethod];
+            //     } elseif (method_exists($this, $handleMethod)) { // 在主对象中实现
+            //         $callable = [$this, $handleMethod];
+            //     } else {
+            //         $callable = null;
+            //     }
+            // }
 
             if ($callable) {
                 // 
@@ -246,15 +238,10 @@ abstract class RequestInspector
         unset($params, $fields);
 
         // 关联检查
-        if (!empty($this->relCheckFn)) {
-            foreach ($this->relCheckFn as $fn) {
+        if (!empty($this->finalizes)) {
+            foreach ($this->finalizes as $fn) {
                 $fn($handled);
             }
-        }
-
-        // 子模式综合加工结果，比如：再附加路由参数到整个数据集中
-        if ($mode && method_exists($mode, 'handled')) {
-            $handled = $mode->handled($handled);
         }
 
         // 预设值
