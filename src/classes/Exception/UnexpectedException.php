@@ -21,20 +21,17 @@ use Sinpe\Framework\Http\ResponseHandlerInterface;
 class UnexpectedException extends RuntimeException
 {
     /**
+     * Error code
+     *
+     * @var integer
+     */
+    protected $errorCode = -1;
+
+    /**
      * @return ResponseHandlerInterface
      */
     public function getResponseHandler(): ResponseHandlerInterface
     {
         return new UnexpectedExceptionHandler($this);
-    }
-
-    /**
-     * Return default code.
-     *
-     * @return integer
-     */
-    protected function getDefaultCode()
-    {
-        return -1;
     }
 }

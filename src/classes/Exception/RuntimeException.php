@@ -21,6 +21,13 @@ use Sinpe\Framework\Http\ResponseHandlerInterface;
 class RuntimeException extends \RuntimeException
 {
     /**
+     * Error code
+     *
+     * @var integer
+     */
+    protected $errorCode = -500;
+
+    /**
      * @var array
      */
     private $context = [];
@@ -43,7 +50,7 @@ class RuntimeException extends \RuntimeException
         if (!is_int($code)) {
             $context = $previous;
             $previous = $code;
-            $code = $this->getDefaultCode();
+            $code = $this->errorCode;
         }
 
         if (!$previous instanceof \Exception) {
@@ -78,13 +85,4 @@ class RuntimeException extends \RuntimeException
         return new RuntimeExceptionHandler($this);
     }
 
-    /**
-     * Return default code.
-     *
-     * @return integer
-     */
-    protected function getDefaultCode()
-    {
-        return -500;
-    }
 }

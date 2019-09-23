@@ -28,25 +28,18 @@ class UnexpectedValueException extends UnexpectedException
      * __construct
      *
      * @param string $message
-     * @param mixed $field
+     * @param string $field
      * @param mixed $code
      * @param mixed $previous
      * @param array $context
      */
     public function __construct(
         string $message,
-        $field = null,
+        string $field,
         $code = null,
         $previous = null,
         $context = []
     ) {
-        if (!is_string($field)) {
-            $context = $previous;
-            $previous = $code;
-            $code = $field;
-            $field = '';
-        }
-
         $this->field = $field;
 
         parent::__construct($message, $code, $previous, $context);

@@ -21,20 +21,17 @@ use Sinpe\Framework\Http\ResponseHandlerInterface;
 class BadRequestException extends UnexpectedException
 {
     /**
+     * Error code
+     *
+     * @var integer
+     */
+    protected $errorCode = -400;
+
+    /**
      * @return ResponseHandlerInterface
      */
     public function getResponseHandler(): ResponseHandlerInterface
     {
         return new BadRequestExceptionHandler($this);
-    }
-
-    /**
-     * Return default code.
-     *
-     * @return integer
-     */
-    protected function getDefaultCode()
-    {
-        return -400;
     }
 }
