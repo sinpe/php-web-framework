@@ -285,7 +285,7 @@ class App
 
             $exceptions = config('exceptions');
 
-            if ($except instanceof Exception\RuntimeException) {
+            if ($except instanceof Exception\InternalException) {
                 // use default handler
                 if (!array_key_exists(get_class($except), $exceptions)) {
                     $responseHandler = $except->getResponseHandler();
@@ -303,7 +303,7 @@ class App
             if (isset($responseHandler)) {
                 $response = $responseHandler->handle(new Response($request));
             } else {
-                $responseHandler = new Exception\RuntimeExceptionHandler($except);
+                $responseHandler = new Exception\InternalExceptionHandler($except);
                 $response = $responseHandler->handle(new Response($request));
             }
         } catch (\Throwable $except) {

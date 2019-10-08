@@ -20,7 +20,7 @@ use Sinpe\Framework\Http\ResponseHandlerHtmlResolver;
  * @package Sinpe\Framework
  * @since   1.0.0
  */
-class UnexpectedExceptionHandler extends RuntimeExceptionHandler
+class UnexpectedExceptionHandler extends InternalExceptionHandler
 {
     /**
      * __construct

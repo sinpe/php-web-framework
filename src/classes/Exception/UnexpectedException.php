@@ -18,7 +18,7 @@ use Sinpe\Framework\Http\ResponseHandlerInterface;
  * @package Sinpe\Framework
  * @since   1.0.0
  */
-class UnexpectedException extends RuntimeException
+class UnexpectedException extends InternalException
 {
     /**
      * Error code

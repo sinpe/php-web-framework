@@ -8,8 +8,6 @@
  * file that was distributed with this source code.
  */
 
-use Sinpe\Framework\Exception\RuntimeExceptionHandler;
-
 return [
     'response_chunk_size' => 4096,
     'output_buffering' => 'append',

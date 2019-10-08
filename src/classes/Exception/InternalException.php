@@ -18,7 +18,7 @@ use Sinpe\Framework\Http\ResponseHandlerInterface;
  * @package Sinpe\Framework
  * @since   1.0.0
  */
-class RuntimeException extends \RuntimeException
+class InternalException extends \RuntimeException
 {
     /**
      * Error code
@@ -82,7 +82,7 @@ class RuntimeException extends \RuntimeException
      */
     public function getResponseHandler(): ResponseHandlerInterface
     {
-        return new RuntimeExceptionHandler($this);
+        return new InternalExceptionHandler($this);
     }
 
 }

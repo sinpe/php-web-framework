@@ -19,7 +19,7 @@ use Sinpe\Framework\FatalLogger;
  * @package Sinpe\Framework
  * @since   1.0.0
  */
-class RuntimeExceptionHandler extends ErrorHandler
+class InternalExceptionHandler extends ErrorHandler
 {
     /**
      * Invoke the handler
