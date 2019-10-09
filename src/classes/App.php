@@ -52,7 +52,7 @@ class App
         $this->environment = $environment;
 
         set_exception_handler(function ($except) {
-            $responseHandler = new Exception\ErrorHandler($except);
+            $responseHandler = new Exception\InternalErrorHandler($except);
             $request = Http\Request::createFromEnvironment($this->environment);
             $response = $responseHandler->handle(new Response($request));
             $response->flush();
@@ -307,7 +307,7 @@ class App
                 $response = $responseHandler->handle(new Response($request));
             }
         } catch (\Throwable $except) {
-            $responseHandler = new Exception\ErrorHandler($except);
+            $responseHandler = new Exception\InternalErrorHandler($except);
             $response = $responseHandler->handle(new Response($request));
         }
 

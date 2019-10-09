@@ -19,7 +19,7 @@ use Sinpe\Framework\Http\ResponseHandlerResolverInterface;
  * @package Sinpe\Framework
  * @since   1.0.0
  */
-class ErrorHtmlResolver implements ResponseHandlerResolverInterface
+class InternalErrorHtmlResolver implements ResponseHandlerResolverInterface
 {
     /**
      * Process a handler output and return the result.

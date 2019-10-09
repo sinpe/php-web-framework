@@ -20,7 +20,7 @@ use Sinpe\Framework\Http\ResponseHandler;
  * @package Sinpe\Framework
  * @since   1.0.0
  */
-class ErrorHandler extends ResponseHandler
+class InternalErrorHandler extends ResponseHandler
 {
     /**
      * @var \Throwable
@@ -42,7 +42,7 @@ class ErrorHandler extends ResponseHandler
         $this->except = $except;
 
         $this->registerResolvers([
-            'text/html' => ErrorHtmlResolver::class
+            'text/html' => InternalErrorHtmlResolver::class
         ]);
     }
 
