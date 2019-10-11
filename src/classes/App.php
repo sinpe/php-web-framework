@@ -51,6 +51,10 @@ class App
     {
         $this->environment = $environment;
 
+        set_error_handler(function ($errno, $errstr) {
+            throw new \Exception($errstr, $errno);
+        }, error_reporting());
+
         set_exception_handler(function ($except) {
             $responder = new Exception\InternalErrorResponder($except);
             $request = Http\Request::createFromEnvironment($this->environment);
@@ -212,7 +216,7 @@ class App
      */
     public function redirect($from, $to, $status = 302)
     {
-        $handler = function (ServerRequestInterface $request, ResponseInterface $response) use ($to, $status) {
+        $handler = function (ResponseInterface $response) use ($to, $status) {
             return $response->withHeader('Location', (string) $to)->withStatus($status);
         };
 

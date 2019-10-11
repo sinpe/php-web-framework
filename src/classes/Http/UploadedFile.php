@@ -94,7 +94,7 @@ class UploadedFile implements UploadedFileInterface
      */
     public static function createFromEnvironment(EnvironmentInterface $env)
     {
-        if (is_array($env['_FILES']) && $env->has('_FILES')) {
+        if ($env->has('_FILES') && is_array($env['_FILES']) ) {
             return $env['_FILES'];
         } elseif (isset($_FILES)) {
             return static::parseUploadedFiles($_FILES);
