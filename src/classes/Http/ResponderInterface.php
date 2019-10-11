@@ -7,7 +7,7 @@ use Psr\Http\Message\ResponseInterface;
 /**
  * Handles a server response and produces a new response.
  */
-interface ResponseHandlerInterface
+interface ResponderInterface
 {
     /**
      * Handles a response and produces a new response.

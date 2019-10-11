@@ -215,13 +215,13 @@ abstract class RequestInspector
             //     }
             // }
 
-            if ($callable) {
+            if (is_callable($callable)) {
                 // 
                 $processed = call_user_func($callable, $value, $field, $handled); //$this->{$method}($value, $field, $handled);
 
                 // 没有返回值的，放弃该项
                 if (!is_null($processed)) {
-                    // 返回generator函数，一般是返回多个key的值
+                    // 返回generator函数，一般是返回重新定义的多个key和它的值
                     if ($processed instanceof \Closure) {
                         $handled = new ArrayObject(array_merge((array) $handled, iterator_to_array($processed($handled))));
                     } else { // 返回普通的值，一般是保持单key值

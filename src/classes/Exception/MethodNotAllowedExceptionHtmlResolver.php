@@ -11,7 +11,7 @@
 namespace Sinpe\Framework\Exception;
 
 use Sinpe\Framework\ArrayObject;
-use Sinpe\Framework\Http\ResponseHandlerResolverInterface;
+use Sinpe\Framework\Http\ResponderResolverInterface;
 
 /**
  * The HTML writer for method not allowed exception.
@@ -19,7 +19,7 @@ use Sinpe\Framework\Http\ResponseHandlerResolverInterface;
  * @package Sinpe\Framework
  * @since   1.0.0
  */
-class MethodNotAllowedExceptionHtmlResolver implements ResponseHandlerResolverInterface
+class MethodNotAllowedExceptionHtmlResolver implements ResponderResolverInterface
 {
     /**
      * Process a handler output and return the result.

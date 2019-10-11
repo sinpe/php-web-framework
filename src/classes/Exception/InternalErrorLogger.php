@@ -8,15 +8,15 @@
  * file that was distributed with this source code.
  */
 
-namespace Sinpe\Framework;
+namespace Sinpe\Framework\Exception;
 
 /**
- * FatalLogger class.
+ * InternalErrorLogger class.
  * 
  * @package Sinpe\Framework
  * @since   1.0.0
  */
-class FatalLogger
+class InternalErrorLogger
 {
     /**
      * Write to the error log

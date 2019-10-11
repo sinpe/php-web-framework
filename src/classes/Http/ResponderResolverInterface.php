@@ -10,24 +10,20 @@
 
 namespace Sinpe\Framework\Http;
 
-use Spatie\ArrayToXml\ArrayToXml;
 use Sinpe\Framework\ArrayObject;
 
 /**
- * Xml ContentType for common.
+ * The writer interface.
  * 
  * @package Sinpe\Framework
  * @since   1.0.0
  */
-class ResponseHandlerXmlResolver implements ResponseHandlerResolverInterface
+interface ResponderResolverInterface
 {
     /**
-     * Process a handler output and return the result.
+     * Process a handler context and assign result to "output" property.
      *
      * @return string
      */
-    public function resolve(ArrayObject $output)
-    {
-        return ArrayToXml::convert($output->toArray();
-    }
+    public function resolve(ArrayObject $data);
 }

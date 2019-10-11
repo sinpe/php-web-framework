@@ -16,7 +16,7 @@ use Sinpe\Framework\ArrayObject;
 /**
  * Html
  */
-class ResponseHandlerHtmlResolver implements ResponseHandlerResolverInterface
+class ResponderHtmlResolver implements ResponderResolverInterface
 {
     /**
      * Render HTML not allowed message
@@ -32,11 +32,15 @@ class ResponseHandlerHtmlResolver implements ResponseHandlerResolverInterface
             $html .= '<h1>' . $output->message . "({$output->code})</h1>";
 
             if ($output->has('data')) {
-                $html .= '<p>' . (is_string($output->data) ? $output->data : $this->serialize($output->data)) . '</p>';
+                $html .= '<p>' . (is_string($output->data)
+                    ? $output->data
+                    : '<pre>' . $this->serialize($output->data)) . '</pre>' . '</p>';
             }
         } else {
             if ($output->has('data')) {
-                $html .= is_string($output->data) ? $output->data : $this->serialize($output->data);
+                $html .= is_string($output->data)
+                    ? $output->data
+                    : '<pre>' . $this->serialize($output->data) . '</pre>';
             }
         }
 

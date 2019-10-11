@@ -13,12 +13,12 @@ namespace Sinpe\Framework\Http;
 use Psr\Http\Message\ResponseInterface;
 
 /**
- * The response handler base class.
+ * A responder base class.
  * 
  * @package Sinpe\Framework
  * @since   1.0.0
  */
-abstract class ResponseHandler implements ResponseHandlerInterface
+abstract class Responder implements ResponderInterface
 {
     /**
      * Known handled content types
@@ -26,10 +26,10 @@ abstract class ResponseHandler implements ResponseHandlerInterface
      * @var array
      */
     protected $resolvers = [
-        'application/json' => ResponseHandlerJsonResolver::class,
-        'text/html' => ResponseHandlerHtmlResolver::class,
-        'application/xml' => ResponseHandlerXmlResolver::class,
-        'text/xml' => ResponseHandlerXmlResolver::class,
+        'application/json' => ResponderJsonResolver::class,
+        'text/html' => ResponderHtmlResolver::class,
+        'application/xml' => ResponderXmlResolver::class,
+        'text/xml' => ResponderXmlResolver::class,
     ];
 
     /**
@@ -58,7 +58,7 @@ abstract class ResponseHandler implements ResponseHandlerInterface
             $acceptType = $response->getRequest()->getHeaderLine('Accept');
             //
             $acceptTypes = array_keys($this->resolvers);
-            
+
             $selectedContentTypes = array_intersect(explode(',', $acceptType), $acceptTypes);
 
             if (count($selectedContentTypes)) {
@@ -77,7 +77,7 @@ abstract class ResponseHandler implements ResponseHandlerInterface
             if (empty($contentType)) {
                 $contentType = 'text/html';
             }
-            
+
             $response = $response->withHeader('Content-Type', $contentType);
         } else {
             $contentType = $response->getHeaderLine('Content-Type');

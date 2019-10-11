@@ -10,7 +10,7 @@
 
 namespace Sinpe\Framework\Exception;
 
-use Sinpe\Framework\Http\ResponseHandlerInterface;
+use Sinpe\Framework\Http\ResponderInterface;
 
 /**
  * UnexpectedValueException
@@ -56,10 +56,10 @@ class UnexpectedValueException extends UnexpectedException
     }
 
     /**
-     * @return ResponseHandlerInterface
+     * @return ResponderInterface
      */
-    public function getResponseHandler(): ResponseHandlerInterface
+    public function getResponder(): ResponderInterface
     {
-        return new UnexpectedValueExceptionHandler($this);
+        return new UnexpectedValueExceptionResponder($this);
     }
 }

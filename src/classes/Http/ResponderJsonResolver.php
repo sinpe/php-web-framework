@@ -18,7 +18,7 @@ use Sinpe\Framework\ArrayObject;
  * @package Sinpe\Framework
  * @since   1.0.0
  */
-class ResponseHandlerJsonResolver implements ResponseHandlerResolverInterface
+class ResponderJsonResolver implements ResponderResolverInterface
 {
     /**
      * @return mixed

@@ -12,7 +12,7 @@ namespace Sinpe\Framework\Exception;
 
 use Psr\Http\Message\ResponseInterface;
 use Sinpe\Framework\ArrayObject;
-use Sinpe\Framework\Http\ResponseHandler;
+use Sinpe\Framework\Http\Responder;
 
 /**
  * The throwable handler base class.
@@ -20,7 +20,7 @@ use Sinpe\Framework\Http\ResponseHandler;
  * @package Sinpe\Framework
  * @since   1.0.0
  */
-class InternalErrorHandler extends ResponseHandler
+class InternalErrorResponder extends Responder
 {
     /**
      * @var \Throwable
@@ -55,9 +55,15 @@ class InternalErrorHandler extends ResponseHandler
      */
     public function handle(ResponseInterface $response): ResponseInterface
     {
+        // Write to the error log if debug is false
+        if (!APP_DEBUG) {
+            InternalErrorLogger::write($this->getException());
+        }
+
         $this->acceptType = $response->getHeaderLine('Content-Type');
         $response = parent::handle($response);
         $response = $response->withStatus(500);
+
         return $response;
     }
 

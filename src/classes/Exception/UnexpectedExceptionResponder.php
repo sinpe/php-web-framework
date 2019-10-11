@@ -12,15 +12,15 @@ namespace Sinpe\Framework\Exception;
 
 use Psr\Http\Message\ResponseInterface;
 use Sinpe\Framework\ArrayObject;
-use Sinpe\Framework\Http\ResponseHandlerHtmlResolver;
+use Sinpe\Framework\Http\ResponderHtmlResolver;
 
 /**
- * Handler for runtime error.
+ * Responder for runtime error.
  * 
  * @package Sinpe\Framework
  * @since   1.0.0
  */
-class UnexpectedExceptionHandler extends InternalExceptionHandler
+class UnexpectedExceptionResponder extends InternalExceptionResponder
 {
     /**
      * __construct
@@ -32,7 +32,7 @@ class UnexpectedExceptionHandler extends InternalExceptionHandler
         parent::__construct($except);
 
         $this->registerResolvers([
-            'text/html' => ResponseHandlerHtmlResolver::class
+            'text/html' => ResponderHtmlResolver::class
         ]);
     }
 

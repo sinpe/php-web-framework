@@ -14,13 +14,27 @@ use Psr\Http\Message\ResponseInterface;
 use Sinpe\Framework\ArrayObject;
 
 /**
- * Handler for 400.
+ * Responder for 404.
  * 
  * @package Sinpe\Framework
  * @since   1.0.0
  */
-class BadRequestExceptionHandler extends UnexpectedExceptionHandler
+class PageNotFoundExceptionResponder extends BadRequestExceptionResponder
 {
+    /**
+     * __construct
+     * 
+     * @param \Exception $except
+     */
+    public function __construct(\Exception $except)
+    {
+        parent::__construct($except);
+
+        $this->registerResolvers([
+            'text/html' => PageNotFoundExceptionHtmlResolver::class
+        ]);
+    }
+
     /**
      * Invoke the handler
      *
@@ -30,15 +44,15 @@ class BadRequestExceptionHandler extends UnexpectedExceptionHandler
      */
     public function handle(ResponseInterface $response): ResponseInterface
     {
-        $response = $this->_handle($response);
-        $response = $response->withStatus(400);
+        $response = parent::handle($response);
+        $response = $response->withStatus(404);
         return $response;
     }
 
     /**
-     * Create the variable will be rendered.
+     * Format the variable will be output.
      *
-     * @return 
+     * @return mixed
      */
     protected function fmtOutput()
     {
@@ -46,7 +60,8 @@ class BadRequestExceptionHandler extends UnexpectedExceptionHandler
 
         $error = [
             'code' => $except->getCode(),
-            'message' => $except->getMessage()
+            'message' => $except->getMessage(),
+            'data' => $except->getContext()
         ];
 
         return new ArrayObject($error);

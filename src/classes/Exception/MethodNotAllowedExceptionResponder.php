@@ -14,12 +14,12 @@ use Psr\Http\Message\ResponseInterface;
 use Sinpe\Framework\ArrayObject;
 
 /**
- * Handler for 404.
+ * Responder for 405.
  * 
  * @package Sinpe\Framework
  * @since   1.0.0
  */
-class PageNotFoundExceptionHandler extends BadRequestExceptionHandler
+class MethodNotAllowedExceptionResponder extends BadRequestExceptionResponder
 {
     /**
      * __construct
@@ -31,7 +31,7 @@ class PageNotFoundExceptionHandler extends BadRequestExceptionHandler
         parent::__construct($except);
 
         $this->registerResolvers([
-            'text/html' => PageNotFoundExceptionHtmlResolver::class
+            'text/html' => MethodNotAllowedExceptionHtmlResolver::class
         ]);
     }
 
@@ -44,8 +44,9 @@ class PageNotFoundExceptionHandler extends BadRequestExceptionHandler
      */
     public function handle(ResponseInterface $response): ResponseInterface
     {
-        $response = parent::handle($response);
-        $response = $response->withStatus(404);
+        $response = $this->_handle($response);
+        $response = $response->withStatus(405)
+            ->withHeader('Allow', implode(', ', $this->getException()->getAllowedMethods()));
         return $response;
     }
 
@@ -61,7 +62,9 @@ class PageNotFoundExceptionHandler extends BadRequestExceptionHandler
         $error = [
             'code' => $except->getCode(),
             'message' => $except->getMessage(),
-            'data' => $except->getContext()
+            'data' => [
+                'allowed' => $except->getAllowedMethods()
+            ]
         ];
 
         return new ArrayObject($error);

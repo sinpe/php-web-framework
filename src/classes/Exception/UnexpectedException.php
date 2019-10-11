@@ -10,7 +10,7 @@
 
 namespace Sinpe\Framework\Exception;
 
-use Sinpe\Framework\Http\ResponseHandlerInterface;
+use Sinpe\Framework\Http\ResponderInterface;
 
 /**
  * Client error.
@@ -28,10 +28,10 @@ class UnexpectedException extends InternalException
     protected $errorCode = -1;
 
     /**
-     * @return ResponseHandlerInterface
+     * @return ResponderInterface
      */
-    public function getResponseHandler(): ResponseHandlerInterface
+    public function getResponder(): ResponderInterface
     {
-        return new UnexpectedExceptionHandler($this);
+        return new UnexpectedExceptionResponder($this);
     }
 }

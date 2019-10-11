@@ -52,9 +52,9 @@ class App
         $this->environment = $environment;
 
         set_exception_handler(function ($except) {
-            $responseHandler = new Exception\InternalErrorHandler($except);
+            $responder = new Exception\InternalErrorResponder($except);
             $request = Http\Request::createFromEnvironment($this->environment);
-            $response = $responseHandler->handle(new Response($request));
+            $response = $responder->handle(new Response($request));
             $response->flush();
         });
 
@@ -288,27 +288,27 @@ class App
             if ($except instanceof Exception\InternalException) {
                 // use default handler
                 if (!array_key_exists(get_class($except), $exceptions)) {
-                    $responseHandler = $except->getResponseHandler();
+                    $responder = $except->getResponder();
                 }
             }
 
-            if (!isset($responseHandler)) {
+            if (!isset($responder)) {
                 foreach ($exceptions as $targetClass => $handlerClass) {
                     if ($targetClass == get_class($except) || $except instanceof $targetClass) {
-                        $responseHandler = new $handlerClass($except);
+                        $responder = new $handlerClass($except);
                     }
                 }
             }
 
-            if (isset($responseHandler)) {
-                $response = $responseHandler->handle(new Response($request));
+            if (isset($responder)) {
+                $response = $responder->handle(new Response($request));
             } else {
-                $responseHandler = new Exception\InternalExceptionHandler($except);
-                $response = $responseHandler->handle(new Response($request));
+                $responder = new Exception\InternalExceptionResponder($except);
+                $response = $responder->handle(new Response($request));
             }
         } catch (\Throwable $except) {
-            $responseHandler = new Exception\InternalErrorHandler($except);
-            $response = $responseHandler->handle(new Response($request));
+            $responder = new Exception\InternalErrorResponder($except);
+            $response = $responder->handle(new Response($request));
         }
 
         if (APP_DEBUG) {

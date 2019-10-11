@@ -18,7 +18,7 @@ use Sinpe\Framework\ArrayObject;
  * @package Sinpe\Framework
  * @since   1.0.0
  */
-class UnexpectedValueExceptionHandler extends UnexpectedExceptionHandler
+class UnexpectedValueExceptionResponder extends UnexpectedExceptionResponder
 {
     /**
      * Format the variable will be output.

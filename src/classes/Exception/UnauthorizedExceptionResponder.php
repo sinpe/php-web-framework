@@ -13,12 +13,12 @@ namespace Sinpe\Framework\Exception;
 use Psr\Http\Message\ResponseInterface;
 
 /**
- * Handler for 401.
+ * Responder for 401.
  * 
  * @package Sinpe\Framework
  * @since   1.0.0
  */
-abstract class UnauthorizedExceptionHandler extends BadRequestExceptionHandler
+abstract class UnauthorizedExceptionResponder extends BadRequestExceptionResponder
 {
     /**
      * Invoke the handler
@@ -32,7 +32,7 @@ abstract class UnauthorizedExceptionHandler extends BadRequestExceptionHandler
         $acceptType = $response->getHeaderLine('Content-Type');
 
         $response = parent::handle($response);
-        
+
         if ($acceptType == 'text/html') {
             $response = $response->withRedirect($this->getRedirectUrl())->withStatus(302);
         } else {
@@ -48,5 +48,4 @@ abstract class UnauthorizedExceptionHandler extends BadRequestExceptionHandler
      * @return string
      */
     abstract protected function getRedirectUrl();
-
 }

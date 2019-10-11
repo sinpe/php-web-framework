@@ -10,7 +10,7 @@
 
 namespace Sinpe\Framework\Exception;
 
-use Sinpe\Framework\Http\ResponseHandlerInterface;
+use Sinpe\Framework\Http\ResponderInterface;
 
 /**
  * 400.
@@ -28,10 +28,10 @@ class BadRequestException extends UnexpectedException
     protected $errorCode = -400;
 
     /**
-     * @return ResponseHandlerInterface
+     * @return ResponderInterface
      */
-    public function getResponseHandler(): ResponseHandlerInterface
+    public function getResponder(): ResponderInterface
     {
-        return new BadRequestExceptionHandler($this);
+        return new BadRequestExceptionResponder($this);
     }
 }

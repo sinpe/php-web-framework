@@ -17,7 +17,7 @@ use Psr\Http\Message\ResponseInterface;
  * @package Sinpe\Framework
  * @since   1.0.0
  */
-class Controller extends Http\ResponseHandler
+class Controller extends Http\Responder
 {
     /**
      * @var int
@@ -35,7 +35,24 @@ class Controller extends Http\ResponseHandler
     private $data = [];
 
     /**
-     * 输出
+     * 页面输出
+     *
+     * @param  ResponseInterface      $response The most recent Response object
+     * @param  string                 $content 输出页面
+     *
+     * @return ResponseInterface
+     */
+    protected function display(
+        ResponseInterface $response,
+        string $content
+    ) {
+        $this->data = $content;
+        $response = $response->withHeader('Content-Type', 'text/html');
+        return $this->handle($response);
+    }
+
+    /**
+     * 输出数据（非页面输出）
      *
      * @param  ResponseInterface      $response The most recent Response object
      * @param  mixed                  $data 输出内容
@@ -55,7 +72,7 @@ class Controller extends Http\ResponseHandler
     }
 
     /**
-     * 输出
+     * 状态输出（中性，非页面输出）
      *
      * @param  ResponseInterface      $response The most recent Response object
      * @param  mixed                  $message 输出信息
@@ -77,7 +94,7 @@ class Controller extends Http\ResponseHandler
     }
 
     /**
-     * 成功信息
+     * 输出成功（非页面输出）
      *
      * @param  ResponseInterface      $response The most recent Response object
      * @param  mixed                  $message 输出信息
@@ -99,7 +116,19 @@ class Controller extends Http\ResponseHandler
     }
 
     /**
-     * 错误信息
+     * success别名
+     */
+    protected function succee(
+        ResponseInterface $response,
+        string $message,
+        $code = 0,
+        $data = null
+    ) {
+        return $this->success($response, $message, $code, $data);
+    }
+
+    /**
+     * 输出失败（非页面输出）
      *
      * @param  ResponseInterface      $response The most recent Response object
      * @param  mixed                  $message 输出信息
@@ -118,6 +147,18 @@ class Controller extends Http\ResponseHandler
         }
 
         return $this->message($response, $message, $code, $data);
+    }
+
+    /**
+     * error别名
+     */
+    protected function fail(
+        ResponseInterface $response,
+        string $message,
+        $code = -1,
+        $data = null
+    ) {
+        return $this->error($response, $message, $code, $data);
     }
 
     /**

@@ -12,12 +12,12 @@
 namespace Sinpe\Framework\Exception;
 
 use Sinpe\Framework\ArrayObject;
-use Sinpe\Framework\Http\ResponseHandlerHtmlResolver;
+use Sinpe\Framework\Http\ResponderHtmlResolver;
 
 /**
  * Html
  */
-class UnexpectedValueExceptionHtmlResolver extends ResponseHandlerHtmlResolver
+class UnexpectedValueExceptionHtmlResolver extends ResponderHtmlResolver
 {
     /**
      * Render HTML not allowed message

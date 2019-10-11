@@ -14,27 +14,13 @@ use Psr\Http\Message\ResponseInterface;
 use Sinpe\Framework\ArrayObject;
 
 /**
- * Handler for 405.
+ * Responder for 400.
  * 
  * @package Sinpe\Framework
  * @since   1.0.0
  */
-class MethodNotAllowedExceptionHandler extends BadRequestExceptionHandler
+class BadRequestExceptionResponder extends UnexpectedExceptionResponder
 {
-    /**
-     * __construct
-     * 
-     * @param \Exception $except
-     */
-    public function __construct(\Exception $except)
-    {
-        parent::__construct($except);
-
-        $this->registerResolvers([
-            'text/html' => MethodNotAllowedExceptionHtmlResolver::class
-        ]);
-    }
-
     /**
      * Invoke the handler
      *
@@ -45,15 +31,14 @@ class MethodNotAllowedExceptionHandler extends BadRequestExceptionHandler
     public function handle(ResponseInterface $response): ResponseInterface
     {
         $response = $this->_handle($response);
-        $response = $response->withStatus(405)
-            ->withHeader('Allow', implode(', ', $this->getException()->getAllowedMethods()));
+        $response = $response->withStatus(400);
         return $response;
     }
 
     /**
-     * Format the variable will be output.
+     * Create the variable will be rendered.
      *
-     * @return mixed
+     * @return 
      */
     protected function fmtOutput()
     {
@@ -61,10 +46,7 @@ class MethodNotAllowedExceptionHandler extends BadRequestExceptionHandler
 
         $error = [
             'code' => $except->getCode(),
-            'message' => $except->getMessage(),
-            'data' => [
-                'allowed' => $except->getAllowedMethods()
-            ]
+            'message' => $except->getMessage()
         ];
 
         return new ArrayObject($error);
