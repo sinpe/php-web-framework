@@ -11,7 +11,7 @@
 namespace Sinpe\Framework\Exception;
 
 use Sinpe\Framework\ArrayObject;
-use Sinpe\Framework\Http\ResponderResolverInterface;
+use Sinpe\Framework\Http\ResponderResolver;
 
 /**
  * The HTML writer for route not found exception.
@@ -19,7 +19,7 @@ use Sinpe\Framework\Http\ResponderResolverInterface;
  * @package Sinpe\Framework
  * @since   1.0.0
  */
-class PageNotFoundExceptionHtmlResolver implements ResponderResolverInterface
+class PageNotFoundExceptionHtmlResolver extends ResponderResolver
 {
     /**
      * Process a handler output and return the result.

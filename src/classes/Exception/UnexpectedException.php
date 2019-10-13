@@ -10,6 +10,7 @@
 
 namespace Sinpe\Framework\Exception;
 
+use Psr\Http\Message\ServerRequestInterface;
 use Sinpe\Framework\Http\ResponderInterface;
 
 /**
@@ -28,10 +29,11 @@ class UnexpectedException extends InternalException
     protected $errorCode = -1;
 
     /**
+     * @param ServerRequestInterface $request
      * @return ResponderInterface
      */
-    public function getResponder(): ResponderInterface
+    public function getResponder(ServerRequestInterface $request): ResponderInterface
     {
-        return new UnexpectedExceptionResponder($this);
+        return new UnexpectedExceptionResponder($request);
     }
 }

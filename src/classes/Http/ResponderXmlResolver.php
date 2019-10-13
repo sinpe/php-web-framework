@@ -19,7 +19,7 @@ use Sinpe\Framework\ArrayObject;
  * @package Sinpe\Framework
  * @since   1.0.0
  */
-class ResponderXmlResolver implements ResponderResolverInterface
+class ResponderXmlResolver extends ResponderResolver
 {
     /**
      * Process a handler output and return the result.

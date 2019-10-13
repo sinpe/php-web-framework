@@ -22,17 +22,12 @@ use Sinpe\Framework\ArrayObject;
 class BadRequestExceptionResponder extends UnexpectedExceptionResponder
 {
     /**
-     * Invoke the handler
-     *
-     * @param  ResponseInterface $response
+     * @param ResponseInterface $response
      * @return ResponseInterface
-     * @throws UnexpectedValueException
      */
-    public function handle(ResponseInterface $response): ResponseInterface
+    protected function withResponse(ResponseInterface $response): ResponseInterface
     {
-        $response = $this->_handle($response);
-        $response = $response->withStatus(400);
-        return $response;
+        return $response->withStatus(400);
     }
 
     /**
@@ -40,9 +35,9 @@ class BadRequestExceptionResponder extends UnexpectedExceptionResponder
      *
      * @return 
      */
-    protected function fmtOutput()
+    protected function getData():ArrayObject
     {
-        $except = $this->getException();
+        $except = parent::getData('except');
 
         $error = [
             'code' => $except->getCode(),

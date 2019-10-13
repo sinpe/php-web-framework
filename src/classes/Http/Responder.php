@@ -10,7 +10,9 @@
 
 namespace Sinpe\Framework\Http;
 
+use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use Sinpe\Framework\ArrayObject;
 
 /**
  * A responder base class.
@@ -21,6 +23,18 @@ use Psr\Http\Message\ResponseInterface;
 abstract class Responder implements ResponderInterface
 {
     /**
+     * @var ServerRequestInterface
+     */
+    private $request;
+
+    /**
+     * Result of action
+     *
+     * @var ArrayObject
+     */
+    private $data;
+
+    /**
      * Known handled content types
      *
      * @var array
@@ -29,59 +43,95 @@ abstract class Responder implements ResponderInterface
         'application/json' => ResponderJsonResolver::class,
         'text/html' => ResponderHtmlResolver::class,
         'application/xml' => ResponderXmlResolver::class,
-        'text/xml' => ResponderXmlResolver::class,
+        'text/xml' => ResponderXmlResolver::class
     ];
+
+    /**
+     * __construct
+     * 
+     * @param ServerRequestInterface $request
+     */
+    public function __construct(ServerRequestInterface $request)
+    {
+        $this->request = $request;
+    }
+
+    /**
+     * Request
+     *
+     * @return ServerRequestInterface
+     */
+    protected function getRequest(): ServerRequestInterface
+    {
+        return $this->request;
+    }
 
     /**
      * Invoke the handler
      *
-     * @param  ResponseInterface $response
+     * @param array $data
      * @return ResponseInterface
-     * @throws UnexpectedValueException
      */
-    public function handle(ResponseInterface $response): ResponseInterface
+    public function handle(array $data = null, string $acceptType = null): ResponseInterface
     {
-        return $this->_handle($response);
+        if ($data) {
+            $this->data = new ArrayObject($data);
+        }
+
+        return $this->withResponse($this->genResponse($acceptType));
     }
 
     /**
-     * _handle
-     *
-     * @param  ResponseInterface $response
-     * @return ResponseInterface
-     * @throws UnexpectedValueException
+     * @return ArrayObject
      */
-    protected function _handle(ResponseInterface $response): ResponseInterface
+    protected function getData(): ArrayObject
     {
-        if (!$response->hasHeader('Content-Type')) {
-            // 
-            $acceptType = $response->getRequest()->getHeaderLine('Accept');
-            //
-            $acceptTypes = array_keys($this->resolvers);
+        $data = $this->data ?? new ArrayObject;
 
-            $selectedContentTypes = array_intersect(explode(',', $acceptType), $acceptTypes);
+        $item = func_get_arg(0);
 
-            if (count($selectedContentTypes)) {
-                $contentType = current($selectedContentTypes);
-            } else {
-                // handle +json and +xml specially
-                if (preg_match('/\+(json|xml)/', $acceptType, $matches)) {
-                    //
-                    $mediaType = 'application/' . $matches[1];
-                    if (in_array($mediaType, $acceptTypes)) {
-                        $contentType = $mediaType;
-                    }
+        if (!empty($item) && is_string($item) && $data->has($item)) {
+            return $data[$item];
+        }
+
+        return $data;
+    }
+
+    /**
+     * 生成Response
+     *
+     * @return ResponseInterface
+     */
+    protected function genResponse(string $acceptType = null): ResponseInterface
+    {
+        if (empty($acceptType)) {
+            $acceptType = $this->getRequest()->getHeaderLine('Accept');
+        }
+        //
+        $acceptTypes = array_keys($this->resolvers);
+
+        $selectedContentTypes = array_intersect(explode(',', $acceptType), $acceptTypes);
+
+        if (count($selectedContentTypes)) {
+            $contentType = current($selectedContentTypes);
+        } else {
+            // handle +json and +xml specially
+            if (preg_match('/\+(json|xml)/', $acceptType, $matches)) {
+                //
+                $mediaType = 'application/' . $matches[1];
+                if (in_array($mediaType, $acceptTypes)) {
+                    $contentType = $mediaType;
                 }
             }
-
-            if (empty($contentType)) {
-                $contentType = 'text/html';
-            }
-
-            $response = $response->withHeader('Content-Type', $contentType);
-        } else {
-            $contentType = $response->getHeaderLine('Content-Type');
         }
+
+        if (empty($contentType)) {
+            $contentType = 'text/html';
+        }
+
+        $response = new Response($this->getRequest());
+
+        $response = $response->withHeader('Content-Type', "{$contentType};charset=utf-8");
 
         if (array_key_exists($contentType, $this->resolvers)) {
 
@@ -89,17 +139,19 @@ abstract class Responder implements ResponderInterface
 
             if ($resolver instanceof \Closure) {
                 /*
-                renderer需要依赖时，注入通过handler引入，再用此方式调用renderer
+                resolver需要依赖时，注入通过responder引入，再用此方式调用resolver
                 比如：依赖Setting
                 function ($response) use($setting) {
                     $resolver = new $resolver($setting);
-                    return $resolver->process(new ArrayObject($content));
+                    return $resolver->resolve(new ArrayObject($content));
                 }
                 */
-                $content = $resolver($this->fmtOutput());
+                $content = $resolver($this->getData());
             } else {
                 // Resolver can be overrided with container
-                $content = container($resolver)->resolve($this->fmtOutput());
+                $resolver = container($resolver);
+                $response = $resolver->withResponse($response);
+                $content = $resolver->resolve($this->getData());
             }
             //
         } else {
@@ -114,6 +166,17 @@ abstract class Responder implements ResponderInterface
     }
 
     /**
+     * 用于子类对Response对象再加工
+     *
+     * @param ResponseInterface $response
+     * @return ResponseInterface
+     */
+    protected function withResponse(ResponseInterface $response): ResponseInterface
+    {
+        return $response;
+    }
+
+    /**
      * Register resolver
      *
      * @return static
@@ -123,11 +186,4 @@ abstract class Responder implements ResponderInterface
         $this->resolvers = array_merge($this->resolvers, $resolvers);
         return $this;
     }
-
-    /**
-     * Format the variable will be output.
-     *
-     * @return mixed
-     */
-    abstract protected function fmtOutput();
 }

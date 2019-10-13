@@ -2,7 +2,6 @@
 
 namespace Sinpe\Framework;
 
-use Psr\Container\ContainerInterface;
 use Sinpe\Route\CallableResolverInterface;
 
 /**

@@ -16,8 +16,21 @@ use Sinpe\Framework\ArrayObject;
 /**
  * Html
  */
-class ResponderHtmlResolver implements ResponderResolverInterface
+class ResponderHtmlResolver extends ResponderResolver
 {
+    /**
+     * Custom response
+     * 
+     * @param ResponseInterface $response
+     * @return ResponseInterface
+     */
+    public function withResponse(ResponseInterface $response): ResponseInterface
+    {
+        $response = $response->withHeader('Content-Type', 'text/html');
+
+        return $response;
+    }
+
     /**
      * Render HTML not allowed message
      *

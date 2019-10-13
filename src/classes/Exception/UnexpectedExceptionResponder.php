@@ -10,6 +10,7 @@
 
 namespace Sinpe\Framework\Exception;
 
+use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Sinpe\Framework\ArrayObject;
 use Sinpe\Framework\Http\ResponderHtmlResolver;
@@ -25,11 +26,11 @@ class UnexpectedExceptionResponder extends InternalExceptionResponder
     /**
      * __construct
      * 
-     * @param \Exception $except
+     * @param ServerRequestInterface $request
      */
-    public function __construct(\Exception $except)
+    public function __construct(ServerRequestInterface $request)
     {
-        parent::__construct($except);
+        parent::__construct($request);
 
         $this->registerResolvers([
             'text/html' => ResponderHtmlResolver::class
@@ -37,27 +38,13 @@ class UnexpectedExceptionResponder extends InternalExceptionResponder
     }
 
     /**
-     * Invoke the handler
-     *
-     * @param  ResponseInterface $response
-     * @return ResponseInterface
-     * @throws UnexpectedValueException
-     */
-    public function handle(ResponseInterface $response): ResponseInterface
-    {
-        $response = $this->_handle($response);
-
-        return $response;
-    }
-
-    /**
      * Format the variable will be output.
      *
      * @return mixed
      */
-    protected function fmtOutput()
+    protected function getData():ArrayObject
     {
-        $except = $this->getException();
+        $except = parent::getData('except');
 
         $error = [
             'code' => $except->getCode(),

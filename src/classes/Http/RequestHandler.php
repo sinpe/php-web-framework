@@ -11,6 +11,7 @@
 namespace Sinpe\Framework\Http;
 
 use FastRoute\Dispatcher;
+use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
@@ -29,18 +30,18 @@ class RequestHandler implements RequestHandlerInterface, MiddlewareAwareInterfac
     use MiddlewareAwareTrait;
 
     /**
-     * @var Router
+     * @var ContainerInterface
      */
-    private $router;
+    private $container;
 
     /**
      * __construct
      *
-     * @param RouterInterface $router
+     * @param ContainerInterface $container
      */
-    public function __construct(RouterInterface $router)
+    public function __construct(ContainerInterface $container)
     {
-        $this->router = $router;
+        $this->container = $container;
     }
 
     /**
@@ -56,9 +57,8 @@ class RequestHandler implements RequestHandlerInterface, MiddlewareAwareInterfac
      */
     protected function run(ServerRequestInterface $request): ResponseInterface
     {
+        $router = $this->container->get('router');
         // Ensure basePath is set
-        $router = $this->router;
-
         if (is_callable([$request->getUri(), 'getBasePath']) && is_callable([$router, 'setBasePath'])) {
             $router->setBasePath($request->getUri()->getBasePath());
         }
@@ -77,8 +77,11 @@ class RequestHandler implements RequestHandlerInterface, MiddlewareAwareInterfac
 
             // $route->prepare($request, $routeArguments);
             // $request = $request->withAttribute('route', $route);
+            
+            // froze the request object 
+            $this->container->set(ServerRequestInterface::class, $request);
 
-            return $route->run(new Response($request), $routeArguments);
+            return $route->run($request, $routeArguments);
             //
         } elseif ($routeInfo[0] === Dispatcher::METHOD_NOT_ALLOWED) {
             throw new MethodNotAllowedException($routeInfo[1]);

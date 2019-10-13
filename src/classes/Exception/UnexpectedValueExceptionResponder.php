@@ -25,9 +25,9 @@ class UnexpectedValueExceptionResponder extends UnexpectedExceptionResponder
      *
      * @return mixed
      */
-    protected function fmtOutput()
+    protected function getData():ArrayObject
     {
-        $except = $this->getException();
+        $except = parent::getData('except');
 
         $error = [
             'code' => $except->getCode(),

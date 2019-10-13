@@ -11,7 +11,7 @@
 namespace Sinpe\Framework\Exception;
 
 use Sinpe\Framework\ArrayObject;
-use Sinpe\Framework\Http\ResponderResolverInterface;
+use Sinpe\Framework\Http\ResponderResolver;
 
 /**
  * The HTML writer for exception with debug details.
@@ -19,7 +19,7 @@ use Sinpe\Framework\Http\ResponderResolverInterface;
  * @package Sinpe\Framework
  * @since   1.0.0
  */
-class InternalErrorHtmlResolver implements ResponderResolverInterface
+class InternalErrorHtmlResolver extends ResponderResolver
 {
     /**
      * Process a handler output and return the result.

@@ -11,15 +11,12 @@
 namespace Sinpe\Framework\Http;
 
 use Psr\Http\Message\ResponseInterface;
-use Sinpe\Framework\ArrayObject;
 
 /**
- * The writer interface.
- * 
  * @package Sinpe\Framework
  * @since   1.0.0
  */
-interface ResponderResolverInterface
+abstract class ResponderResolver implements ResponderResolverInterface
 {
     /**
      * Custom response
@@ -27,12 +24,8 @@ interface ResponderResolverInterface
      * @param ResponseInterface $response
      * @return ResponseInterface
      */
-    public function withResponse(ResponseInterface $response): ResponseInterface;
-
-    /**
-     * Process a handler context and assign result to "output" property.
-     *
-     * @return string
-     */
-    public function resolve(ArrayObject $data);
+    public function withResponse(ResponseInterface $response): ResponseInterface
+    {
+        return $response;
+    }
 }

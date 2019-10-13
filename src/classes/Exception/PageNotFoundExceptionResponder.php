@@ -10,6 +10,7 @@
 
 namespace Sinpe\Framework\Exception;
 
+use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Sinpe\Framework\ArrayObject;
 
@@ -24,11 +25,11 @@ class PageNotFoundExceptionResponder extends BadRequestExceptionResponder
     /**
      * __construct
      * 
-     * @param \Exception $except
+     * @param ServerRequestInterface $request
      */
-    public function __construct(\Exception $except)
+    public function __construct(ServerRequestInterface $request)
     {
-        parent::__construct($except);
+        parent::__construct($request);
 
         $this->registerResolvers([
             'text/html' => PageNotFoundExceptionHtmlResolver::class
@@ -36,17 +37,12 @@ class PageNotFoundExceptionResponder extends BadRequestExceptionResponder
     }
 
     /**
-     * Invoke the handler
-     *
-     * @param  ResponseInterface $response
+     * @param ResponseInterface $response
      * @return ResponseInterface
-     * @throws UnexpectedValueException
      */
-    public function handle(ResponseInterface $response): ResponseInterface
+    protected function withResponse(ResponseInterface $response): ResponseInterface
     {
-        $response = parent::handle($response);
-        $response = $response->withStatus(404);
-        return $response;
+        return $response->withStatus(404);
     }
 
     /**
@@ -54,9 +50,9 @@ class PageNotFoundExceptionResponder extends BadRequestExceptionResponder
      *
      * @return mixed
      */
-    protected function fmtOutput()
+    protected function getData():ArrayObject
     {
-        $except = $this->getException();
+        $except = parent::getData('except');
 
         $error = [
             'code' => $except->getCode(),

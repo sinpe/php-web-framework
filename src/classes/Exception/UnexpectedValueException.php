@@ -10,6 +10,7 @@
 
 namespace Sinpe\Framework\Exception;
 
+use Psr\Http\Message\ServerRequestInterface;
 use Sinpe\Framework\Http\ResponderInterface;
 
 /**
@@ -56,10 +57,11 @@ class UnexpectedValueException extends UnexpectedException
     }
 
     /**
+     * @param ServerRequestInterface $request
      * @return ResponderInterface
      */
-    public function getResponder(): ResponderInterface
+    public function getResponder(ServerRequestInterface $request): ResponderInterface
     {
-        return new UnexpectedValueExceptionResponder($this);
+        return new UnexpectedValueExceptionResponder($request);
     }
 }

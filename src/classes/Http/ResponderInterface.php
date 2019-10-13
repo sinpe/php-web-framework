@@ -14,5 +14,5 @@ interface ResponderInterface
      *
      * May call other collaborating code to generate the response.
      */
-    public function handle(ResponseInterface $response): ResponseInterface;
+    public function handle(array $data = null): ResponseInterface;
 }

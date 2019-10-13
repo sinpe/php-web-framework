@@ -10,6 +10,7 @@
 
 namespace Sinpe\Framework\Exception;
 
+use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Sinpe\Framework\ArrayObject;
 use Sinpe\Framework\Http\Responder;
@@ -23,11 +24,6 @@ use Sinpe\Framework\Http\Responder;
 class InternalErrorResponder extends Responder
 {
     /**
-     * @var \Throwable
-     */
-    private $except;
-
-    /**
      * var string
      */
     private $acceptType;
@@ -35,11 +31,11 @@ class InternalErrorResponder extends Responder
     /**
      * __construct
      * 
-     * @param \Throwable $except
+     * @param ServerRequestInterface $request
      */
-    public function __construct(\Throwable $except)
+    public function __construct(ServerRequestInterface $request)
     {
-        $this->except = $except;
+        parent::__construct($request);
 
         $this->registerResolvers([
             'text/html' => InternalErrorHtmlResolver::class
@@ -47,34 +43,21 @@ class InternalErrorResponder extends Responder
     }
 
     /**
-     * Invoke the handler
-     *
-     * @param  ResponseInterface $response
+     * @param ResponseInterface $response
      * @return ResponseInterface
-     * @throws UnexpectedValueException
      */
-    public function handle(ResponseInterface $response): ResponseInterface
+    protected function withResponse(ResponseInterface $response): ResponseInterface
     {
         // Write to the error log if debug is false
         if (!APP_DEBUG) {
-            InternalErrorLogger::write($this->getException());
+            InternalErrorLogger::write($this->getData('except'));
         }
 
         $this->acceptType = $response->getHeaderLine('Content-Type');
-        $response = parent::handle($response);
+
         $response = $response->withStatus(500);
 
         return $response;
-    }
-
-    /**
-     * Get exception
-     *
-     * @return \Throwable
-     */
-    protected function getException(): \Throwable
-    {
-        return $this->except;
     }
 
     /**
@@ -82,18 +65,17 @@ class InternalErrorResponder extends Responder
      *
      * @return mixed
      */
-    protected function fmtOutput()
+    protected function getData(): ArrayObject
     {
+        $except = parent::getData('except');
+
         $error = [
-            'code' => $this->getException()->getCode(),
+            'code' => $except->getCode(),
             'message' => 'Error'
         ];
 
         // 
         if (APP_DEBUG) {
-
-            $except = $this->getException();
-
             $error['type'] = get_class($except);
             $error['message'] = $this->wrapCdata($except->getMessage());
             $error['file'] = $except->getFile();

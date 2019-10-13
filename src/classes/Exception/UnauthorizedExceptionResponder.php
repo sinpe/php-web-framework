@@ -21,17 +21,12 @@ use Psr\Http\Message\ResponseInterface;
 abstract class UnauthorizedExceptionResponder extends BadRequestExceptionResponder
 {
     /**
-     * Invoke the handler
-     *
-     * @param  ResponseInterface $response
+     * @param ResponseInterface $response
      * @return ResponseInterface
-     * @throws UnexpectedValueException
      */
-    public function handle(ResponseInterface $response): ResponseInterface
+    protected function withResponse(ResponseInterface $response): ResponseInterface
     {
         $acceptType = $response->getHeaderLine('Content-Type');
-
-        $response = parent::handle($response);
 
         if ($acceptType == 'text/html') {
             $response = $response->withRedirect($this->getRedirectUrl())->withStatus(302);

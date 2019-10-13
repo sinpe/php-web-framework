@@ -12,11 +12,7 @@ namespace Sinpe\Framework;
 
 use Psr\Container\ContainerInterface;
 use Psr\EventDispatcher\EventDispatcherInterface;
-use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
-
-use Sinpe\Framework\Http\Response;
-use Sinpe\Framework\Http\RequestHandler;
 
 require_once __DIR__ . '/../defines.php';
 require_once __DIR__ . '/../helpers.php';
@@ -28,7 +24,7 @@ require_once __DIR__ . '/../helpers.php';
  * @package Sinpe\Framework
  * @since   1.0.0
  */
-class App
+class Application
 {
     /**
      * @var array
@@ -56,9 +52,9 @@ class App
         }, error_reporting());
 
         set_exception_handler(function ($except) {
-            $responder = new Exception\InternalErrorResponder($except);
             $request = Http\Request::createFromEnvironment($this->environment);
-            $response = $responder->handle(new Response($request));
+            $responder = new Exception\InternalErrorResponder($request);
+            $response = $responder->handle(['except'=>$except]);
             $response->flush();
         });
 
@@ -280,7 +276,7 @@ class App
         }
         // Traverse middleware stack
         try {
-            $requestHandler = new RequestHandler(container('router'));
+            $requestHandler = new Http\RequestHandler(container('router'));
             //
             $requestHandler->manyUse(array_reverse($this->middlewares));
             // if exception thrown, response should be loss.
@@ -292,7 +288,7 @@ class App
             if ($except instanceof Exception\InternalException) {
                 // use default handler
                 if (!array_key_exists(get_class($except), $exceptions)) {
-                    $responder = $except->getResponder();
+                    $responder = $except->getResponder($request);
                 }
             }
 
@@ -305,14 +301,14 @@ class App
             }
 
             if (isset($responder)) {
-                $response = $responder->handle(new Response($request));
+                $response = $responder->handle(['except'=>$except]);
             } else {
-                $responder = new Exception\InternalExceptionResponder($except);
-                $response = $responder->handle(new Response($request));
+                $responder = new Exception\InternalExceptionResponder($request);
+                $response = $responder->handle(['except'=>$except]);
             }
         } catch (\Throwable $except) {
-            $responder = new Exception\InternalErrorResponder($except);
-            $response = $responder->handle(new Response($request));
+            $responder = new Exception\InternalErrorResponder($request);
+            $response = $responder->handle(['except'=>$except]);
         }
 
         if (APP_DEBUG) {
