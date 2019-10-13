@@ -146,3 +146,19 @@ if (!function_exists('i18n')) {
         return sprintf(...$arguments);
     }
 }
+
+
+if (!function_exists('memory_usage')) {
+    /**
+     * 格式化当前内存消耗.
+     */
+    function memory_usage()
+    {
+        $size = memory_get_usage();
+
+        $unit = ['B', 'KB', 'MB', 'GB', 'TB', 'PB'];
+
+        return @round($size / pow(1024, ($i = floor(log($size, 1024)))), 2)
+            .' '.$unit[$i];
+    }
+}
