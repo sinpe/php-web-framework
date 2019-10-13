@@ -36,6 +36,11 @@ use Sinpe\Framework\EnvironmentInterface;
 class Request extends Message implements ServerRequestInterface
 {
     /**
+     * @var boolean
+     */
+    private $frozed = false;
+
+    /**
      * The request method
      *
      * @var string
@@ -317,7 +322,7 @@ class Request extends Message implements ServerRequestInterface
     public function withMethod($method)
     {
         $method = $this->filterMethod($method);
-        $clone = clone $this;
+        $clone = $this->withClone();
         $clone->originalMethod = $method;
         $clone->method = $method;
 
@@ -530,7 +535,7 @@ class Request extends Message implements ServerRequestInterface
                 i18n('invalid request target provided; must be a string and cannot contain whitespace')
             );
         }
-        $clone = clone $this;
+        $clone = $this->withClone();
         $clone->requestTarget = $requestTarget;
 
         return $clone;
@@ -582,7 +587,7 @@ class Request extends Message implements ServerRequestInterface
      */
     public function withUri(UriInterface $uri, $preserveHost = false)
     {
-        $clone = clone $this;
+        $clone = $this->withClone();
         $clone->uri = $uri;
 
         if (!$preserveHost) {
@@ -744,7 +749,7 @@ class Request extends Message implements ServerRequestInterface
      */
     public function withCookieParams(array $cookies)
     {
-        $clone = clone $this;
+        $clone = $this->withClone();
         $clone->cookies = $cookies;
 
         return $clone;
@@ -805,7 +810,7 @@ class Request extends Message implements ServerRequestInterface
      */
     public function withQueryParams(array $query)
     {
-        $clone = clone $this;
+        $clone = $this->withClone();
         $clone->queryParams = $query;
 
         return $clone;
@@ -845,7 +850,7 @@ class Request extends Message implements ServerRequestInterface
      */
     public function withUploadedFiles(array $uploadedFiles)
     {
-        $clone = clone $this;
+        $clone = $this->withClone();
         $clone->uploadedFiles = $uploadedFiles;
 
         return $clone;
@@ -942,7 +947,7 @@ class Request extends Message implements ServerRequestInterface
      */
     public function withAttribute($name, $value)
     {
-        $clone = clone $this;
+        $clone = $this->withClone();
         $clone->attributes->set($name, $value);
 
         return $clone;
@@ -965,7 +970,7 @@ class Request extends Message implements ServerRequestInterface
      */
     public function withAttributes(array $attributes)
     {
-        $clone = clone $this;
+        $clone = $this->withClone();
         $clone->attributes = new ArrayObject($attributes);
 
         return $clone;
@@ -987,7 +992,7 @@ class Request extends Message implements ServerRequestInterface
      */
     public function withoutAttribute($name)
     {
-        $clone = clone $this;
+        $clone = $this->withClone();
         $clone->attributes->remove($name);
 
         return $clone;
@@ -1081,7 +1086,7 @@ class Request extends Message implements ServerRequestInterface
             throw new \InvalidArgumentException(i18n('parsed body value must be an array, an object, or null'));
         }
 
-        $clone = clone $this;
+        $clone = $this->withClone();
         $clone->bodyParsed = $data;
 
         return $clone;
@@ -1222,4 +1227,24 @@ class Request extends Message implements ServerRequestInterface
         return $params;
     }
 
+    /**
+     * @return static
+     */
+    protected function withClone()
+    {
+        if ($this->frozed) {
+            throw new \Exception(i18n('request be frozed, cant not change now.'));
+        }
+
+        return clone $this;
+    }
+
+    /**
+     * froze request
+     * 
+     * @return void
+     */
+    public function froze(){
+        $this->frozed = true;
+    }
 }

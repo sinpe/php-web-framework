@@ -107,7 +107,7 @@ abstract class Message implements MessageInterface
                     . implode(', ', array_keys(self::$validProtocolVersions)))
             );
         }
-        $clone = clone $this;
+        $clone = $this->withClone();
         $clone->protocolVersion = $version;
 
         return $clone;
@@ -220,7 +220,7 @@ abstract class Message implements MessageInterface
      */
     public function withHeader($name, $value)
     {
-        $clone = clone $this;
+        $clone = $this->withClone();
         $clone->headers->set($name, $value);
 
         return $clone;
@@ -244,7 +244,7 @@ abstract class Message implements MessageInterface
      */
     public function withAddedHeader($name, $value)
     {
-        $clone = clone $this;
+        $clone = $this->withClone();
         $clone->headers->add($name, $value);
 
         return $clone;
@@ -264,7 +264,7 @@ abstract class Message implements MessageInterface
      */
     public function withoutHeader($name)
     {
-        $clone = clone $this;
+        $clone = $this->withClone();
         $clone->headers->remove($name);
 
         return $clone;
@@ -300,9 +300,16 @@ abstract class Message implements MessageInterface
     public function withBody(StreamInterface $body)
     {
         // TODO: Test for invalid body?
-        $clone = clone $this;
+        $clone = $this->withClone();
         $clone->body = $body;
 
         return $clone;
+    }
+
+    /**
+     * @return static
+     */
+    protected function withClone(){
+        return clone $this;
     }
 }

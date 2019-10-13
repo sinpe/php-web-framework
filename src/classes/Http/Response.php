@@ -217,7 +217,7 @@ class Response extends Message implements ResponseInterface
             throw new \InvalidArgumentException(i18n('reason phrase must be a string'));
         }
 
-        $clone = clone $this;
+        $clone = $this->withClone();
         $clone->status = $code;
         if ($reasonPhrase === '' && isset(static::$messages[$code])) {
             $reasonPhrase = static::$messages[$code];
@@ -282,7 +282,7 @@ class Response extends Message implements ResponseInterface
      */
     public function withHeader($name, $value)
     {
-        $clone = clone $this;
+        $clone = $this->withClone();
         $clone->headers->set($name, $value);
 
         // If a Location header is set and the status code is 200, then set the status
