@@ -35,7 +35,7 @@ final class CallableResolver implements CallableResolverInterface
             $this->assertCallable($toResolve);
         }
 
-        // check for slim callable as "class:method".
+        // check for callable as "class:method".
         // this is "Controller" pattern.
         if (preg_match(self::CALLABLE_PATTERN, $toResolve, $matches)) {
             $resolved = $this->resolveCallable($matches[1], $matches[2]);
