@@ -150,17 +150,17 @@ class Action
     }
 
     /**
-     * @return Http\ResponderInterface
+     * @return Http\Responder
      */
-    protected function getResponder(): Http\ResponderInterface
+    protected function getResponder(): Http\Responder
     {
         return new ActionTextResponder($this->request);
     }
 
     /**
-     * @return Http\ResponderInterface
+     * @return Http\Responder
      */
-    protected function getStreamResponder(): Http\ResponderInterface
+    protected function getStreamResponder(): Http\Responder
     {
         return new ActionStreamResponder($this->request);
     }

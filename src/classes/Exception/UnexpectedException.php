@@ -11,7 +11,7 @@
 namespace Sinpe\Framework\Exception;
 
 use Psr\Http\Message\ServerRequestInterface;
-use Sinpe\Framework\Http\ResponderInterface;
+use Sinpe\Framework\Http\Responder;
 
 /**
  * Client error.
@@ -30,9 +30,9 @@ class UnexpectedException extends InternalException
 
     /**
      * @param ServerRequestInterface $request
-     * @return ResponderInterface
+     * @return Responder
      */
-    public function getResponder(ServerRequestInterface $request): ResponderInterface
+    public function getResponder(ServerRequestInterface $request): Responder
     {
         return new UnexpectedExceptionResponder($request);
     }

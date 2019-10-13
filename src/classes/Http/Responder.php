@@ -20,7 +20,7 @@ use Sinpe\Framework\ArrayObject;
  * @package Sinpe\Framework
  * @since   1.0.0
  */
-abstract class Responder implements ResponderInterface
+class Responder
 {
     /**
      * @var ServerRequestInterface
