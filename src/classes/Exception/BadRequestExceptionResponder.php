@@ -35,9 +35,9 @@ class BadRequestExceptionResponder extends UnexpectedExceptionResponder
      *
      * @return 
      */
-    protected function getData():ArrayObject
+    protected function fmtData(): ArrayObject
     {
-        $except = parent::getData('except');
+        $except = $this->getData('except');
 
         $error = [
             'code' => $except->getCode(),

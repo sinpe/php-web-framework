@@ -75,6 +75,9 @@ abstract class Responder implements ResponderInterface
     public function handle(array $data = null, string $acceptType = null): ResponseInterface
     {
         if ($data) {
+            if (!is_array($data)) {
+                throw new \Exception(i18n('a array needed'));
+            }
             $this->data = new ArrayObject($data);
         }
 
@@ -84,13 +87,11 @@ abstract class Responder implements ResponderInterface
     /**
      * @return ArrayObject
      */
-    protected function getData(): ArrayObject
+    final protected function getData(string $item = null)
     {
         $data = $this->data ?? new ArrayObject;
 
-        $item = func_get_arg(0);
-
-        if (!empty($item) && is_string($item) && $data->has($item)) {
+        if (!empty($item) && $data->has($item)) {
             return $data[$item];
         }
 
@@ -146,12 +147,12 @@ abstract class Responder implements ResponderInterface
                     return $resolver->resolve(new ArrayObject($content));
                 }
                 */
-                $content = $resolver($this->getData());
+                $content = $resolver($this->fmtData());
             } else {
                 // Resolver can be overrided with container
                 $resolver = container($resolver);
                 $response = $resolver->withResponse($response);
-                $content = $resolver->resolve($this->getData());
+                $content = $resolver->resolve($this->fmtData());
             }
             //
         } else {
@@ -185,5 +186,15 @@ abstract class Responder implements ResponderInterface
     {
         $this->resolvers = array_merge($this->resolvers, $resolvers);
         return $this;
+    }
+
+    /**
+     * Format the variable will be output.
+     *
+     * @return mixed
+     */
+    protected function fmtData(): ArrayObject
+    {
+        return $this->getData();
     }
 }

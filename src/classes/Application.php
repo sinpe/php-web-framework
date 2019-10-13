@@ -54,7 +54,7 @@ class Application
         set_exception_handler(function ($except) {
             $request = Http\Request::createFromEnvironment($this->environment);
             $responder = new Exception\InternalErrorResponder($request);
-            $response = $responder->handle(['except'=>$except]);
+            $response = $responder->handle($except);
             $response->flush();
         });
 
@@ -276,7 +276,7 @@ class Application
         }
         // Traverse middleware stack
         try {
-            $requestHandler = new Http\RequestHandler(container('router'));
+            $requestHandler = new Http\RequestHandler(container());
             //
             $requestHandler->manyUse(array_reverse($this->middlewares));
             // if exception thrown, response should be loss.
@@ -301,14 +301,14 @@ class Application
             }
 
             if (isset($responder)) {
-                $response = $responder->handle(['except'=>$except]);
+                $response = $responder->handle($except);
             } else {
                 $responder = new Exception\InternalExceptionResponder($request);
-                $response = $responder->handle(['except'=>$except]);
+                $response = $responder->handle($except);
             }
         } catch (\Throwable $except) {
             $responder = new Exception\InternalErrorResponder($request);
-            $response = $responder->handle(['except'=>$except]);
+            $response = $responder->handle($except);
         }
 
         if (APP_DEBUG) {

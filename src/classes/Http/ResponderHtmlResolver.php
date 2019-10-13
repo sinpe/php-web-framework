@@ -11,6 +11,7 @@
 
 namespace Sinpe\Framework\Http;
 
+use Psr\Http\Message\ResponseInterface;
 use Sinpe\Framework\ArrayObject;
 
 /**

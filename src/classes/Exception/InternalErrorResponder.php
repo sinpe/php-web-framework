@@ -43,6 +43,17 @@ class InternalErrorResponder extends Responder
     }
 
     /**
+     * Invoke the handler
+     *
+     * @param \Exception $data
+     * @return ResponseInterface
+     */
+    public function handle(\Exception $except): ResponseInterface
+    {
+        return parent::handle(['except' => $except]);
+    }
+
+    /**
      * @param ResponseInterface $response
      * @return ResponseInterface
      */
@@ -65,9 +76,9 @@ class InternalErrorResponder extends Responder
      *
      * @return mixed
      */
-    protected function getData(): ArrayObject
+    protected function fmtData(): ArrayObject
     {
-        $except = parent::getData('except');
+        $except = $this->getData('except');
 
         $error = [
             'code' => $except->getCode(),

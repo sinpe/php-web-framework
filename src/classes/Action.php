@@ -46,9 +46,7 @@ class Action
      */
     protected function display(string $content)
     {
-        return $this->getResponder()->handle([
-            'data' => $content
-        ]);
+        return $this->getResponder()->display($content);
     }
 
     /**

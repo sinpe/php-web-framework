@@ -10,6 +10,8 @@
 
 namespace Sinpe\Framework;
 
+use Psr\Http\Message\ResponseInterface;
+
 /**
  * The throwable handler base class.
  * 
@@ -18,5 +20,16 @@ namespace Sinpe\Framework;
  */
 class ActionTextResponder extends Http\Responder
 {
-    // NONE
+    /**
+     * 页面输出
+     *
+     * @param  ResponseInterface      $response The most recent Response object
+     * @param  string                 $content 输出页面
+     *
+     * @return ResponseInterface
+     */
+    public function display(string $content): ResponseInterface
+    {
+        return $this->handle(['data' => $content]);
+    }
 }

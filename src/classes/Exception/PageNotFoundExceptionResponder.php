@@ -50,9 +50,9 @@ class PageNotFoundExceptionResponder extends BadRequestExceptionResponder
      *
      * @return mixed
      */
-    protected function getData():ArrayObject
+    protected function fmtData(): ArrayObject
     {
-        $except = parent::getData('except');
+        $except = $this->getData('except');
 
         $error = [
             'code' => $except->getCode(),
