@@ -1,6 +1,6 @@
 <?php
 /*
- * This file is part of the long/framework package.
+ * This file is part of the long/dragon package.
  *
  * (c) Sinpe <support@sinpe.com>
  *
@@ -11,15 +11,11 @@
 namespace Sinpe\Framework\Exception;
 
 use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Message\ResponseInterface;
 use Sinpe\Framework\ArrayObject;
 use Sinpe\Framework\Http\ResponderHtmlResolver;
 
 /**
- * Responder for runtime error.
- * 
- * @package Sinpe\Framework
- * @since   1.0.0
+ * Responder for 400.
  */
 class UnexpectedExceptionResponder extends InternalExceptionResponder
 {
@@ -38,15 +34,15 @@ class UnexpectedExceptionResponder extends InternalExceptionResponder
     }
 
     /**
-     * Format the variable will be output.
+     * Format the data for resolver.
      *
-     * @return mixed
+     * @return ArrayObject
      */
     protected function fmtData(): ArrayObject
     {
-        $except = $this->getData('except');
+        $except = $this->getData('thrown');
 
-        $error = [
+        $fmt = [
             'code' => $except->getCode(),
             'message' => $except->getMessage()
         ];
@@ -54,9 +50,9 @@ class UnexpectedExceptionResponder extends InternalExceptionResponder
         $data = $except->getContext();
 
         if (!empty($data)) {
-            $error['data'] = $data;
+            $fmt['data'] = $data;
         }
 
-        return new ArrayObject($error);
+        return new ArrayObject($fmt);
     }
 }

@@ -5,7 +5,7 @@
 composer:
 
 ```sh
-composer require long/framework
+composer require long/dragon
 ```
 
 PHP 7.2 or newer.

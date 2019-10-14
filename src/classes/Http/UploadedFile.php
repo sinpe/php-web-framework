@@ -1,6 +1,6 @@
 <?php
 /*
- * This file is part of the long/framework package.
+ * This file is part of the long/dragon package.
  *
  * (c) Sinpe <support@sinpe.com>
  *
@@ -13,14 +13,12 @@ namespace Sinpe\Framework\Http;
 use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UploadedFileInterface;
 use Sinpe\Framework\EnvironmentInterface;
+
 /**
  * Represents Uploaded Files.
  *
  * It manages and normalizes uploaded files according to the PSR-7 standard.
  *
- * @package Sinpe\Framework
- * @since   1.0.0
- * 
  * @link https://github.com/php-fig/http-message/blob/master/src/UploadedFileInterface.php
  * @link https://github.com/php-fig/http-message/blob/master/src/StreamInterface.php
  */

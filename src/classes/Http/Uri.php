@@ -1,6 +1,6 @@
 <?php
 /*
- * This file is part of the long/framework package.
+ * This file is part of the long/dragon package.
  *
  * (c) Sinpe <support@sinpe.com>
  *
@@ -31,9 +31,6 @@ use Sinpe\Framework\EnvironmentInterface;
  * For server-side requests, the scheme will typically be discoverable in the
  * server parameters.
  *
- * @package Sinpe\Framework
- * @since   1.0.0
- * 
  * @link http://tools.ietf.org/html/rfc3986 (the URI specification)
  */
 class Uri implements UriInterface

@@ -1,6 +1,6 @@
 <?php
 /*
- * This file is part of the long/framework package.
+ * This file is part of the long/dragon package.
  *
  * (c) Sinpe <support@sinpe.com>
  *
@@ -12,9 +12,6 @@ namespace Sinpe\Framework\Exception;
 
 /**
  * InternalErrorLogger class.
- * 
- * @package Sinpe\Framework
- * @since   1.0.0
  */
 class InternalErrorLogger
 {
@@ -23,15 +20,15 @@ class InternalErrorLogger
      *
      * @return void
      */
-    public static function write($except)
+    public static function write(\Throwable $error)
     {
         $message = 'Error:' . PHP_EOL;
 
-        $message .= self::ex2text($except);
+        $message .= self::ex2text($error);
 
-        while ($except = $except->getPrevious()) {
+        while ($error = $error->getPrevious()) {
             $message .= PHP_EOL . 'previous error:' . PHP_EOL;
-            $message .= self::ex2text($except);
+            $message .= self::ex2text($error);
         }
 
         $message .= PHP_EOL . 'view in rendered output by enabling the "debug" setting.' . PHP_EOL;
@@ -40,33 +37,32 @@ class InternalErrorLogger
     }
 
     /**
-     * Render error as Text.
+     * Error to text.
      *
-     * @param \Throwable $except
-     *
+     * @param \Throwable $error
      * @return string
      */
-    private static function ex2text($except)
+    private static function ex2text(\Throwable $error): string
     {
-        $text = sprintf('type: %s' . PHP_EOL, get_class($except));
+        $text = sprintf('type: %s' . PHP_EOL, get_class($error));
 
-        if ($code = $except->getCode()) {
+        if ($code = $error->getCode()) {
             $text .= sprintf('code: %s' . PHP_EOL, $code);
         }
 
-        if ($message = $except->getMessage()) {
+        if ($message = $error->getMessage()) {
             $text .= sprintf('message: %s' . PHP_EOL, htmlentities($message));
         }
 
-        if ($file = $except->getFile()) {
+        if ($file = $error->getFile()) {
             $text .= sprintf('file: %s' . PHP_EOL, $file);
         }
 
-        if ($line = $except->getLine()) {
+        if ($line = $error->getLine()) {
             $text .= sprintf('line: %s' . PHP_EOL, $line);
         }
 
-        if ($trace = $except->getTraceAsString()) {
+        if ($trace = $error->getTraceAsString()) {
             $text .= sprintf('trace: %s', $trace);
         }
 

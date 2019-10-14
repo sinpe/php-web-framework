@@ -1,6 +1,6 @@
 <?php 
 /*
- * This file is part of long/framework.
+ * This file is part of long/dragon.
  *
  * (c) Sinpe Inc. <dev@sinpe.com>
  *
@@ -11,10 +11,7 @@
 namespace Sinpe\Framework\Exception;
 
 /**
- * 401.
- * 
- * @package Sinpe\Framework
- * @since   1.0.0
+ * Exception for 401.
  */
 class UnauthorizedException extends BadRequestException
 {

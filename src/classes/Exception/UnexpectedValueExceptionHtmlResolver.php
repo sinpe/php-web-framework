@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of the long/framework package.
+ * This file is part of the long/dragon package.
  *
  * (c) Sinpe <support@sinpe.com>
  *
@@ -15,16 +15,17 @@ use Sinpe\Framework\ArrayObject;
 use Sinpe\Framework\Http\ResponderHtmlResolver;
 
 /**
- * Html
+ * The HTML resolver for field exception.
  */
 class UnexpectedValueExceptionHtmlResolver extends ResponderHtmlResolver
 {
     /**
-     * Render HTML not allowed message
+     * Handle the output for the responder.
      *
+     * @param ArrayObject $output
      * @return string
      */
-    public function resolve(ArrayObject $output)
+    public function resolve(ArrayObject $output):string
     {
         $html = '';
 

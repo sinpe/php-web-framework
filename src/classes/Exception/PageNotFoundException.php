@@ -1,6 +1,6 @@
 <?php
 /*
- * This file is part of the long/framework package.
+ * This file is part of the long/dragon package.
  *
  * (c) Sinpe <support@sinpe.com>
  *
@@ -14,10 +14,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Sinpe\Framework\Http\Responder;
 
 /**
- * 404.
- * 
- * @package Sinpe\Framework
- * @since   1.0.0
+ * Exception for 404.
  */
 class PageNotFoundException extends BadRequestException
 {
@@ -30,6 +27,8 @@ class PageNotFoundException extends BadRequestException
     }
 
     /**
+     * Get Responder for this exception.
+     * 
      * @param ServerRequestInterface $request
      * @return Responder
      */

@@ -1,6 +1,6 @@
 <?php
 /*
- * This file is part of the long/framework package.
+ * This file is part of the long/dragon package.
  *
  * (c) Sinpe <support@sinpe.com>
  *
@@ -12,9 +12,6 @@ namespace Sinpe\Framework\Http;
 
 /**
  * Provides a PSR-7 implementation of a reusable raw request body
- * 
- * @package Sinpe\Framework
- * @since   1.0.0
  */
 class RequestBody extends Body
 {

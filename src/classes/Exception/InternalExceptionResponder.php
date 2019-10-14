@@ -1,6 +1,6 @@
 <?php
 /*
- * This file is part of the long/framework package.
+ * This file is part of the long/dragon package.
  *
  * (c) Sinpe <support@sinpe.com>
  *
@@ -11,10 +11,7 @@
 namespace Sinpe\Framework\Exception;
 
 /**
- * Exception handler base class.
- * 
- * @package Sinpe\Framework
- * @since   1.0.0
+ * Responder for this 500 exception.
  */
 class InternalExceptionResponder extends InternalErrorResponder
 {

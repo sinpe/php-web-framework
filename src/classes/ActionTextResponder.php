@@ -1,6 +1,6 @@
 <?php
 /*
- * This file is part of the long/framework package.
+ * This file is part of the long/dragon package.
  *
  * (c) Sinpe <support@sinpe.com>
  *
@@ -14,17 +14,14 @@ use Psr\Http\Message\ResponseInterface;
 
 /**
  * The throwable handler base class.
- * 
- * @package Sinpe\Framework
- * @since   1.0.0
  */
 class ActionTextResponder extends Http\Responder
 {
     /**
-     * 页面输出
+     * Display page content.
      *
      * @param  ResponseInterface      $response The most recent Response object
-     * @param  string                 $content 输出页面
+     * @param  string                 $content 
      *
      * @return ResponseInterface
      */

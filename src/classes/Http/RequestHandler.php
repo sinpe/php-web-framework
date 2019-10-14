@@ -1,6 +1,6 @@
 <?php
 /*
- * This file is part of the long/framework package.
+ * This file is part of the long/dragon package.
  *
  * (c) Sinpe <support@sinpe.com>
  *
@@ -17,7 +17,6 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Sinpe\Route\MiddlewareAwareTrait;
 use Sinpe\Route\MiddlewareAwareInterface;
-use Sinpe\Route\RouterInterface;
 use Sinpe\Framework\Exception\MethodNotAllowedException;
 use Sinpe\Framework\Exception\PageNotFoundException;
 use Sinpe\Framework\Http\Response;

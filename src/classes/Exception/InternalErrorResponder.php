@@ -1,6 +1,6 @@
 <?php
 /*
- * This file is part of the long/framework package.
+ * This file is part of the long/dragon package.
  *
  * (c) Sinpe <support@sinpe.com>
  *
@@ -16,15 +16,12 @@ use Sinpe\Framework\ArrayObject;
 use Sinpe\Framework\Http\Responder;
 
 /**
- * The throwable handler base class.
- * 
- * @package Sinpe\Framework
- * @since   1.0.0
+ * Responder for uncaught.
  */
 class InternalErrorResponder extends Responder
 {
     /**
-     * var string
+     * @var string
      */
     private $acceptType;
 
@@ -40,72 +37,84 @@ class InternalErrorResponder extends Responder
         $this->registerResolvers([
             'text/html' => InternalErrorHtmlResolver::class
         ]);
+
+        $this->subscribeResponse(function(ResponseInterface $response){
+            // if not debug, with log trace. 
+            if (!APP_DEBUG) {
+                InternalErrorLogger::write($this->getData('thrown'));
+            }
+            $this->acceptType = $response->getHeaderLine('Content-Type');
+            $response = $response->withStatus(500);
+            return $response;
+        });
     }
 
     /**
      * Invoke the handler
      *
-     * @param \Exception $data
+     * @param \Throwable $data
      * @return ResponseInterface
      */
-    public function handle(\Exception $except): ResponseInterface
+    public function handle(\Throwable $error): ResponseInterface
     {
-        return parent::handle(['except' => $except]);
+        return parent::handle(['thrown' => $error]);
     }
 
+    // /**
+    //  * Attach "Response" somme attribute and return a "Response" copy.
+    //  * 
+    //  * @param ResponseInterface $response
+    //  * @return ResponseInterface
+    //  */
+    // protected function withResponse(ResponseInterface $response): ResponseInterface
+    // {
+    //     // if not debug, with log trace. 
+    //     if (!APP_DEBUG) {
+    //         InternalErrorLogger::write($this->getData('thrown'));
+    //     }
+
+    //     $this->acceptType = $response->getHeaderLine('Content-Type');
+
+    //     $response = $response->withStatus(500);
+
+    //     return $response;
+    // }
+
     /**
-     * @param ResponseInterface $response
-     * @return ResponseInterface
-     */
-    protected function withResponse(ResponseInterface $response): ResponseInterface
-    {
-        // Write to the error log if debug is false
-        if (!APP_DEBUG) {
-            InternalErrorLogger::write($this->getData('except'));
-        }
-
-        $this->acceptType = $response->getHeaderLine('Content-Type');
-
-        $response = $response->withStatus(500);
-
-        return $response;
-    }
-
-    /**
-     * Format the variable will be output.
+     * Format the data for resolver.
      *
-     * @return mixed
+     * @return ArrayObject
      */
     protected function fmtData(): ArrayObject
     {
-        $except = $this->getData('except');
+        $error = $this->getData('thrown');
 
-        $error = [
-            'code' => $except->getCode(),
+        $fmt = [
+            'code' => $error->getCode(),
             'message' => 'Error'
         ];
 
         // 
         if (APP_DEBUG) {
-            $error['type'] = get_class($except);
-            $error['message'] = $this->wrapCdata($except->getMessage());
-            $error['file'] = $except->getFile();
-            $error['line'] = $except->getLine();
-            $error['trace'] = $this->wrapCdata($except->getTraceAsString());
+            $fmt['type'] = get_class($error);
+            $fmt['message'] = $this->wrapCdata($error->getMessage());
+            $fmt['file'] = $error->getFile();
+            $fmt['line'] = $error->getLine();
+            $fmt['trace'] = $this->wrapCdata($error->getTraceAsString());
 
-            while ($except = $except->getPrevious()) {
-                $error['previous'][] = [
-                    'type' => get_class($except),
-                    'code' => $except->getCode(),
-                    'message' => $this->wrapCdata($except->getMessage()),
-                    'file' => $except->getFile(),
-                    'line' => $except->getLine(),
-                    'trace' => $this->wrapCdata($except->getTraceAsString())
+            while ($error = $error->getPrevious()) {
+                $fmt['previous'][] = [
+                    'type' => get_class($error),
+                    'code' => $error->getCode(),
+                    'message' => $this->wrapCdata($error->getMessage()),
+                    'file' => $error->getFile(),
+                    'line' => $error->getLine(),
+                    'trace' => $this->wrapCdata($error->getTraceAsString())
                 ];
             }
         }
 
-        return new ArrayObject($error);
+        return new ArrayObject($fmt);
     }
 
     /**
@@ -114,7 +123,7 @@ class InternalErrorResponder extends Responder
      * @param  string $content
      * @return string
      */
-    private function wrapCdata($content)
+    private function wrapCdata(string $content): string
     {
         if (in_array($this->acceptType, [
             'application/xml',

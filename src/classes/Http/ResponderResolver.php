@@ -1,6 +1,6 @@
 <?php
 /*
- * This file is part of the long/framework package.
+ * This file is part of the long/dragon package.
  *
  * (c) Sinpe <support@sinpe.com>
  *
@@ -13,13 +13,12 @@ namespace Sinpe\Framework\Http;
 use Psr\Http\Message\ResponseInterface;
 
 /**
- * @package Sinpe\Framework
- * @since   1.0.0
+ * 
  */
 abstract class ResponderResolver implements ResponderResolverInterface
 {
     /**
-     * Custom response
+     * Attach "Response" somme attribute and return a "Response" copy.
      * 
      * @param ResponseInterface $response
      * @return ResponseInterface

@@ -1,6 +1,6 @@
 <?php
  /*
- * This file is part of the long/framework package.
+ * This file is part of the long/dragon package.
  *
  * (c) Sinpe <support@sinpe.com>
  *
@@ -11,12 +11,13 @@
 namespace Sinpe\Framework\Event;
 
 use Psr\Http\Message\ResponseInterface;
+use Sinpe\Event\Event;
 
 /**
- * @package Sinpe\Framework
- * @since   1.0.0
+ * Event of application when Run end, needs EventDispatcher supporting.
+ * You can do something with response, and return a response copy.
  */
-class AppRunEnd extends \Sinpe\Event\Event
+class AppRunEnd extends Event
 {
     /**
      * @var ResponseInterface
@@ -34,7 +35,7 @@ class AppRunEnd extends \Sinpe\Event\Event
     }
 
     /**
-     * Get
+     * Return "Response" to callee by this.
      *
      * @return ResponseInterface
      */
@@ -44,7 +45,7 @@ class AppRunEnd extends \Sinpe\Event\Event
     }
 
     /**
-     * Set
+     * When "Response" attachs some attributes, you can reset "Response" for callee by this.
      * 
      * @return void
      */

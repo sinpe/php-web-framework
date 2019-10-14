@@ -1,6 +1,6 @@
 <?php
 /*
- * This file is part of the long/framework package.
+ * This file is part of the long/dragon package.
  *
  * (c) Sinpe <support@sinpe.com>
  *
@@ -16,9 +16,6 @@ use Sinpe\Framework\ArrayObject;
 
 /**
  * A responder base class.
- * 
- * @package Sinpe\Framework
- * @since   1.0.0
  */
 class Responder
 {
@@ -33,6 +30,13 @@ class Responder
      * @var ArrayObject
      */
     private $data;
+
+    /**
+     * Subscribe for response.
+     *
+     * @var array
+     */
+    private $subscribes = [];
 
     /**
      * Known handled content types
@@ -81,11 +85,21 @@ class Responder
             $this->data = new ArrayObject($data);
         }
 
-        return $this->withResponse($this->genResponse($acceptType));
+        $response = $this->genResponse($acceptType);
+
+        foreach ($this->subscribes as $callback) {
+            $response = call_user_func($callback, $response); 
+            if (!$response instanceof ResponseInterface) {
+                throw new \Exception(i18n('subscribe MUST return a %s.', ResponseInterface::class));
+            }
+            //$this->withResponse($response);
+        }
+
+        return $response;
     }
 
     /**
-     * @return ArrayObject
+     * @return mixed
      */
     final protected function getData(string $item = null)
     {
@@ -167,15 +181,29 @@ class Responder
     }
 
     /**
-     * 用于子类对Response对象再加工
+     * Attach "Response" somme attribute and return a "Response" copy,
+     * You can override me in your class.
      *
-     * @param ResponseInterface $response
-     * @return ResponseInterface
+     * @param callable $callback
+     * @return static
      */
-    protected function withResponse(ResponseInterface $response): ResponseInterface
+    final public function subscribeResponse(callable $callback): Responder
     {
-        return $response;
+        $this->subscribes[] = $callback;
+        return $this;
     }
+
+    // /**
+    //  * Attach "Response" somme attribute and return a "Response" copy,
+    //  * You can override me in your class.
+    //  *
+    //  * @param ResponseInterface $response
+    //  * @return ResponseInterface
+    //  */
+    // protected function withResponse(ResponseInterface $response): ResponseInterface
+    // {
+    //     return $response;
+    // }
 
     /**
      * Register resolver
@@ -189,9 +217,9 @@ class Responder
     }
 
     /**
-     * Format the variable will be output.
+     * Format the data for resolver.
      *
-     * @return mixed
+     * @return ArrayObject
      */
     protected function fmtData(): ArrayObject
     {

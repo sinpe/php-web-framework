@@ -1,6 +1,6 @@
 <?php
 /*
- * This file is part of the long/framework package.
+ * This file is part of the long/dragon package.
  *
  * (c) Sinpe <support@sinpe.com>
  *
@@ -15,18 +15,16 @@ use Sinpe\Framework\ArrayObject;
 
 /**
  * Xml ContentType for common.
- * 
- * @package Sinpe\Framework
- * @since   1.0.0
  */
 class ResponderXmlResolver extends ResponderResolver
 {
     /**
-     * Process a handler output and return the result.
+     * Handle the output for the responder.
      *
+     * @param ArrayObject $output
      * @return string
      */
-    public function resolve(ArrayObject $output)
+    public function resolve(ArrayObject $output): string
     {
         return ArrayToXml::convert($output->toArray());
     }

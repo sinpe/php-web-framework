@@ -1,6 +1,6 @@
 <?php
 /*
- * This file is part of the long/framework package.
+ * This file is part of the long/dragon package.
  *
  * (c) Sinpe <support@sinpe.com>
  *
@@ -14,28 +14,24 @@ use Sinpe\Framework\ArrayObject;
 use Sinpe\Framework\Http\ResponderResolver;
 
 /**
- * The HTML writer for exception with debug details.
- * 
- * @package Sinpe\Framework
- * @since   1.0.0
+ * The HTML resolver for 500 exception with debug details.
  */
 class InternalErrorHtmlResolver extends ResponderResolver
 {
     /**
-     * Process a handler output and return the result.
+     * Handle the output for the responder.
      *
+     * @param ArrayObject $output
      * @return string
      */
-    public function resolve(ArrayObject $output)
+    public function resolve(ArrayObject $output): string
     {
         $title = 'Error';
 
-        if (isset($output->type)) {
-
+        if (APP_DEBUG) {
             $html = '<p>The application could not run because of the following error:</p>';
             $html .= '<h2>Details</h2>';
             $html .= $this->renderHtmlError($output);
-
             while ($output = $output->previous) {
                 $html .= '<h2>Previous error</h2>';
                 $html .= $this->renderHtmlError($output);
@@ -60,7 +56,7 @@ class InternalErrorHtmlResolver extends ResponderResolver
      *
      * @return string
      */
-    protected function renderHtmlError($output)
+    protected function renderHtmlError(ArrayObject $output)
     {
         $html = sprintf('<div><strong>Type:</strong> %s</div>', $output->type);
 

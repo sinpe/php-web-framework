@@ -1,6 +1,6 @@
 <?php
 /*
- * This file is part of long/framework.
+ * This file is part of long/dragon.
  *
  * (c) Sinpe <support@sinpe.com>
  *
@@ -15,9 +15,6 @@ use Psr\Http\Message\ServerRequestInterface;
 
 /**
  * Action
- * 
- * @package Sinpe\Framework
- * @since   1.0.0
  */
 class Action
 {
@@ -37,27 +34,24 @@ class Action
     }
 
     /**
-     * 页面输出
+     * Dsiplay a page content.
      *
-     * @param  ResponseInterface      $response The most recent Response object
-     * @param  string                 $content 输出页面
-     *
+     * @param  string $content 
      * @return ResponseInterface
      */
-    protected function display(string $content)
+    protected function display(string $content): ResponseInterface
     {
         return $this->getResponder()->display($content);
     }
 
     /**
-     * 输出数据（非页面输出）
+     * Output some datas (differ from a page)
      *
-     * @param  ResponseInterface      $response The most recent Response object
-     * @param  mixed                  $data 输出内容
-     *
+     * @param mixed $data
+     * @param integer $code
      * @return ResponseInterface
      */
-    protected function output($data, $code = 0)
+    protected function output($data, $code = 0): ResponseInterface
     {
         return $this->getResponder()->handle([
             'code' => $code ?? 0,
@@ -66,14 +60,14 @@ class Action
     }
 
     /**
-     * 状态输出（中性，非页面输出）
+     * Output a message with context (differ from a page)
      *
-     * @param  ResponseInterface      $response The most recent Response object
-     * @param  mixed                  $message 输出信息
-     *
+     * @param string $message
+     * @param integer $code
+     * @param mixed $data
      * @return ResponseInterface
      */
-    protected function message(string $message, $code = 0, $data = null)
+    protected function message(string $message, $code = 0, $data = null): ResponseInterface
     {
         return $this->getResponder()->handle([
             'code' => $code ?? 0,
@@ -83,14 +77,14 @@ class Action
     }
 
     /**
-     * 输出成功（非页面输出）
+     * Success with context (differ from a page)
      *
-     * @param  ResponseInterface      $response The most recent Response object
-     * @param  mixed                  $message 输出信息
-     *
+     * @param string $message
+     * @param integer $code
+     * @param mixed $data
      * @return ResponseInterface
      */
-    protected function success(string $message, $code = 0, $data = null)
+    protected function success(string $message, $code = 0, $data = null): ResponseInterface
     {
         if ($code < 0) {
             throw new \RuntimeException(i18n('normal code must be greater than or equal to 0'));
@@ -100,22 +94,22 @@ class Action
     }
 
     /**
-     * success别名
+     * alias
      */
-    protected function succee(string $message, $code = 0, $data = null)
+    protected function succee(string $message, $code = 0, $data = null): ResponseInterface
     {
         return $this->success($message, $code, $data);
     }
 
     /**
-     * 输出失败（非页面输出）
+     * Error with context (differ from a page)
      *
-     * @param  ResponseInterface      $response The most recent Response object
-     * @param  mixed                  $message 输出信息
-     *
+     * @param string $message
+     * @param integer $code
+     * @param mixed $data
      * @return ResponseInterface
      */
-    protected function error(string $message, $code = -1, $data = null)
+    protected function error(string $message, $code = -1, $data = null): ResponseInterface
     {
         if ($code >= 0) {
             throw new \RuntimeException(i18n('error code must be less than 0'));
@@ -125,21 +119,21 @@ class Action
     }
 
     /**
-     * error别名
+     * alias
      */
-    protected function fail(string $message, $code = -1, $data = null)
+    protected function fail(string $message, $code = -1, $data = null): ResponseInterface
     {
         return $this->error($message, $code, $data);
     }
 
     /**
-     * 下载
+     * Download a file.
      *
-     * @param  mixed                  $message 输出内容
-     *
+     * @param string $file
+     * @param callable $fileExists a callback for detecting file existence.
      * @return ResponseInterface
      */
-    protected function download(string $file, callable $fileExists = null)
+    protected function download(string $file, callable $fileExists = null): ResponseInterface
     {
         return $this->getStreamResponder()->handle([
             'file' => $file,
@@ -150,6 +144,8 @@ class Action
     }
 
     /**
+     * Create a text responder.
+     * 
      * @return Http\Responder
      */
     protected function getResponder(): Http\Responder
@@ -158,6 +154,8 @@ class Action
     }
 
     /**
+     * Create a stream responder.
+     * 
      * @return Http\Responder
      */
     protected function getStreamResponder(): Http\Responder

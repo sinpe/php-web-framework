@@ -1,6 +1,6 @@
 <?php
 /*
- * This file is part of the long/framework package.
+ * This file is part of the long/dragon package.
  *
  * (c) Sinpe <support@sinpe.com>
  *
@@ -18,9 +18,6 @@ use Psr\Http\Message\StreamInterface;
  *
  * This class represents a general HTTP message. It provides common properties and methods for
  * the HTTP request and response, as defined in the PSR-7 MessageInterface.
- *
- * @package Sinpe\Framework
- * @since   1.0.0
  * 
  * @link https://github.com/php-fig/http-message/blob/master/src/MessageInterface.php
  * @see Sinpe\Framework\Http\Request
@@ -69,10 +66,6 @@ abstract class Message implements MessageInterface
         // Do nothing
     }
 
-    /*******************************************************************************
-     * Protocol
-     ******************************************************************************/
-
     /**
      * Retrieves the HTTP protocol version as a string.
      *
@@ -112,10 +105,6 @@ abstract class Message implements MessageInterface
 
         return $clone;
     }
-
-    /*******************************************************************************
-     * Headers
-     ******************************************************************************/
 
     /**
      * Retrieves all message header values.
@@ -269,10 +258,6 @@ abstract class Message implements MessageInterface
 
         return $clone;
     }
-
-    /*******************************************************************************
-     * Body
-     ******************************************************************************/
 
     /**
      * Gets the body of the message.

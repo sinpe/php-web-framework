@@ -1,6 +1,6 @@
 <?php
 /*
- * This file is part of the long/framework package.
+ * This file is part of the long/dragon package.
  *
  * (c) Sinpe <support@sinpe.com>
  *
@@ -13,23 +13,20 @@ namespace Sinpe\Framework\Exception;
 use Sinpe\Framework\ArrayObject;
 
 /**
- * Exception handler base class.
- * 
- * @package Sinpe\Framework
- * @since   1.0.0
+ * Responder for this field exception.
  */
 class UnexpectedValueExceptionResponder extends UnexpectedExceptionResponder
 {
     /**
-     * Format the variable will be output.
+     * Format the data for resolver.
      *
-     * @return mixed
+     * @return ArrayObject
      */
     protected function fmtData(): ArrayObject
     {
-        $except = $this->getData('except');
+        $except = $this->getData('thrown');
 
-        $error = [
+        $fmt = [
             'code' => $except->getCode(),
             'message' => $except->getMessage()
         ];
@@ -37,15 +34,15 @@ class UnexpectedValueExceptionResponder extends UnexpectedExceptionResponder
         $field = $except->getField();
 
         if (!empty($field)) {
-            $error['field'] = $field;
+            $fmt['field'] = $field;
         }
 
         $data = $except->getContext();
 
         if (!empty($data)) {
-            $error['data'] = $data;
+            $fmt['data'] = $data;
         }
 
-        return new ArrayObject($error);
+        return new ArrayObject($fmt);
     }
 }

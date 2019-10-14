@@ -1,6 +1,6 @@
 <?php
 /*
- * This file is part of the long/framework package.
+ * This file is part of the long/dragon package.
  *
  * (c) Sinpe <support@sinpe.com>
  *
@@ -12,14 +12,28 @@ namespace Sinpe\Framework;
 
 /**
  * Environment Interface
- *
- * @package Sinpe\Framework
- * @since   1.0.0
  */
 interface EnvironmentInterface
 {
+    /**
+     * Create a mock server environment
+     *
+     * @param  array $settings Array of custom environment keys and values
+     * @return static
+     */
     public static function mock(array $settings = []);
 
-    public function getHost();
-    public function getScheme();
+    /**
+     * Get host
+     *
+     * @return string
+     */
+    public function getHost(): string;
+
+    /**
+     * Get scheme
+     *
+     * @return string
+     */
+    public function getScheme(): string;
 }

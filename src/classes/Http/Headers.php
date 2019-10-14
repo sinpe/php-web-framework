@@ -1,6 +1,6 @@
 <?php
 /*
- * This file is part of the long/framework package.
+ * This file is part of the long/dragon package.
  *
  * (c) Sinpe <support@sinpe.com>
  *
@@ -14,8 +14,6 @@ use Sinpe\Framework\ArrayObject;
 use Sinpe\Framework\EnvironmentInterface;
 
 /**
- * Headers
- *
  * This class represents a collection of HTTP headers
  * that is used in both the HTTP request and response objects.
  * It also enables header name case-insensitivity when
@@ -26,8 +24,6 @@ use Sinpe\Framework\EnvironmentInterface;
  * you request a header value, you receive an array of values
  * for that header.
  * 
- * @package Sinpe\Framework
- * @since   1.0.0
  */
 class Headers extends ArrayObject implements HeadersInterface
 {
@@ -51,12 +47,12 @@ class Headers extends ArrayObject implements HeadersInterface
      *
      * @param EnvironmentInterface $environment The application Environment
      *
-     * @return self
+     * @return static
      */
     public static function createFromEnvironment(EnvironmentInterface $environment)
     {
         $data = [];
-        $environment = self::determineAuthorization($environment);
+        $environment = static::determineAuthorization($environment);
 
         foreach ($environment as $key => $value) {
             $key = strtoupper(str_replace('-', '_', $key));
@@ -181,14 +177,7 @@ class Headers extends ArrayObject implements HeadersInterface
     }
 
     /**
-     * Add HTTP header value
-     *
-     * This method appends a header value. Unlike the set() method,
-     * this method _appends_ this new value to any values
-     * that already exist for this header name.
-     *
-     * @param string       $key   The case-insensitive header name
-     * @param array|string $value The new header value(s)
+     * {@inheritDoc}
      */
     public function add($key, $value)
     {
@@ -220,15 +209,7 @@ class Headers extends ArrayObject implements HeadersInterface
     }
 
     /**
-     * Normalize header name
-     *
-     * This method transforms header names into a
-     * normalized form. This is how we enable case-insensitive
-     * header names in the other methods in this class.
-     *
-     * @param  string $key The case-insensitive header name
-     *
-     * @return string Normalized header name
+     * {@inheritDoc}
      */
     public function normalizeKey($key)
     {

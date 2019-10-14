@@ -1,6 +1,6 @@
 <?php
 /*
- * This file is part of the long/framework package.
+ * This file is part of the long/dragon package.
  *
  * (c) Sinpe <support@sinpe.com>
  *
@@ -14,9 +14,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Sinpe\Framework\Http\Responder;
 
 /**
- * UnexpectedValueException
- * @package Sinpe\Framework
- * @since   1.0.0
+ * Base class for field exception.
  */
 class UnexpectedValueException extends UnexpectedException
 {
@@ -57,6 +55,8 @@ class UnexpectedValueException extends UnexpectedException
     }
 
     /**
+     * Get Responder for this exception.
+     * 
      * @param ServerRequestInterface $request
      * @return Responder
      */

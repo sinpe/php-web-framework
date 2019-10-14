@@ -1,7 +1,7 @@
 {
-    "name": "long/dragon2",
+    "name": "long/dragon",
     "description": "Dragon Framwork",
-    "keywords": ["slim", "framework", "sinpe", "router", "psr", "middleware", "adr", "dragon"],
+    "keywords": ["slim", "framework", "sinpe", "router", "psr", "middleware", "adr", "dragon2"],
     "homepage": "https://github.com/sinpe/php-web-framework",
     "type": "library",
     "license": "MIT",

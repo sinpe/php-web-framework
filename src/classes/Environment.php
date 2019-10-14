@@ -1,6 +1,6 @@
 <?php
 /*
- * This file is part of the long/framework package.
+ * This file is part of the long/dragon package.
  *
  * (c) Sinpe <support@sinpe.com>
  *
@@ -14,17 +14,12 @@ namespace Sinpe\Framework;
  * Environment
  *
  * This class decouples the application from the global PHP environment.
- * This is particularly useful for unit testing, but it also lets us create
- * custom sub-requests.
- * 
- * @package Sinpe\Framework
- * @since   1.0.0
+ * This is particularly useful for unit testing.
  */
 class Environment extends ArrayObject implements EnvironmentInterface
 {
     /**
-     * hosts
-     * You can override by your subclass
+     * Sources for host, You can override by your subclass
      * @var array
      */
     protected $hostLiterals = [
@@ -37,8 +32,7 @@ class Environment extends ArrayObject implements EnvironmentInterface
     ];
 
     /**
-     * scheme
-     * You can override by your subclass
+     * Sources for scheme, You can override by your subclass
      * @var array
      */
     protected $schemeLiterals = [
@@ -48,32 +42,28 @@ class Environment extends ArrayObject implements EnvironmentInterface
     ];
 
     /**
-     * Create mock environment
-     *
-     * @param  array $userData Array of custom environment keys and values
-     *
-     * @return self
+     * {@inheritDoc}
      */
-    public static function mock(array $userData = [])
+    public static function mock(array $mock = [])
     {
         //Validates if default protocol is HTTPS to set default port 443
-        if (isset($userData['REQUEST_SCHEME']) && $userData['REQUEST_SCHEME'] === 'https') {
-            $defscheme = 'https';
-            $defport = 443;
+        if (isset($mock['REQUEST_SCHEME']) && $mock['REQUEST_SCHEME'] === 'https') {
+            $scheme = 'https';
+            $port = 443;
         } else {
-            $defscheme = 'http';
-            $defport = 80;
+            $scheme = 'http';
+            $port = 80;
         }
 
         $data = array_merge([
             'SERVER_PROTOCOL' => 'HTTP/1.1',
             'REQUEST_METHOD' => 'GET',
-            'REQUEST_SCHEME' => $defscheme,
+            'REQUEST_SCHEME' => $scheme,
             'SCRIPT_NAME' => '',
             'REQUEST_URI' => '',
             'QUERY_STRING' => '',
             'SERVER_NAME' => 'localhost',
-            'SERVER_PORT' => $defport,
+            'SERVER_PORT' => $port,
             'HTTP_HOST' => 'localhost',
             'HTTP_ACCEPT' => 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
             'HTTP_ACCEPT_LANGUAGE' => 'en-US,en;q=0.8',
@@ -82,15 +72,13 @@ class Environment extends ArrayObject implements EnvironmentInterface
             'REMOTE_ADDR' => '127.0.0.1',
             'REQUEST_TIME' => time(),
             'REQUEST_TIME_FLOAT' => microtime(true),
-        ], $userData);
+        ], $mock);
 
         return new static($data);
     }
 
     /**
-     * Get host
-     *
-     * @return string
+     * {@inheritDoc}
      */
     public function getHost(): string
     {
@@ -109,9 +97,7 @@ class Environment extends ArrayObject implements EnvironmentInterface
     }
 
     /**
-     * Get scheme
-     *
-     * @return string
+     * {@inheritDoc}
      */
     public function getScheme(): string
     {

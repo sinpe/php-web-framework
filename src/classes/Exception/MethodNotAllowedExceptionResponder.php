@@ -1,6 +1,6 @@
 <?php
 /*
- * This file is part of the long/framework package.
+ * This file is part of the long/dragon package.
  *
  * (c) Sinpe <support@sinpe.com>
  *
@@ -16,9 +16,6 @@ use Sinpe\Framework\ArrayObject;
 
 /**
  * Responder for 405.
- * 
- * @package Sinpe\Framework
- * @since   1.0.0
  */
 class MethodNotAllowedExceptionResponder extends BadRequestExceptionResponder
 {
@@ -34,31 +31,40 @@ class MethodNotAllowedExceptionResponder extends BadRequestExceptionResponder
         $this->registerResolvers([
             'text/html' => MethodNotAllowedExceptionHtmlResolver::class
         ]);
+
+        $this->subscribeResponse(function(ResponseInterface $response){
+            $except = $this->getData('thrown');
+            $response = $response->withStatus(405)
+                ->withHeader('Allow', implode(', ', $except->getAllowedMethods()));
+            return $response;
+        });
     }
 
-    /**
-     * @param ResponseInterface $response
-     * @return ResponseInterface
-     */
-    protected function withResponse(ResponseInterface $response): ResponseInterface
-    {
-        $except = $this->getData('except');
+    // /**
+    //  * Attach "Response" somme attribute and return a "Response" copy.
+    //  * 
+    //  * @param ResponseInterface $response
+    //  * @return ResponseInterface
+    //  */
+    // protected function withResponse(ResponseInterface $response): ResponseInterface
+    // {
+    //     $except = $this->getData('thrown');
 
-        $response = $response->withStatus(405)
-            ->withHeader('Allow', implode(', ', $except->getAllowedMethods()));
-        return $response;
-    }
+    //     $response = $response->withStatus(405)
+    //         ->withHeader('Allow', implode(', ', $except->getAllowedMethods()));
+    //     return $response;
+    // }
 
     /**
-     * Format the variable will be output.
+     * Format the data for resolver.
      *
-     * @return mixed
+     * @return ArrayObject
      */
     protected function fmtData(): ArrayObject
     {
-        $except = $this->getData('except');
+        $except = $this->getData('thrown');
 
-        $error = [
+        $fmt = [
             'code' => $except->getCode(),
             'message' => $except->getMessage(),
             'data' => [
@@ -66,6 +72,6 @@ class MethodNotAllowedExceptionResponder extends BadRequestExceptionResponder
             ]
         ];
 
-        return new ArrayObject($error);
+        return new ArrayObject($fmt);
     }
 }

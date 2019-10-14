@@ -1,6 +1,6 @@
 <?php
 /*
- * This file is part of the long/framework package.
+ * This file is part of the long/dragon package.
  *
  * (c) Sinpe <support@sinpe.com>
  *
@@ -15,14 +15,11 @@ use Sinpe\Framework\ArrayObject;
 
 /**
  * The writer interface.
- * 
- * @package Sinpe\Framework
- * @since   1.0.0
  */
 interface ResponderResolverInterface
 {
     /**
-     * Custom response
+     * Attach "Response" somme attribute and return a "Response" copy.
      * 
      * @param ResponseInterface $response
      * @return ResponseInterface
@@ -30,9 +27,10 @@ interface ResponderResolverInterface
     public function withResponse(ResponseInterface $response): ResponseInterface;
 
     /**
-     * Process a handler context and assign result to "output" property.
+     * Handle the output for the responder.
      *
+     * @param ArrayObject $output
      * @return string
      */
-    public function resolve(ArrayObject $data);
+    public function resolve(ArrayObject $data):string;
 }

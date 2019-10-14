@@ -1,6 +1,6 @@
 <?php
  /*
- * This file is part of the long/framework package.
+ * This file is part of the long/dragon package.
  *
  * (c) Sinpe <support@sinpe.com>
  *
@@ -11,12 +11,12 @@
 namespace Sinpe\Framework\Event;
 
 use Psr\Http\Message\StreamInterface;
+use Sinpe\Event\Event;
 
 /**
- * @package Sinpe\Framework
- * @since   1.0.0
+ * Event of application before flush, needs EventDispatcher supporting.
  */
-class ResponseFlushBefore extends \Sinpe\Event\Event
+class ResponseFlushBefore extends Event
 {
     /**
      * @var StreamInterface
@@ -34,7 +34,7 @@ class ResponseFlushBefore extends \Sinpe\Event\Event
     }
 
     /**
-     * Get
+     * Return "Http Body" to callee by this.
      *
      * @return StreamInterface
      */
@@ -43,13 +43,5 @@ class ResponseFlushBefore extends \Sinpe\Event\Event
         return $this->body;
     }
 
-    /**
-     * Set
-     * 
-     * @return void
-     */
-    public function setBody(StreamInterface $body)
-    {
-        $this->body = $body;
-    }
+
 }

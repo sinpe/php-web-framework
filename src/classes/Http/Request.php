@@ -1,6 +1,6 @@
 <?php
 /*
- * This file is part of the long/framework package.
+ * This file is part of the long/dragon package.
  *
  * (c) Sinpe <support@sinpe.com>
  *
@@ -20,15 +20,10 @@ use Sinpe\Framework\Http\HeadersInterface;
 use Sinpe\Framework\EnvironmentInterface;
 
 /**
- * Request
- *
  * This class represents an HTTP request. It manages
  * the request method, URI, headers, cookies, and body
  * according to the PSR-7 standard.
  *
- * @package Sinpe\Framework
- * @since   1.0.0
- * 
  * @link https://github.com/php-fig/http-message/blob/master/src/MessageInterface.php
  * @link https://github.com/php-fig/http-message/blob/master/src/RequestInterface.php
  * @link https://github.com/php-fig/http-message/blob/master/src/ServerRequestInterface.php
@@ -258,10 +253,6 @@ class Request extends Message implements ServerRequestInterface
         $this->body = clone $this->body;
     }
 
-    /*******************************************************************************
-     * Method
-     ******************************************************************************/
-
     /**
      * Retrieves the HTTP method of the request.
      *
@@ -466,10 +457,6 @@ class Request extends Message implements ServerRequestInterface
     {
         return $this->getHeaderLine('X-Requested-With') === 'XMLHttpRequest';
     }
-
-    /*******************************************************************************
-     * URI
-     ******************************************************************************/
 
     /**
      * Retrieves the message's request target.
@@ -690,10 +677,6 @@ class Request extends Message implements ServerRequestInterface
         return $result ? (int) $result[0] : null;
     }
 
-    /*******************************************************************************
-     * Cookies
-     ******************************************************************************/
-
     /**
      * Retrieve cookies.
      *
@@ -755,10 +738,6 @@ class Request extends Message implements ServerRequestInterface
         return $clone;
     }
 
-    /*******************************************************************************
-     * Query Params
-     ******************************************************************************/
-
     /**
      * Retrieve query string arguments.
      *
@@ -816,10 +795,6 @@ class Request extends Message implements ServerRequestInterface
         return $clone;
     }
 
-    /*******************************************************************************
-     * File Params
-     ******************************************************************************/
-
     /**
      * Retrieve normalized file upload data.
      *
@@ -856,10 +831,6 @@ class Request extends Message implements ServerRequestInterface
         return $clone;
     }
 
-    /*******************************************************************************
-     * Server Params
-     ******************************************************************************/
-
     /**
      * Retrieve server parameters.
      *
@@ -889,10 +860,6 @@ class Request extends Message implements ServerRequestInterface
 
         return isset($serverParams[$key]) ? $serverParams[$key] : $default;
     }
-
-    /*******************************************************************************
-     * Attributes
-     ******************************************************************************/
 
     /**
      * Retrieve attributes derived from the request.
@@ -997,10 +964,6 @@ class Request extends Message implements ServerRequestInterface
 
         return $clone;
     }
-
-    /*******************************************************************************
-     * Body
-     ******************************************************************************/
 
     /**
      * Retrieve any parameters provided in the request body.
@@ -1123,10 +1086,6 @@ class Request extends Message implements ServerRequestInterface
         }
         $this->bodyParsers[(string) $mediaType] = $callable;
     }
-
-    /*******************************************************************************
-     * Parameters (e.g., POST and GET data)
-     ******************************************************************************/
 
     /**
      * Fetch request parameter value from body or query string (in that order).

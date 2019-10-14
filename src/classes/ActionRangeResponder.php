@@ -13,9 +13,9 @@ namespace Sinpe\Framework;
 use Psr\Http\Message\ResponseInterface;
 
 /**
- * The throwable handler base class.
+ * 断点续传
  */
-class ActionStreamResponder extends Http\Responder
+class ActionRangeResponder extends Http\Responder
 {
     /**
      * Create response
@@ -38,12 +38,27 @@ class ActionStreamResponder extends Http\Responder
 
         $response = new Http\Response($this->getRequest());
 
+        $httpRange = $this->getRequest()->getServerParam('HTTP_RANGE');
+
+        if ($httpRange) {
+            $response = $response->withStatus(206);
+            list($name, $range) = explode('=', $httpRange);
+            list($begin, $end) = explode('-', $range);
+            if ($end == 0) {
+                $end = $size - 1;
+            }
+        } else {
+            $begin = 0;
+            $end = $size - 1;
+        }
+
         $contentType = $acceptType ?: 'application/octet-stream';
 
         $response = $response->withHeader('Content-Type', "{$contentType};charset=utf-8")
             ->withHeader('Content-Transfer-Encoding', 'binary')
             ->withHeader('Accept-Ranges', 'bytes')
-            ->withHeader('Content-Length', $size)
+            ->withHeader('Content-Length', ($end - $begin + 1))
+            ->withHeader('Content-Range', "bytes {$begin}-{$end}/{$size}")
             ->withHeader('Content-Disposition', 'attachment; filename=' . $baseName);
 
         return $response->withBody(new Http\Body(fopen($file, 'r+')));

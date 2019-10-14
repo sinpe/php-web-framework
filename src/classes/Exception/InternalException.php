@@ -1,6 +1,6 @@
 <?php
 /*
- * This file is part of the long/framework package.
+ * This file is part of the long/dragon package.
  *
  * (c) Sinpe <support@sinpe.com>
  *
@@ -14,10 +14,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Sinpe\Framework\Http\Responder;
 
 /**
- * Exception with response.
- * 
- * @package Sinpe\Framework
- * @since   1.0.0
+ * Base class for 500 exception.
  */
 class InternalException extends \RuntimeException
 {
@@ -69,16 +66,18 @@ class InternalException extends \RuntimeException
     }
 
     /**
-     * Attached data.
+     * Context traced.
      *
      * @return array
      */
-    public function getContext()
+    public function getContext(): array
     {
-        return $this->context;
+        return $this->context ?? [];
     }
 
     /**
+     * Get Responder for this exception.
+     * 
      * @param ServerRequestInterface $request
      * @return Responder
      */

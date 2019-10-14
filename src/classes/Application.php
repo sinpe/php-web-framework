@@ -1,6 +1,6 @@
 <?php
 /*
- * This file is part of the long/framework package.
+ * This file is part of the long/dragon package.
  *
  * (c) Sinpe <support@sinpe.com>
  *
@@ -14,19 +14,19 @@ use Psr\Container\ContainerInterface;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Http\Message\ResponseInterface;
 
+// functions and consts.
 require_once __DIR__ . '/../defines.php';
 require_once __DIR__ . '/../helpers.php';
 
 /**
  * This is the primary class with which you instantiate,
  * configure, and run a Sinpe Framework application.
- * 
- * @package Sinpe\Framework
- * @since   1.0.0
  */
 class Application
 {
     /**
+     * Application middlewares.
+     * 
      * @var array
      */
     protected $middlewares = [];
@@ -46,7 +46,7 @@ class Application
     final public function __construct(EnvironmentInterface $environment)
     {
         $this->environment = $environment;
-
+        
         set_error_handler(function ($errno, $errstr) {
             throw new \Exception($errstr, $errno);
         }, error_reporting());
@@ -66,10 +66,10 @@ class Application
         }
 
         // config instance
-        $config = $this->configFactory();
+        $config = $this->genConfig();
         if (!$config || !method_exists($config, 'get')) {
             throw new \Exception(i18n(
-                '%s::configFactory return Must has "get" method',
+                '%s::genConfig return Must has "get" method',
                 static::class
             ));
         }
@@ -78,34 +78,32 @@ class Application
 
         $config->load(__DIR__ . '/../runtime.php');
 
-        // 生命周期函数__init
-        $this->__init();
+        // custom init
+        $this->_init();
     }
 
     /**
-     * __init
+     * If you has something to do, override me in your class.
      * 
-     * 需要额外的初始化，覆盖此方法
-     *
      * @return void
      */
-    protected function __init()
-    { }
+    protected function _init()
+    {
+        // NONE
+    }
 
     /**
-     * Config factory
+     * Config factory, You MUST override this method.
      * 
-     * You MUST override this method.
-     *
-     * @return Object
+     * @return object
      */
-    protected function configFactory()
+    protected function genConfig(): object
     {
         throw new \Exception(i18n('%s needs to be overrided', __METHOD__));
     }
 
     /**
-     * Add GET route
+     * Add "GET" route
      *
      * @param  string $pattern  The route URI pattern
      * @param  callable|string  $callable The route callback routine
@@ -116,7 +114,7 @@ class Application
     }
 
     /**
-     * Add POST route
+     * Add "POST" route
      *
      * @param  string $pattern  The route URI pattern
      * @param  callable|string  $callable The route callback routine
@@ -127,7 +125,7 @@ class Application
     }
 
     /**
-     * Add PUT route
+     * Add "PUT" route
      *
      * @param  string $pattern  The route URI pattern
      * @param  callable|string  $callable The route callback routine
@@ -138,7 +136,7 @@ class Application
     }
 
     /**
-     * Add PATCH route
+     * Add "PATCH" route
      *
      * @param  string $pattern  The route URI pattern
      * @param  callable|string  $callable The route callback routine
@@ -149,7 +147,7 @@ class Application
     }
 
     /**
-     * Add DELETE route
+     * Add "DELETE" route
      *
      * @param  string $pattern  The route URI pattern
      * @param  callable|string  $callable The route callback routine
@@ -160,7 +158,7 @@ class Application
     }
 
     /**
-     * Add OPTIONS route
+     * Add "OPTIONS" route
      *
      * @param  string $pattern  The route URI pattern
      * @param  callable|string  $callable The route callback routine
@@ -191,14 +189,11 @@ class Application
     public function map(array $methods, $pattern, $callable)
     {
         if ($callable instanceof \Closure) {
+            // bind container for $this
             $callable = $callable->bindTo(container());
         }
 
         $route = container('router')->map($methods, $pattern, $callable);
-
-        if (is_callable([$route, 'setOutputBuffering'])) {
-            $route->setOutputBuffering(config('runtime.output_buffering'));
-        }
 
         return $route;
     }
@@ -212,11 +207,9 @@ class Application
      */
     public function redirect($from, $to, $status = 302)
     {
-        $handler = function (ResponseInterface $response) use ($to, $status) {
-            return $response->withHeader('Location', (string) $to)->withStatus($status);
-        };
-
-        return $this->get($from, $handler);
+        return $this->get($from, function (Http\Responder $responder) use ($to, $status) {
+            return $responder->handle()->withHeader('Location', (string) $to)->withStatus($status);
+        });
     }
 
     /**
@@ -241,7 +234,7 @@ class Application
     }
 
     /**
-     * 中间件
+     * Add middleware
      */
     public function use($middleware)
     {
@@ -250,19 +243,27 @@ class Application
     }
 
     /**
+     * Add middleware (alias)
+     */
+    public function add($middleware)
+    {
+        return $this->use($middleware);
+    }
+
+    /**
      * Run application
      *
      * This method traverses the application middleware stack and then sends the
      * resultant Response object to the HTTP client.
      *
-     * @param bool|false $silent
+     * @param bool $silent
      * @return ResponseInterface
      *
      * @throws Exception
      * @throws MethodNotAllowedException
      * @throws PageNotFoundException
      */
-    public function run($silent = false)
+    public function run(bool $silent = false): ResponseInterface
     {
         $request = Http\Request::createFromEnvironment($this->environment);
 
@@ -271,6 +272,7 @@ class Application
                 ->dispatch(new Event\AppRunBegin($request))->getRequest();
         }
 
+        // If debug, can echo directly.
         if (APP_DEBUG) {
             ob_start();
         }
@@ -279,7 +281,7 @@ class Application
             $requestHandler = new Http\RequestHandler(container());
             //
             $requestHandler->manyUse(array_reverse($this->middlewares));
-            // if exception thrown, response should be loss.
+            // if exception thrown, request changed should be loss.
             $response = $requestHandler->handle($request);
         } catch (\Exception $except) {
 
@@ -293,9 +295,10 @@ class Application
             }
 
             if (!isset($responder)) {
-                foreach ($exceptions as $targetClass => $handlerClass) {
+                foreach ($exceptions as $targetClass => $responderClass) {
+                    // when has a responder class, do it
                     if ($targetClass == get_class($except) || $except instanceof $targetClass) {
-                        $responder = new $handlerClass($except);
+                        $responder = new $responderClass($except);
                     }
                 }
             }
@@ -311,15 +314,18 @@ class Application
             $response = $responder->handle($except);
         }
 
+        // If debug, can echo directly.
         if (APP_DEBUG) {
             $output = ob_get_clean();
         }
 
+        // Event
         if (container(EventDispatcherInterface::class, true)) {
             $response = container(EventDispatcherInterface::class)
                 ->dispatch(new Event\AppRunEnd($response))->getResponse();
         }
 
+        // If debug, can echo directly.
         if (APP_DEBUG && !empty($output) && $response->getBody()->isWritable()) {
             // 
             $outputBuffering = config('runtime.output_buffering');
@@ -359,6 +365,11 @@ class Application
         // stop PHP sending a Content-Type automatically
         ini_set('default_mimetype', '');
 
+        // clear the body if this is a HEAD request
+        if ($response->getRequest()->isHead()) {
+            return $response->withBody(new Http\Body(fopen('php://temp', 'r+')));
+        }
+
         if ($response->isEmpty() && !$response->getRequest()->isHead()) {
             return $response->withoutHeader('Content-Type')->withoutHeader('Content-Length');
         }
@@ -372,11 +383,6 @@ class Application
 
         if ($size !== null && !$response->hasHeader('Content-Length')) {
             $response = $response->withHeader('Content-Length', (string) $size);
-        }
-
-        // clear the body if this is a HEAD request
-        if ($response->getRequest()->isHead()) {
-            return $response->withBody(new Http\Body(fopen('php://temp', 'r+')));
         }
 
         return $response;

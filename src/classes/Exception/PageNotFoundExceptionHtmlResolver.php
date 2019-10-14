@@ -1,6 +1,6 @@
 <?php
 /*
- * This file is part of the long/framework package.
+ * This file is part of the long/dragon package.
  *
  * (c) Sinpe <support@sinpe.com>
  *
@@ -14,19 +14,17 @@ use Sinpe\Framework\ArrayObject;
 use Sinpe\Framework\Http\ResponderResolver;
 
 /**
- * The HTML writer for route not found exception.
- * 
- * @package Sinpe\Framework
- * @since   1.0.0
+ * The HTML resolver for 404 exception.
  */
 class PageNotFoundExceptionHtmlResolver extends ResponderResolver
 {
     /**
-     * Process a handler output and return the result.
+     * Handle the output for the responder.
      *
+     * @param ArrayObject $output
      * @return string
      */
-    public function resolve(ArrayObject $output)
+    public function resolve(ArrayObject $output): string
     {
         return <<<END
 <html>
@@ -62,5 +60,4 @@ class PageNotFoundExceptionHtmlResolver extends ResponderResolver
 </html>
 END;
     }
-    
 }

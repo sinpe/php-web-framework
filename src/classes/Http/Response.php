@@ -1,6 +1,6 @@
 <?php
 /*
- * This file is part of the long/framework package.
+ * This file is part of the long/dragon package.
  *
  * (c) Sinpe <support@sinpe.com>
  *
@@ -19,15 +19,10 @@ use Sinpe\Framework\Http\HeadersInterface;
 use Sinpe\Framework\Event\ResponseFlushBefore;
 
 /**
- * Response
- *
  * This class represents an HTTP response. It manages
  * the response status, headers, and body
  * according to the PSR-7 standard.
  *
- * @package Sinpe\Framework
- * @since   1.0.0
- * 
  * @link https://github.com/php-fig/http-message/blob/master/src/MessageInterface.php
  * @link https://github.com/php-fig/http-message/blob/master/src/ResponseInterface.php
  */
@@ -481,7 +476,6 @@ class Response extends Message implements ResponseInterface
         }
 
         $output .= Response::EOL;
-        
         $output .= (string) $this->getBody();
 
         return $output;
@@ -510,56 +504,59 @@ class Response extends Message implements ResponseInterface
             ));
         }
 
+        if ($this->isEmpty()) {
+            return;
+        }
+
+        if ($this->request->isHead()) {
+            return;
+        }
+
         // Body
-        if (!$this->isEmpty() && !$this->request->isHead()) {
+        $body = $this->getBody();
 
-            $body = $this->getBody();
+        if ($body->isSeekable()) {
+            $body->rewind();
+        }
 
-            if ($body->isSeekable()) {
-                $body->rewind();
+        $chunkSize = config('runtime.response_chunk_size');
+
+        $contentLength = $this->getHeaderLine('Content-Length');
+
+        if (!$contentLength) {
+            $contentLength = $body->getSize();
+        }
+
+        if (container(EventDispatcherInterface::class, true)) {
+            container(EventDispatcherInterface::class)->dispatch(new ResponseFlushBefore($body));
+        }
+
+        $offset = 0;
+        $contentRange = $this->getHeaderLine('Content-Range');
+        if ($contentRange) {
+            if (preg_match('#(\\d+)-(\\d+)/(\\d+)#', $contentRange, $matches)) {
+                $offset = (int) $matches[1];
             }
+        }
+        $body->seek($offset);
 
-            $chunkSize = config('runtime.response_chunk_size');
-
-            $contentLength = $this->getHeaderLine('Content-Length');
-
-            if (!$contentLength) {
-                $contentLength = $body->getSize();
-            }
-
-            if (container(EventDispatcherInterface::class, true)) {
-                $body = container(EventDispatcherInterface::class)
-                    ->dispatch(new ResponseFlushBefore($body))->getBody();
-            }
-
-            $offset = 0;
-            $contentRange = $this->getHeaderLine('Content-Range');
-            if ($contentRange) {
-                if (preg_match('#(\\d+)-(\\d+)/(\\d+)#', $contentRange, $matches)) {
-                    $offset = (int) $matches[1];
+        if (isset($contentLength)) {
+            $amountToRead = $contentLength;
+            while ($amountToRead > 0 && !$body->eof()) {
+                $data = $body->read(min($chunkSize, $amountToRead));
+                echo $data;
+                $amountToRead -= strlen($data);
+                if (connection_status() != CONNECTION_NORMAL) {
+                    break;
                 }
             }
-            $body->seek($offset);
-
-            if (isset($contentLength)) {
-                $amountToRead = $contentLength;
-                while ($amountToRead > 0 && !$body->eof()) {
-                    $data = $body->read(min($chunkSize, $amountToRead));
-                    echo $data;
-                    $amountToRead -= strlen($data);
-                    if (connection_status() != CONNECTION_NORMAL) {
-                        break;
-                    }
-                }
-            } else {
-                while (!$body->eof()) {
-                    echo $body->read($chunkSize);
-                    if (connection_status() != CONNECTION_NORMAL) {
-                        break;
-                    }
+        } else {
+            while (!$body->eof()) {
+                echo $body->read($chunkSize);
+                if (connection_status() != CONNECTION_NORMAL) {
+                    break;
                 }
             }
         }
     }
-
 }

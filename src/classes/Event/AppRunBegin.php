@@ -1,6 +1,6 @@
 <?php
- /*
- * This file is part of the long/framework package.
+/*
+ * This file is part of the long/dragon package.
  *
  * (c) Sinpe <support@sinpe.com>
  *
@@ -14,8 +14,8 @@ use Psr\Http\Message\ServerRequestInterface;
 use Sinpe\Event\Event;
 
 /**
- * @package Sinpe\Framework
- * @since   1.0.0
+ * Event of application when Run begin, needs EventDispatcher supporting.
+ * You can do something with request, and return a request copy.
  */
 class AppRunBegin extends Event
 {
@@ -35,7 +35,7 @@ class AppRunBegin extends Event
     }
 
     /**
-     * Get
+     * Return "Request" to callee by this.
      *
      * @return ServerRequestInterface
      */
@@ -45,6 +45,8 @@ class AppRunBegin extends Event
     }
 
     /**
+     * When "Request" attachs some attributes, you can reset "Request" for callee by this.
+     * 
      * @return void
      */
     public function setRequest(ServerRequestInterface $request)

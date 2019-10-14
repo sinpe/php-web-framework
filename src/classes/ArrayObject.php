@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of the long/framework package.
+ * This file is part of the long/dragon package.
  *
  * (c) Sinpe <support@sinpe.com>
  *
@@ -13,9 +13,6 @@ namespace Sinpe\Framework;
 
 /**
  * ArrayObject
- *
- * @package Sinpe\Framework
- * @since   1.0.0
  */
 class ArrayObject extends \ArrayObject
 {
@@ -27,7 +24,6 @@ class ArrayObject extends \ArrayObject
     public function __construct ($input = []) 
     {
         parent::__construct($input);
-
         $this->setFlags(\ArrayObject::ARRAY_AS_PROPS);
     }
 
@@ -47,7 +43,6 @@ class ArrayObject extends \ArrayObject
      *
      * @param string $key     The data key
      * @param mixed  $default The default value to return if data key does not exist
-     *
      * @return mixed The key's value, or the default value
      */
     public function get($key, $default = null)
@@ -69,7 +64,6 @@ class ArrayObject extends \ArrayObject
      * Does this object have a given key?
      *
      * @param string $key The data key
-     *
      * @return bool
      */
     public function has($key)

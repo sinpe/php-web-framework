@@ -1,6 +1,6 @@
 <?php
 /*
- * This file is part of the long/framework package.
+ * This file is part of the long/dragon package.
  *
  * (c) Sinpe <support@sinpe.com>
  *
@@ -16,9 +16,6 @@ use Sinpe\Framework\ArrayObject;
 
 /**
  * Responder for 404.
- * 
- * @package Sinpe\Framework
- * @since   1.0.0
  */
 class PageNotFoundExceptionResponder extends BadRequestExceptionResponder
 {
@@ -34,32 +31,38 @@ class PageNotFoundExceptionResponder extends BadRequestExceptionResponder
         $this->registerResolvers([
             'text/html' => PageNotFoundExceptionHtmlResolver::class
         ]);
+
+        $this->subscribeResponse(function(ResponseInterface $response){
+            return $response->withStatus(404);
+        });
     }
 
-    /**
-     * @param ResponseInterface $response
-     * @return ResponseInterface
-     */
-    protected function withResponse(ResponseInterface $response): ResponseInterface
-    {
-        return $response->withStatus(404);
-    }
+    // /**
+    //  * Attach "Response" somme attribute and return a "Response" copy.
+    //  * 
+    //  * @param ResponseInterface $response
+    //  * @return ResponseInterface
+    //  */
+    // protected function withResponse(ResponseInterface $response): ResponseInterface
+    // {
+    //     return $response->withStatus(404);
+    // }
 
     /**
-     * Format the variable will be output.
+     * Format the data for resolver.
      *
-     * @return mixed
+     * @return ArrayObject
      */
     protected function fmtData(): ArrayObject
     {
-        $except = $this->getData('except');
+        $except = $this->getData('thrown');
 
-        $error = [
+        $fmt = [
             'code' => $except->getCode(),
             'message' => $except->getMessage(),
             'data' => $except->getContext()
         ];
 
-        return new ArrayObject($error);
+        return new ArrayObject($fmt);
     }
 }

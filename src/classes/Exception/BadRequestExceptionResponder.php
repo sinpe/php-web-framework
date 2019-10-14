@@ -1,6 +1,6 @@
 <?php
 /*
- * This file is part of the long/framework package.
+ * This file is part of the long/dragon package.
  *
  * (c) Sinpe <support@sinpe.com>
  *
@@ -10,40 +10,54 @@
 
 namespace Sinpe\Framework\Exception;
 
+use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Sinpe\Framework\ArrayObject;
 
 /**
- * Responder for 400.
- * 
- * @package Sinpe\Framework
- * @since   1.0.0
+ * Responder for this 400 exception.
  */
 class BadRequestExceptionResponder extends UnexpectedExceptionResponder
 {
     /**
-     * @param ResponseInterface $response
-     * @return ResponseInterface
+     * __construct
+     * 
+     * @param ServerRequestInterface $request
      */
-    protected function withResponse(ResponseInterface $response): ResponseInterface
+    public function __construct(ServerRequestInterface $request)
     {
-        return $response->withStatus(400);
+        parent::__construct($request);
+
+        $this->subscribeResponse(function(ResponseInterface $response){
+            return $response->withStatus(400);
+        });
     }
 
+    // /**
+    //  * Attach "Response" somme attribute and return a "Response" copy.
+    //  * 
+    //  * @param ResponseInterface $response
+    //  * @return ResponseInterface
+    //  */
+    // protected function withResponse(ResponseInterface $response): ResponseInterface
+    // {
+    //     return $response->withStatus(400);
+    // }
+
     /**
-     * Create the variable will be rendered.
+     * Format the data for resolver.
      *
-     * @return 
+     * @return ArrayObject
      */
     protected function fmtData(): ArrayObject
     {
-        $except = $this->getData('except');
+        $except = $this->getData('thrown');
 
-        $error = [
+        $fmt = [
             'code' => $except->getCode(),
             'message' => $except->getMessage()
         ];
 
-        return new ArrayObject($error);
+        return new ArrayObject($fmt);
     }
 }

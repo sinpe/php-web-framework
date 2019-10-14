@@ -1,6 +1,6 @@
 <?php
 /*
- * This file is part of the long/framework package.
+ * This file is part of the long/dragon package.
  *
  * (c) Sinpe <support@sinpe.com>
  *
@@ -14,21 +14,20 @@ use Psr\Http\Message\ServerRequestInterface;
 use Sinpe\Framework\Http\Responder;
 
 /**
- * 400.
- * 
- * @package Sinpe\Framework
- * @since   1.0.0
+ * Exception for 400.
  */
 class BadRequestException extends UnexpectedException
 {
     /**
-     * Error code
+     * code
      *
      * @var integer
      */
     protected $errorCode = -400;
 
     /**
+     * Get Responder for this exception.
+     * 
      * @param ServerRequestInterface $request
      * @return Responder
      */

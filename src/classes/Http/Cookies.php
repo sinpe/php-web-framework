@@ -1,6 +1,6 @@
 <?php
 /*
- * This file is part of the long/framework package.
+ * This file is part of the long/dragon package.
  *
  * (c) Sinpe <support@sinpe.com>
  *
@@ -12,9 +12,6 @@ namespace Sinpe\Framework\Http;
 
 /**
  * Cookie helper
- * 
- * @package Sinpe\Framework
- * @since   1.0.0
  */
 class Cookies implements CookiesInterface
 {
@@ -69,12 +66,7 @@ class Cookies implements CookiesInterface
     }
 
     /**
-     * Get request cookie
-     *
-     * @param  string $name    Cookie name
-     * @param  mixed  $default Cookie default value
-     *
-     * @return mixed Cookie value if present, else default
+     * {@inheritDoc}
      */
     public function get($name, $default = null)
     {
@@ -82,25 +74,20 @@ class Cookies implements CookiesInterface
     }
 
     /**
-     * Set response cookie
-     *
-     * @param string       $name  Cookie name
-     * @param string|array $value Cookie value, or cookie properties
+     * {@inheritDoc}
      */
     public function set($name, $value)
     {
         if (!is_array($value)) {
-            $value = ['value' => (string)$value];
+            $value = ['value' => (string) $value];
         }
         $this->responseCookies[$name] = array_replace($this->defaults, $value);
     }
 
     /**
-     * Convert to `Set-Cookie` headers
-     *
-     * @return string[]
+     * {@inheritDoc}
      */
-    public function toHeaders()
+    public function toHeaders(): array
     {
         $headers = [];
         foreach ($this->responseCookies as $name => $properties) {
@@ -134,7 +121,7 @@ class Cookies implements CookiesInterface
             if (is_string($properties['expires'])) {
                 $timestamp = strtotime($properties['expires']);
             } else {
-                $timestamp = (int)$properties['expires'];
+                $timestamp = (int) $properties['expires'];
             }
             if ($timestamp !== 0) {
                 $result .= '; expires=' . gmdate('D, d-M-Y H:i:s e', $timestamp);
@@ -162,16 +149,9 @@ class Cookies implements CookiesInterface
     }
 
     /**
-     * Parse HTTP request `Cookie:` header and extract
-     * into a PHP associative array.
-     *
-     * @param  string $header The raw HTTP request `Cookie:` header
-     *
-     * @return array Associative array of cookie names and values
-     *
-     * @throws \InvalidArgumentException if the cookie data cannot be parsed
+     * {@inheritDoc}
      */
-    public static function parseHeader($header)
+    public static function parseHeader($header): array
     {
         if (is_array($header) === true) {
             $header = isset($header[0]) ? $header[0] : '';

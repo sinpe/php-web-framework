@@ -1,6 +1,6 @@
 <?php
 /*
- * This file is part of the long/framework package.
+ * This file is part of the long/dragon package.
  *
  * (c) Sinpe <support@sinpe.com>
  *
@@ -16,9 +16,6 @@ use Sinpe\Route\StrategyAutowiring;
 
 /**
  * Dependency injection container.
- *
- * @package Sinpe\Framework
- * @since   1.0.0
  */
 class Container extends \Sinpe\Container\Container
 {

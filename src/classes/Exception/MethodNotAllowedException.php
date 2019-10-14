@@ -1,6 +1,6 @@
 <?php
 /*
- * This file is part of the long/framework package.
+ * This file is part of the long/dragon package.
  *
  * (c) Sinpe <support@sinpe.com>
  *
@@ -14,44 +14,41 @@ use Psr\Http\Message\ServerRequestInterface;
 use Sinpe\Framework\Http\Responder;
 
 /**
- * 405.
- * 
- * @package Sinpe\Framework
- * @since   1.0.0
+ * Exception for 405.
  */
 class MethodNotAllowedException extends BadRequestException
 {
     /**
      * HTTP methods allowed
      *
-     * @var string[]
+     * @var array
      */
-    protected $allowedMethods;
+    protected $allowedMethods = [];
 
     /**
      * __construct
      *
-     * @param string[] $allowedMethods
-     * @param mixed $previous
+     * @param array $allowedMethods
      */
     public function __construct(array $allowedMethods)
     {
-        $this->allowedMethods = $allowedMethods;
-
+        $this->allowedMethods = $allowedMethods ?? [];
         parent::__construct('Method not allowed', -405);
     }
 
     /**
      * Get allowed methods
      *
-     * @return string[]
+     * @return array
      */
-    public function getAllowedMethods()
+    public function getAllowedMethods(): array
     {
-        return $this->allowedMethods;
+        return $this->allowedMethods ?? [];
     }
 
     /**
+     * Get Responder for this exception.
+     * 
      * @param ServerRequestInterface $request
      * @return Responder
      */
